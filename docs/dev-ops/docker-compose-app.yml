@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  nginx:
+    image: nginx:1.25.1
+    container_name: nginx
+    restart: always
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+    privileged: true
+  group-buy-market-pumluda:
+    image: docker.io/system/group-buy-market-pumluda-app:1.0-SNAPSHOT
+    container_name: group-buy-market-pumluda
+    restart: on-failure
+    ports:
+      - "8091:8091"
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8091
+    volumes:
+      - ./log:/data/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
