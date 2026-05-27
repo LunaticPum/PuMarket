@@ -26,6 +26,8 @@ CREATE TABLE `trade_order`
     `pay_amount`        DECIMAL(10, 2)  NOT NULL COMMENT '实际支付金额',
     `discount_amount`   DECIMAL(10, 2)  NOT NULL COMMENT '优惠金额',
     `biz_id`            VARCHAR(64)     NOT NULL COMMENT '业务幂等号',
+    `entry_source`      TINYINT         NOT NULL COMMENT '流量入口（枚举类型）',
+    `pay_channel`       VARCHAR(32)     NOT NULL COMMENT '支付渠道',
     `order_create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `order_expire_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '有效截止时间',
     `pay_time`          DATETIME                 DEFAULT NULL COMMENT '订单支付时间',
@@ -35,8 +37,9 @@ CREATE TABLE `trade_order`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_order_no` (`order_no`),
     UNIQUE KEY `uq_biz_id` (`biz_id`),
-    KEY `idx_user_id` (`user_id`),                                      # 按用户 ID 查询订单
-    KEY `idx_order_status_expire` (`order_status`, `order_expire_time`) # 超时关掉
+    KEY `idx_user_id` (`user_id`),                                       # 按用户 ID 查询订单
+    KEY `idx_order_status_expire` (`order_status`, `order_expire_time`), # 超时关单
+    KEY `idx_trade_sc` (`entry_source`, `pay_channel`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -51,16 +54,13 @@ CREATE TABLE `trade_order_item`
     `order_no`      VARCHAR(64)     NOT NULL COMMENT '订单号',
     `sku_id`        BIGINT          NOT NULL COMMENT '商品 ID',
     `product_name`  VARCHAR(128) DEFAULT NULL COMMENT '商品名称',
-    `quantity`      INT UNSIGNED    NOT NULL COMMENT '购买数量',
     `origin_price`  DECIMAL(10, 2)  NOT NULL COMMENT '商品原单价',
+    `quantity`      INT UNSIGNED    NOT NULL COMMENT '购买数量',
     `actual_price`  DECIMAL(10, 2)  NOT NULL COMMENT '实际成交价',
     `activity_id`   BIGINT          NOT NULL COMMENT '活动 ID',
     `group_team_id` BIGINT          NOT NULL COMMENT '拼团队伍 ID',
-    `entry_source`  TINYINT         NOT NULL COMMENT '流量入口（枚举类型）',
-    `pay_channel`   VARCHAR(32)     NOT NULL COMMENT '支付渠道',
     PRIMARY KEY (`id`),
-    UNIQUE KEY (`sku_id`),
-    KEY `idx_activity_id` (`activity_id`),
+    KEY `idx_order_no` (`order_no`),
     KEY `idx_group_team_id` (`group_team_id`),
     KEY `idx_order_no_sku_id` (`order_no`, `sku_id`)
 ) ENGINE = InnoDB
@@ -129,7 +129,6 @@ CREATE TABLE `activity_config`
     `activity_id`         BIGINT          NOT NULL COMMENT '活动 ID',
     `activity_name`       VARCHAR(128)    NOT NULL COMMENT '活动名称',
     `activity_type`       TINYINT         NOT NULL COMMENT '活动类型：1-拼团，2-凑单，...',
-    `required_member_num` INT             NOT NULL COMMENT '成团所需人数',
     `discount_expr`       VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
     `quota_total`         INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
     `quota_used`          INT                      DEFAULT 0 COMMENT '占用名额总数（如果是拼团活动则该值等于参团人数）',
@@ -149,13 +148,12 @@ LOCK TABLES `activity_config` WRITE;
 /*!40000 ALTER TABLE `activity_config`
     DISABLE KEYS */;
 
-INSERT INTO `activity_config` (activity_id, activity_name, activity_type, required_member_num, discount_expr,
+INSERT INTO `activity_config` (activity_id, activity_name, activity_type, discount_expr,
                                quota_total, quota_used, limit_tags, status, start_time, end_time, create_time,
                                update_time)
 VALUES (100001,
         '新人三人拼团活动',
         1,
-        3,
         '80_PERCENT',
         3,
         0,
@@ -170,7 +168,6 @@ VALUES (100001,
        (100002,
         '五人团立减30活动',
         1,
-        5,
         'DIRECT_MINUS_30',
         5,
         0,

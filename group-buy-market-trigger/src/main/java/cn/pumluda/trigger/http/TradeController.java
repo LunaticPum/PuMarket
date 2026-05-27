@@ -4,6 +4,7 @@ import cn.pumluda.api.ITradeController;
 import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
+import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,18 @@ public class TradeController implements ITradeController {
     @PostMapping("create_order")
     @Override
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
+
         return null;
+    }
+
+    @AccessRateLimit(limitKey = "userId", qps = 1, fallback = "testFallback", blockThreshold = 1)
+    @GetMapping("test")
+    public String testLimit(@RequestParam(name = "userId") String userId) {
+        return "test";
+    }
+
+
+    public String testFallback(String info) {
+        return "limit";
     }
 }
