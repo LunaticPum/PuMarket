@@ -1,4 +1,4 @@
-package cn.pumluda.infrastructure.dcc;
+package cn.pumluda.infrastructure.utils.dcc;
 
 import cn.pumluda.types.annotations.DCCValue;
 import cn.pumluda.types.common.SplitConstants;

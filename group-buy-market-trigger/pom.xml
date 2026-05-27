@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>cn.pumluda</groupId>
+            <artifactId>group-buy-market-infrastructure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.pumluda</groupId>
             <artifactId>rate-limiter</artifactId>
         </dependency>
     </dependencies>
