@@ -1,4 +1,4 @@
-package cn.pumluda.infrastructure.utils.juc;
+package cn.pumluda.types.utils.juc;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

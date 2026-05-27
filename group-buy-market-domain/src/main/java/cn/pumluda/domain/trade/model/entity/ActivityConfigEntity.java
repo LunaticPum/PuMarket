@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Project: group-buy-market-better <p>
@@ -39,4 +40,9 @@ public class ActivityConfigEntity {
     private Integer userTags;
     /* 活动状态：0-禁用，1-启用 */
     private Integer status;
+
+    /* 活动开始时间 */
+    private Date startTime;
+    /* 活动截止时间 */
+    private Date endTime;
 }

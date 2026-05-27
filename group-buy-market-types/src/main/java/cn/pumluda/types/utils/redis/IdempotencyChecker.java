@@ -1,4 +1,4 @@
-package cn.pumluda.infrastructure.redis;
+package cn.pumluda.types.utils.redis;
 
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;

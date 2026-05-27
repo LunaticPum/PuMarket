@@ -1,4 +1,4 @@
-package cn.pumluda.infrastructure.utils.juc;
+package cn.pumluda.types.utils.juc;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,8 +68,7 @@ public class CompletableFutureUtils {
      * @return 异步执行结果列表
      * @throws TimeoutException 超时异常
      */
-    public <T> List<T> supplyParallelWithTimeout(long timeout, TimeUnit unit, Supplier<T>... suppliers)
-            throws TimeoutException {
+    public <T> List<T> supplyParallelWithTimeout(long timeout, TimeUnit unit, Supplier<T>... suppliers) throws TimeoutException {
         if (suppliers == null || suppliers.length == 0) return List.of();
 
         CompletableFuture<T>[] futures = new CompletableFuture[suppliers.length];

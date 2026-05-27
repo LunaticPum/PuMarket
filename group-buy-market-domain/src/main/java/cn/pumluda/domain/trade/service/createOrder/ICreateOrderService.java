@@ -3,6 +3,8 @@ package cn.pumluda.domain.trade.service.createOrder;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.service.createOrder.dto.CreateOrderPreCheckResult;
+import cn.pumluda.types.enums.ResponseEnum;
 
 import java.math.BigInteger;
 
@@ -15,6 +17,8 @@ import java.math.BigInteger;
  * Description: 创建订单服务
  */
 public interface ICreateOrderService {
+
+    ResponseEnum preCheck(String userId, BigInteger activityId, BigInteger skuId);
 
     /**
      * 查询商品数据
