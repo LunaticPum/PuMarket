@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
-
 /**
  * Project: group-buy-market-better <p>
  * File: UserVo <p>
@@ -20,6 +18,6 @@ import java.math.BigInteger;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserVo {
-    private BigInteger userId;
+    private Long userId;
     private int userTag;
 }

@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.service.createOrder;
 
+import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
 import cn.pumluda.domain.trade.service.createOrder.dto.CreateOrderPreCheckResult;
@@ -7,11 +8,12 @@ import cn.pumluda.types.common.RedisKeyConstants;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
 import cn.pumluda.types.utils.redis.IdempotencyChecker;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,9 +35,11 @@ public class CreateOrderService implements ICreateOrderService {
     private CompletableFutureUtils asyncUtil;
     @Resource
     private IdempotencyChecker idempotencyChecker;
+    @Resource
+    private ITradeRepository repository;
 
     @Override
-    public ResponseEnum preCheck(String userId, BigInteger activityId, BigInteger skuId) {
+    public ResponseEnum preCheck(String userId, Long activityId, Long skuId) {
         /* 1. 前置基础校验：可并行执行 */
         CreateOrderPreCheckResult validateResult;
         try {
@@ -44,9 +48,9 @@ public class CreateOrderService implements ICreateOrderService {
                     /* 幂等性校验：每个用户在每 5 秒内只能发起一次创建订单请求 */
                     () -> idempotencyChecker.tryAcquire(RedisKeyConstants.CREATE_ORDER, userId, 5),
                     /* 商品库存校验 */
-                    () -> queryProductBySkuId(skuId),
+                    () -> findValidSkuBySkuId(skuId),
                     /* 活动有效性校验 */
-                    () -> queryValidActivity(activityId)
+                    () -> findValidActivityByActivityId(activityId)
             );
 
             validateResult = new CreateOrderPreCheckResult(
@@ -94,16 +98,23 @@ public class CreateOrderService implements ICreateOrderService {
 
         if (activityConfig.getEndTime().before(curTime)) return ResponseEnum.ACTIVITY_EXPIRED;
 
+        log.info(
+                "[创建订单] 前置校验通过，活动：{} 商品：{}",
+                JSON.toJSONString(activityConfig),
+                JSON.toJSONString(sku)
+        );
+
+        // 前置校验通过则返回 null
         return null;
     }
 
     @Override
-    public SkuEntity queryProductBySkuId(BigInteger skuId) {
-        return null;
+    public SkuEntity findValidSkuBySkuId(Long skuId) {
+        return repository.getSkuById(skuId);
     }
 
     @Override
-    public ActivityConfigEntity queryValidActivity(BigInteger ActivityId) {
-        return null;
+    public ActivityConfigEntity findValidActivityByActivityId(Long activityId) {
+        return repository.getActivityByActivityId(activityId);
     }
 }

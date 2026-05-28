@@ -1,4 +1,4 @@
-package cn.pumluda.domain.trade.model.entity;
+package cn.pumluda.infrastructure.dao.po;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,20 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Project: group-buy-market-better <p>
- * File: SkuEntity <p>
+ * File: SkuPo <p>
  * Created by: 16374 <p>
- * Date: 2026/5/27 <p>
- * Time: 10:18 <p>
- * Description: 商品 Sku 实体（RPC获取）
+ * Date: 2026/5/28 <p>
+ * Time: 09:03 <p>
+ * Description: 商品 SKU PO
  */
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SkuEntity {
+public class SkuPo {
 
     /* sku ID */
     private Long skuId;
@@ -29,7 +31,14 @@ public class SkuEntity {
     private BigDecimal price;
     /* 商品库存 */
     private int stock;
+    /* 预扣减库存：为已创建但未结算的订单留有的商品库存 */
+    private int lockedStock;
     /* 商品状态：0-下架，1-上架 */
     private Integer status;
+
+    /* 记录创建时间 */
+    private Date createTime;
+    /* 记录更新时间 */
+    private Date updateTime;
 
 }

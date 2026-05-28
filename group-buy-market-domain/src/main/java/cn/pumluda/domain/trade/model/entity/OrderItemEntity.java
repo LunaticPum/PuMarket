@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Project: group-buy-market-better <p>
@@ -26,7 +25,7 @@ public class OrderItemEntity {
     private String orderNo;
 
     /* 商品 SKU id */
-    private BigInteger skuId;
+    private Long skuId;
     /* 商品名称 */
     private String productName;
     /* 商品原始单价 */
@@ -37,8 +36,8 @@ public class OrderItemEntity {
     private BigDecimal actualPrice;
 
     /* 活动 ID */
-    private BigInteger activityId;
+    private Long activityId;
     /* 拼团队伍 ID */
-    private BigInteger groupTeamId;
+    private Long groupTeamId;
 
 }

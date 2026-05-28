@@ -2,7 +2,6 @@ package cn.pumluda.api.dto;
 
 import lombok.Data;
 
-import java.math.BigInteger;
 
 /**
  * Project: group-buy-market-better <p>
@@ -19,13 +18,13 @@ public class CreateOrderReqDTO {
     private String userId;
 
     /* 商品 ID */
-    private BigInteger skuId;
+    private Long skuId;
 
     /* 活动 ID */
-    private BigInteger activityId;
+    private Long activityId;
 
     /* 拼团队伍 ID */
-    private BigInteger groupTeamId;
+    private Long groupTeamId;
 
     /* 流量来源 */
     private int entrySource;

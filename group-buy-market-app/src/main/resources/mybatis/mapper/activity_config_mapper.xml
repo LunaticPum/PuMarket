@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.IActivityConfigDao">
+
+    <resultMap id="dataMap" type="ActivityConfigPo">
+        <id column="id" property="id"/>
+        <result column="activity_id" property="activityId"/>
+        <result column="activity_name" property="activityName"/>
+        <result column="activity_type" property="activityType"/>
+        <result column="discount_expr" property="discountExpr"/>
+        <result column="total_discount_quota" property="totalDiscountQuota"/>
+        <result column="used_discount_quota" property="usedDiscountQuota"/>
+        <result column="limit_tags" property="limitTags"/>
+        <result column="status" property="status"/>
+        <result column="start_Time" property="startTime"/>
+        <result column="end_Time" property="endTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="getActivityByActivityId" parameterType="java.lang.Long" resultMap="dataMap">
+        SELECT activity_id,
+               activity_name,
+               activity_type,
+               discount_expr,
+               total_discount_quota,
+               used_discount_quota,
+               limit_tags,
+               status,
+               start_time,
+               end_time
+        FROM group_buy_market_better.activity_config
+        WHERE activity_id = #{activityId}
+    </select>
+
+</mapper>

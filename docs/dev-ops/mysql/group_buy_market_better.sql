@@ -125,19 +125,19 @@ DROP TABLE IF EXISTS `activity_config`;
 
 CREATE TABLE `activity_config`
 (
-    `id`                  BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `activity_id`         BIGINT          NOT NULL COMMENT '活动 ID',
-    `activity_name`       VARCHAR(128)    NOT NULL COMMENT '活动名称',
-    `activity_type`       TINYINT         NOT NULL COMMENT '活动类型：1-拼团，2-凑单，...',
-    `discount_expr`       VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
-    `quota_total`         INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
-    `quota_used`          INT                      DEFAULT 0 COMMENT '占用名额总数（如果是拼团活动则该值等于参团人数）',
-    `limit_tags`          BIGINT          NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
-    `status`              TINYINT         NOT NULL COMMENT '活动状态：0-禁用，1-启用',
-    `start_time`          DATETIME        NOT NULL COMMENT '活动开始时间',
-    `end_time`            DATETIME        NOT NULL COMMENT '活动结束时间',
-    `create_time`         DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`         DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id`                   BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `activity_id`          BIGINT          NOT NULL COMMENT '活动 ID',
+    `activity_name`        VARCHAR(128)    NOT NULL COMMENT '活动名称',
+    `activity_type`        TINYINT         NOT NULL COMMENT '活动类型：1-拼团，2-凑单，...',
+    `discount_expr`        VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
+    `total_discount_quota` INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
+    `used_discount_quota`  INT                      DEFAULT 0 COMMENT '占用名额总数（如果是拼团活动则该值等于参团人数）',
+    `limit_tags`           BIGINT          NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
+    `status`               TINYINT         NOT NULL COMMENT '活动状态：0-禁用，1-启用',
+    `start_time`           DATETIME        NOT NULL COMMENT '活动开始时间',
+    `end_time`             DATETIME        NOT NULL COMMENT '活动结束时间',
+    `create_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_activity_id` (`activity_id`),
     KEY `idx_time_range` (`status`, `start_time`, `end_time`) # 查询活动有效时间
@@ -149,7 +149,8 @@ LOCK TABLES `activity_config` WRITE;
     DISABLE KEYS */;
 
 INSERT INTO `activity_config` (activity_id, activity_name, activity_type, discount_expr,
-                               quota_total, quota_used, limit_tags, status, start_time, end_time, create_time,
+                               total_discount_quota, used_discount_quota, limit_tags, status, start_time, end_time,
+                               create_time,
                                update_time)
 VALUES (100001,
         '新人三人拼团活动',
@@ -207,7 +208,7 @@ CREATE TABLE `product_sku`
     `sku_id`       BIGINT UNSIGNED NOT NULL COMMENT '商品 SKU ID',
     `product_name` VARCHAR(128)    NOT NULL COMMENT '商品名称',
     `price`        DECIMAL(10, 2)  NOT NULL COMMENT '商品销售价格',
-    `total_stock`  INT             NOT NULL COMMENT '总库存数量',
+    `stock`        INT             NOT NULL COMMENT '总库存数量',
     `locked_stock` INT             NOT NULL COMMENT '锁定库存数量', # 库存预扣减
     `status`       TINYINT         NOT NULL DEFAULT 1 COMMENT '商品状态：0-下架，1-上架',
     `create_time`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -224,7 +225,7 @@ INSERT INTO `product_sku`
 (sku_id,
  product_name,
  price,
- total_stock,
+ stock,
  locked_stock,
  status,
  create_time,

@@ -6,13 +6,11 @@ import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.service.createOrder.ICreateOrderService;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
-import cn.pumluda.types.common.RedisKeyConstants;
 import cn.pumluda.types.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.math.BigInteger;
 
 /**
  * Project: group-buy-market-better <p>
@@ -36,19 +34,19 @@ public class TradeController implements ITradeController {
     @Override
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
         String userId = requestDTO.getUserId();
-        BigInteger activityId = requestDTO.getActivityId();
-        BigInteger skuId = requestDTO.getSkuId();
+        Long activityId = requestDTO.getActivityId();
+        Long skuId = requestDTO.getSkuId();
 
         ResponseEnum failedCheckResponse = createOrderService.preCheck(userId, activityId, skuId);
 
         if (failedCheckResponse != null) {
-            return Response.<CreateOrderResDTO>builder()
-                           .code(failedCheckResponse.getCode()).info(failedCheckResponse.getInfo()).build();
+            return Response.<CreateOrderResDTO>builder().code(failedCheckResponse.getCode()).info(
+                    failedCheckResponse.getInfo()).build();
         }
 
         // todo 后续下单逻辑。。。
 
-        BigInteger groupTeamId = requestDTO.getGroupTeamId();
+        Long groupTeamId = requestDTO.getGroupTeamId();
         int entrySource = requestDTO.getEntrySource();
         String payChannel = requestDTO.getChannel();
 
