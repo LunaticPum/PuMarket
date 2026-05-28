@@ -2,8 +2,13 @@ package cn.pumluda.domain.trade.service.creatOrder;
 
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
 import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.RuleTreeFactory;
+import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
+import cn.pumluda.types.designs.ruleTree.StrategyHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * Project: group-buy-market-better <p>
@@ -16,12 +21,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CreateOrderService implements ICreateOrderService {
+
+    @Resource
+    private RuleTreeFactory factory;
+
     @Override
-    public OrderAggregate createOrder(BusinessAggregate businessAggregate) {
+    public OrderAggregate createOrder(BusinessAggregate businessAggregate) throws Exception {
+        StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> root = factory.getTreeRoot();
 
         // todo 规则树编排实现
-
-
-        return null;
+        return root.apply(businessAggregate, new DynamicContext());
     }
 }

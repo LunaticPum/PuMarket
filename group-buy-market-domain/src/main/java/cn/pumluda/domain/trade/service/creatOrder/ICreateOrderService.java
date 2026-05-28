@@ -22,6 +22,6 @@ public interface ICreateOrderService {
      * @param businessAggregate 执行链路所需的基本信息
      * @return 要新增的订单主表记录（包括订单明细表记录）
      */
-    OrderAggregate createOrder(BusinessAggregate businessAggregate);
+    OrderAggregate createOrder(BusinessAggregate businessAggregate) throws Exception;
 
 }

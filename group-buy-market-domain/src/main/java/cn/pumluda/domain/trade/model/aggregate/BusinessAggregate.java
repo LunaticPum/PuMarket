@@ -24,17 +24,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BusinessAggregate {
 
-    /* 用户 ID + 用户标签 */
-    private UserEntity user;
+    /* 用户 ID */
+    private Long userId;
 
     /* 商品 SKU */
     private SkuEntity sku;
 
     /* 活动配置 */
     private ActivityConfigEntity activityConfig;
-
-    /* 拼团队伍 */
-    private GroupTeamEntity groupTeam;
 
     /* 流量来源和支付渠道 */
     private TradeSCVo tradeSC;
