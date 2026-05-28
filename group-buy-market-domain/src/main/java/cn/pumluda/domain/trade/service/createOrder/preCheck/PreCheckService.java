@@ -1,19 +1,20 @@
-package cn.pumluda.domain.trade.service.createOrder;
+package cn.pumluda.domain.trade.service.createOrder.preCheck;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.service.createOrder.ICreateOrderService;
+import cn.pumluda.domain.trade.service.createOrder.IPreCheckService;
 import cn.pumluda.domain.trade.service.createOrder.dto.CreateOrderPreCheckResult;
-import cn.pumluda.types.common.RedisKeyConstants;
+import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
-import cn.pumluda.types.utils.redis.IdempotencyChecker;
+import cn.pumluda.types.utils.RedisIdempotencyChecker;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,12 +30,12 @@ import java.util.concurrent.TimeoutException;
  */
 @Service
 @Slf4j
-public class CreateOrderService implements ICreateOrderService {
+public class PreCheckService implements IPreCheckService {
 
     @Resource
     private CompletableFutureUtils asyncUtil;
     @Resource
-    private IdempotencyChecker idempotencyChecker;
+    private RedisIdempotencyChecker idempotencyChecker;
     @Resource
     private ITradeRepository repository;
 
@@ -46,7 +47,7 @@ public class CreateOrderService implements ICreateOrderService {
             List<Object> resultList = asyncUtil.supplyParallelWithTimeout(
                     2, TimeUnit.SECONDS,
                     /* 幂等性校验：每个用户在每 5 秒内只能发起一次创建订单请求 */
-                    () -> idempotencyChecker.tryAcquire(RedisKeyConstants.CREATE_ORDER, userId, 5),
+                    () -> idempotencyChecker.tryAcquire(RedisConstants.CREATE_ORDER, userId, 5),
                     /* 商品库存校验 */
                     () -> findValidSkuBySkuId(skuId),
                     /* 活动有效性校验 */

@@ -33,4 +33,18 @@
         WHERE activity_id = #{activityId}
     </select>
 
+    <select id="getAllActivity" resultMap="dataMap">
+        SELECT activity_id,
+               activity_name,
+               activity_type,
+               discount_expr,
+               total_discount_quota,
+               used_discount_quota,
+               limit_tags,
+               status,
+               start_time,
+               end_time
+        FROM group_buy_market_better.activity_config
+    </select>
+
 </mapper>

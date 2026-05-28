@@ -24,4 +24,14 @@
         WHERE sku_id = #{skuId}
     </select>
 
+    <select id="getAllSku" resultMap="dataMap">
+        SELECT sku_id,
+               product_name,
+               price,
+               stock,
+               locked_stock,
+               status
+        FROM group_buy_market_better.product_sku
+    </select>
+
 </mapper>

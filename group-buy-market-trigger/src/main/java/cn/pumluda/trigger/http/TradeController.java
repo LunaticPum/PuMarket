@@ -5,6 +5,7 @@ import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.service.createOrder.ICreateOrderService;
+import cn.pumluda.domain.trade.service.createOrder.IPreCheckService;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import javax.annotation.Resource;
 public class TradeController implements ITradeController {
 
     @Resource
-    private ICreateOrderService createOrderService;
+    private IPreCheckService preCheckService;
 
 
     @PostMapping("create_order")
@@ -37,7 +38,7 @@ public class TradeController implements ITradeController {
         Long activityId = requestDTO.getActivityId();
         Long skuId = requestDTO.getSkuId();
 
-        ResponseEnum failedCheckResponse = createOrderService.preCheck(userId, activityId, skuId);
+        ResponseEnum failedCheckResponse = preCheckService.preCheck(userId, activityId, skuId);
 
         if (failedCheckResponse != null) {
             return Response.<CreateOrderResDTO>builder().code(failedCheckResponse.getCode()).info(

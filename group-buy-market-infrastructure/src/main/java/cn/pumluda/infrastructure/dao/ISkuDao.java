@@ -3,6 +3,8 @@ package cn.pumluda.infrastructure.dao;
 import cn.pumluda.infrastructure.dao.po.SkuPo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * Project: group-buy-market-better <p>
  * File: ISkuDao <p>
@@ -15,5 +17,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ISkuDao {
 
     SkuPo getSkuById(Long SkuId);
+
+    List<SkuPo> getAllSku();
 
 }
