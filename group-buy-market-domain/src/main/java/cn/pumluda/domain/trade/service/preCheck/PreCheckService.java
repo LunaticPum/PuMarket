@@ -1,11 +1,9 @@
-package cn.pumluda.domain.trade.service.createOrder.preCheck;
+package cn.pumluda.domain.trade.service.preCheck;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
-import cn.pumluda.domain.trade.service.createOrder.ICreateOrderService;
-import cn.pumluda.domain.trade.service.createOrder.IPreCheckService;
-import cn.pumluda.domain.trade.service.createOrder.dto.CreateOrderPreCheckResult;
+import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
@@ -40,9 +38,9 @@ public class PreCheckService implements IPreCheckService {
     private ITradeRepository repository;
 
     @Override
-    public ResponseEnum preCheck(String userId, Long activityId, Long skuId) {
+    public Object preCheck(Long userId, Long activityId, Long skuId) {
         /* 1. 前置基础校验：可并行执行 */
-        CreateOrderPreCheckResult validateResult;
+        PreCheckResult validatedResult;
         try {
             List<Object> resultList = asyncUtil.supplyParallelWithTimeout(
                     2, TimeUnit.SECONDS,
@@ -54,12 +52,13 @@ public class PreCheckService implements IPreCheckService {
                     () -> findValidActivityByActivityId(activityId)
             );
 
-            validateResult = new CreateOrderPreCheckResult(
+            validatedResult = new PreCheckResult(
                     Boolean.TRUE.equals(resultList.get(0)),
                     (SkuEntity) resultList.get(1),
                     (ActivityConfigEntity) resultList.get(2)
             );
         } catch (TimeoutException e) {
+            /* 响应异常：前置校验处理超时 */
             log.error(
                     "[创建订单] 前置校验超时 userId={}, skuId={}, activityId={}",
                     userId,
@@ -69,6 +68,7 @@ public class PreCheckService implements IPreCheckService {
             );
             return ResponseEnum.TIME_OUT;
         } catch (Exception e) {
+            /* 响应异常：前置校验处理出现未知错误 */
             log.error(
                     "[创建订单] 前置校验异常 userId={}, skuId={}, activityId={}",
                     userId,
@@ -80,33 +80,33 @@ public class PreCheckService implements IPreCheckService {
         }
 
         Date curTime = new Date();
-        final boolean firstCreate = validateResult.isFirstCreate();
-        final SkuEntity sku = validateResult.getSku();
-        final ActivityConfigEntity activityConfig = validateResult.getActivityConfig();
+        final boolean firstCreate = validatedResult.isFirstCreate();
+        final SkuEntity sku = validatedResult.getSku();
+        final ActivityConfigEntity activityConfig = validatedResult.getActivityConfig();
 
+        /* 响应异常：1. 重复提交创建订单请求 */
         if (!firstCreate) return ResponseEnum.DUPLICATE_ORDER_REQUEST;
-
+        /* 响应异常：2. 没找到对应商品 */
         if (sku == null) return ResponseEnum.SKU_NULL;
-
+        /* 响应异常：3. 没找到对应活动 */
         if (activityConfig == null) return ResponseEnum.ACTIVITY_NULL;
-
+        /* 响应异常：4. 商品库存不足 */
         if (sku.getStock() <= 0) return ResponseEnum.SKU_OUT_OF_STOCK;
-
+        /* 响应异常：5. 商品已下架 */
         if (sku.getStatus() == 0) return ResponseEnum.SKU_OFFLINE;
-
+        /* 响应异常：6. 活动未开启 */
         if (activityConfig.getStatus() == 0 || activityConfig.getStartTime().after(curTime))
             return ResponseEnum.ACTIVITY_NOT_STARTED;
-
+        /* 响应异常：7. 活动已过期 */
         if (activityConfig.getEndTime().before(curTime)) return ResponseEnum.ACTIVITY_EXPIRED;
 
+        /* 前置校验通过则返回查询结果，以供后续链路使用 */
         log.info(
                 "[创建订单] 前置校验通过，活动：{} 商品：{}",
                 JSON.toJSONString(activityConfig),
                 JSON.toJSONString(sku)
         );
-
-        // 前置校验通过则返回 null
-        return null;
+        return validatedResult;
     }
 
     @Override

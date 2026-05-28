@@ -99,8 +99,8 @@ DROP TABLE IF EXISTS `group_team`;
 CREATE TABLE `group_team`
 (
     `id`                BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `group_team_id`     BIGINT          NOT NULL COMMENT '拼团队伍 ID',
     `activity_id`       BIGINT          NOT NULL COMMENT '活动 ID',
+    `group_team_id`     BIGINT          NOT NULL COMMENT '拼团队伍 ID',
     `leader_user_id`    BIGINT          NOT NULL COMMENT '团长用户 ID',
     `required_num`      INT             NOT NULL COMMENT '成团所需人数',
     `current_num`       INT                      DEFAULT 0 COMMENT '当前参团人数',

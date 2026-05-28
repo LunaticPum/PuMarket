@@ -1,7 +1,8 @@
-package cn.pumluda.domain.trade.service.createOrder;
+package cn.pumluda.domain.trade.service.preCheck;
 
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.model.entity.UserEntity;
 import cn.pumluda.types.enums.ResponseEnum;
 
 /**
@@ -14,7 +15,7 @@ import cn.pumluda.types.enums.ResponseEnum;
  */
 public interface IPreCheckService {
 
-    ResponseEnum preCheck(String userId, Long activityId, Long skuId);
+    Object preCheck(Long userId, Long activityId, Long skuId);
 
     /**
      * 查询商品数据

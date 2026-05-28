@@ -34,7 +34,7 @@ public class RedisIdempotencyChecker {
      * @param ttlSeconds   键存活时间（秒）
      * @return true 表示首次请求，false 表示重复请求
      */
-    public boolean tryAcquire(String businessKey, String idempotentId, long ttlSeconds) {
+    public boolean tryAcquire(String businessKey, Long idempotentId, long ttlSeconds) {
         String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + idempotentId;
 
         RBucket<String> bucket = redissonClient.getBucket(key);
@@ -47,7 +47,7 @@ public class RedisIdempotencyChecker {
      * @param businessKey  业务唯一标识
      * @param idempotentId 幂等唯一标识
      */
-    public void release(String businessKey, String idempotentId) {
+    public void release(String businessKey, Long idempotentId) {
         String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + idempotentId;
         redissonClient.getBucket(key).delete();
     }

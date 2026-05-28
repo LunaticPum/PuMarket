@@ -15,7 +15,7 @@ import java.time.Duration;
 @Getter
 public class RedisConstants {
 
-    /* 创建订单键 */
+    /* 业务逻辑键 */
     public final static String CREATE_ORDER = "create:order";
 
     /* 业务缓存键 */

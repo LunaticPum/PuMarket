@@ -1,8 +1,7 @@
-package cn.pumluda.domain.trade.service.createOrder.dto;
+package cn.pumluda.domain.trade.service.preCheck.dto;
 
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
-import cn.pumluda.types.enums.ResponseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,7 +15,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class CreateOrderPreCheckResult {
+public class PreCheckResult {
     private final boolean firstCreate;
     private final SkuEntity sku;
     private final ActivityConfigEntity activityConfig;

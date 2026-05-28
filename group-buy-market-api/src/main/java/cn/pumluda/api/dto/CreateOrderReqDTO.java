@@ -15,7 +15,7 @@ import lombok.Data;
 public class CreateOrderReqDTO {
 
     /* 用户 ID */
-    private String userId;
+    private Long userId;
 
     /* 商品 ID */
     private Long skuId;
@@ -27,7 +27,7 @@ public class CreateOrderReqDTO {
     private Long groupTeamId;
 
     /* 流量来源 */
-    private int entrySource;
+    private Integer entrySource;
 
     /* 交易渠道 */
     private String channel;

@@ -35,9 +35,9 @@ public class ActivityConfigPo {
     /* 优惠表达式 */
     private String discountExpr;
     /* 总优惠名额数量 */
-    private int totalDiscountQuota;
+    private Integer totalDiscountQuota;
     /* 已占用的优惠名额数量 */
-    private int usedDiscountQuota;
+    private Integer usedDiscountQuota;
 
     /* 限流人群标签 */
     private Integer limitTags;

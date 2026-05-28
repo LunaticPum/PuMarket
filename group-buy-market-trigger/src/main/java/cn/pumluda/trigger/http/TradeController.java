@@ -4,10 +4,17 @@ import cn.pumluda.api.ITradeController;
 import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
-import cn.pumluda.domain.trade.service.createOrder.ICreateOrderService;
-import cn.pumluda.domain.trade.service.createOrder.IPreCheckService;
+import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.UserEntity;
+import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
+import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
+import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
+import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
+import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
+import cn.pumluda.types.utils.RedisIdempotencyChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,30 +36,58 @@ public class TradeController implements ITradeController {
 
     @Resource
     private IPreCheckService preCheckService;
-
+    @Resource
+    private ICreateOrderService createOrderService;
+    @Resource
+    private RedisIdempotencyChecker idempotencyChecker;
 
     @PostMapping("create_order")
     @Override
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
-        String userId = requestDTO.getUserId();
+        /* 1. 前置校验 */
+        Long userId = requestDTO.getUserId();
         Long activityId = requestDTO.getActivityId();
         Long skuId = requestDTO.getSkuId();
 
-        ResponseEnum failedCheckResponse = preCheckService.preCheck(userId, activityId, skuId);
-
-        if (failedCheckResponse != null) {
-            return Response.<CreateOrderResDTO>builder().code(failedCheckResponse.getCode()).info(
-                    failedCheckResponse.getInfo()).build();
+        Object preCheckResult = preCheckService.preCheck(userId, activityId, skuId);
+        // 如果校验结果类型是响应枚举类型，说明前置校验未通过，响应给客户端并告知校验失败原因
+        if (preCheckResult instanceof ResponseEnum result) {
+            return Response.<CreateOrderResDTO>builder()
+                           .code(result.getCode())
+                           .info(result.getInfo())
+                           .build();
         }
 
-        // todo 后续下单逻辑。。。
+        /* 2. 创建订单 */
+        BusinessAggregate businessAggregate;
+        if (preCheckResult instanceof PreCheckResult result) {
+            businessAggregate = BusinessAggregate.builder()
+                                                 .user(
+                                                         UserEntity.builder()
+                                                                   .userId(userId)
+                                                                   .build()
+                                                 )
+                                                 .sku(result.getSku())
+                                                 .activityConfig(result.getActivityConfig())
+                                                 .tradeSC(
+                                                         TradeSCVo.builder()
+                                                                  .entrySource(requestDTO.getEntrySource())
+                                                                  .channel(requestDTO.getChannel())
+                                                                  .build()
+                                                 )
+                                                 .build();
+        } else {
+            log.error("[创建订单] 前置校验结果获取异常");
+            return Response.<CreateOrderResDTO>builder()
+                           .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
+                           .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
+                           .build();
+        }
 
-        Long groupTeamId = requestDTO.getGroupTeamId();
-        int entrySource = requestDTO.getEntrySource();
-        String payChannel = requestDTO.getChannel();
+        OrderAggregate order = createOrderService.createOrder(businessAggregate);
 
         // 主动删除业务幂等号，避免阻塞下一个订单创建
-        // idempotencyChecker.release(RedisKeyConstants.CREATE_ORDER, userId);
+        idempotencyChecker.release(RedisConstants.CREATE_ORDER, userId);
 
         return null;
     }

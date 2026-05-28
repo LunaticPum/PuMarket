@@ -31,7 +31,7 @@ public class OrderItemEntity {
     /* 商品原始单价 */
     private BigDecimal price;
     /* 商品购买数量 */
-    private int quantity;
+    private Integer quantity;
     /* 实际支付价格（有优惠就总价扣减优惠金额） */
     private BigDecimal actualPrice;
 

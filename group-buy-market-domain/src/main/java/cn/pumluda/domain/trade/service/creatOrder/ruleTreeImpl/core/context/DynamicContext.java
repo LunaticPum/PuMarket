@@ -1,4 +1,4 @@
-package cn.pumluda.domain.trade.model.valobj;
+package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,17 +7,17 @@ import lombok.NoArgsConstructor;
 
 /**
  * Project: group-buy-market-better <p>
- * File: UserVo <p>
+ * File: DynamicContext <p>
  * Created by: 16374 <p>
- * Date: 2026/5/27 <p>
- * Time: 10:24 <p>
- * Description: 用户值对象
+ * Date: 2026/5/28 <p>
+ * Time: 17:50 <p>
+ * Description: 动态上下文
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserVo {
-    private Long userId;
-    private int userTag;
+public class DynamicContext {
+
+
 }

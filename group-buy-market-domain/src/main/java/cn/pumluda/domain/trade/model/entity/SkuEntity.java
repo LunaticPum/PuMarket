@@ -28,7 +28,7 @@ public class SkuEntity {
     /* 商品原始单价 */
     private BigDecimal price;
     /* 商品库存 */
-    private int stock;
+    private Integer stock;
     /* 商品状态：0-下架，1-上架 */
     private Integer status;
 

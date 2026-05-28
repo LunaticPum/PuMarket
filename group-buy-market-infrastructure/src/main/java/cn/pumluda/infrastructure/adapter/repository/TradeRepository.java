@@ -105,7 +105,6 @@ public class TradeRepository implements ITradeRepository {
         }
     }
 
-
     /* 缓存预热：通过 BeanPostProcessor 实现，利用 @EventListener 定义监听到应用完全启动后自动执行的方法 */
     @EventListener(ApplicationReadyEvent.class)
     public void preloadHotData() {
