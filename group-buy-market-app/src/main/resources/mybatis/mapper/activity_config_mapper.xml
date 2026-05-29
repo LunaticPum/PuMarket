@@ -9,7 +9,6 @@
         <result column="activity_type" property="activityType"/>
         <result column="discount_expr" property="discountExpr"/>
         <result column="total_discount_quota" property="totalDiscountQuota"/>
-        <result column="used_discount_quota" property="usedDiscountQuota"/>
         <result column="limit_tag" property="limitTag"/>
         <result column="status" property="status"/>
         <result column="start_Time" property="startTime"/>
@@ -24,7 +23,6 @@
                activity_type,
                discount_expr,
                total_discount_quota,
-               used_discount_quota,
                limit_tag,
                status,
                start_time,
@@ -39,7 +37,6 @@
                activity_type,
                discount_expr,
                total_discount_quota,
-               used_discount_quota,
                limit_tag,
                status,
                start_time,

@@ -16,7 +16,6 @@ import cn.pumluda.types.designs.ruleTree.StrategyHandler;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.exception.AppException;
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
