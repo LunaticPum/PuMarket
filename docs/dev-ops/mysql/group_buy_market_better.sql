@@ -20,7 +20,7 @@ CREATE TABLE `trade_order`
     `id`                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `order_no`          VARCHAR(64)     NOT NULL COMMENT '订单号',
     `user_id`           BIGINT          NOT NULL COMMENT '用户 ID',
-    `user_tag`          TINYINT                  DEFAULT NULL COMMENT '人群标签',
+    `user_tag`          INT                  DEFAULT NULL COMMENT '人群标签',
     `order_status`      TINYINT         NOT NULL DEFAULT 0 COMMENT '订单状态：0-订单创建，1-订单结算，2-订单取消，3-。。',
     `total_amount`      DECIMAL(10, 2)  NOT NULL COMMENT '原始总金额',
     `pay_amount`        DECIMAL(10, 2)  NOT NULL COMMENT '实际支付金额',
@@ -132,7 +132,7 @@ CREATE TABLE `activity_config`
     `discount_expr`        VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
     `total_discount_quota` INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
     `used_discount_quota`  INT                      DEFAULT 0 COMMENT '占用名额总数（如果是拼团活动则该值等于参团人数）',
-    `limit_tags`           BIGINT          NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
+    `limit_tags`           INT          NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
     `status`               TINYINT         NOT NULL COMMENT '活动状态：0-禁用，1-启用',
     `start_time`           DATETIME        NOT NULL COMMENT '活动开始时间',
     `end_time`             DATETIME        NOT NULL COMMENT '活动结束时间',
@@ -191,10 +191,10 @@ DROP TABLE IF EXISTS `user_tags`;
 
 CREATE TABLE `user_tags`
 (
-    `user_id`     BIGINT UNSIGNED NOT NULL COMMENT '用户 ID',
-    `user_tags`   BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户标签位图',
-    `create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `user_id`     BIGINT UNSIGNED  NOT NULL COMMENT '用户 ID',
+    `user_tag`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户标签位图',
+    `create_time` DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

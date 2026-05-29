@@ -1,6 +1,10 @@
 package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core;
 
+import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.RootNode;
+import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
+import cn.pumluda.types.designs.ruleTree.StrategyHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,5 +21,9 @@ import org.springframework.stereotype.Service;
 public class RuleTreeFactory {
 
     private final RootNode rootNode;
+
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> getTreeRoot() {
+        return rootNode;
+    }
 
 }

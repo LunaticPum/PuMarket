@@ -6,7 +6,6 @@ import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
 import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
-import cn.pumluda.domain.trade.model.entity.UserEntity;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
@@ -62,11 +61,7 @@ public class TradeController implements ITradeController {
         BusinessAggregate businessAggregate;
         if (preCheckResult instanceof PreCheckResult result) {
             businessAggregate = BusinessAggregate.builder()
-                                                 .user(
-                                                         UserEntity.builder()
-                                                                   .userId(userId)
-                                                                   .build()
-                                                 )
+                                                 .userId(userId)
                                                  .sku(result.getSku())
                                                  .activityConfig(result.getActivityConfig())
                                                  .tradeSC(
@@ -84,8 +79,15 @@ public class TradeController implements ITradeController {
                            .build();
         }
 
-        OrderAggregate order = createOrderService.createOrder(businessAggregate);
+        try {
+            OrderAggregate order = createOrderService.createOrder(businessAggregate);
+        } catch (Exception e) {
+            // todo 待完善的异常处理
 
+            throw new RuntimeException(e);
+        }
+
+        // todo MQ 异步通知
         // 主动删除业务幂等号，避免阻塞下一个订单创建
         idempotencyChecker.release(RedisConstants.CREATE_ORDER, userId);
 
