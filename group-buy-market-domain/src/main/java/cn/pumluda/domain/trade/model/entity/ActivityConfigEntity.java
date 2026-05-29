@@ -36,7 +36,7 @@ public class ActivityConfigEntity {
     private Integer usedDiscountQuota;
 
     /* 限流人群标签 */
-    private Integer limitTags;
+    private Integer limitTag = 0;
     /* 活动状态：0-禁用，1-启用 */
     private Integer status;
 
@@ -44,4 +44,5 @@ public class ActivityConfigEntity {
     private Date startTime;
     /* 活动截止时间 */
     private Date endTime;
+
 }

@@ -11,10 +11,12 @@ import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
 import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
+import cn.pumluda.types.common.ActivityConstants;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.utils.RedisIdempotencyChecker;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -45,11 +47,27 @@ public class TradeController implements ITradeController {
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
         /* 1. 前置校验 */
         Long userId = requestDTO.getUserId();
+        String orderNo = requestDTO.getOrderNo();
         Long activityId = requestDTO.getActivityId();
         Long skuId = requestDTO.getSkuId();
+        int quantity = requestDTO.getQuantity();
 
-        Object preCheckResult = preCheckService.preCheck(userId, activityId, skuId);
-        // 如果校验结果类型是响应枚举类型，说明前置校验未通过，响应给客户端并告知校验失败原因
+        // 非法参数校验
+        if (null == userId || StringUtils.isBlank(orderNo) || null == skuId || quantity <= 0) {
+            log.error("[创建订单] 请求参数非法，请检查");
+            return Response.<CreateOrderResDTO>builder()
+                           .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
+                           .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
+                           .build();
+        }
+
+        // 如果是不参与活动的订单，则设置 activityId 为空活动占位值
+        if (activityId == null) {
+            activityId = ActivityConstants.EMPTY_ACTIVITY;
+        }
+
+        // 前置校验：如果校验结果类型是响应枚举类型，说明前置校验未通过，响应给客户端并告知校验失败原因
+        Object preCheckResult = preCheckService.preCheck(userId, activityId, skuId, quantity);
         if (preCheckResult instanceof ResponseEnum result) {
             return Response.<CreateOrderResDTO>builder()
                            .code(result.getCode())
@@ -58,18 +76,20 @@ public class TradeController implements ITradeController {
         }
 
         /* 2. 创建订单 */
+        // 如果前置校验通过，则从校验结果获取事先查询到的数据，并与交易单号一起封装为业务数据聚合类
         BusinessAggregate businessAggregate;
         if (preCheckResult instanceof PreCheckResult result) {
             businessAggregate = BusinessAggregate.builder()
                                                  .userId(userId)
+                                                 .orderNo(orderNo)
+                                                 .groupTeamId(requestDTO.getGroupTeamId())
                                                  .sku(result.getSku())
+                                                 .quantity(quantity)
                                                  .activityConfig(result.getActivityConfig())
-                                                 .tradeSC(
-                                                         TradeSCVo.builder()
-                                                                  .entrySource(requestDTO.getEntrySource())
-                                                                  .channel(requestDTO.getChannel())
-                                                                  .build()
-                                                 )
+                                                 .tradeSC(TradeSCVo.builder()
+                                                                   .entrySource(requestDTO.getEntrySource())
+                                                                   .channel(requestDTO.getChannel())
+                                                                   .build())
                                                  .build();
         } else {
             log.error("[创建订单] 前置校验结果获取异常");

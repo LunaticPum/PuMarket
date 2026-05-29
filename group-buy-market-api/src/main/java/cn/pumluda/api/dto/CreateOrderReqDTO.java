@@ -20,6 +20,12 @@ public class CreateOrderReqDTO {
     /* 商品 ID */
     private Long skuId;
 
+    /* 商品购买数量 */
+    private int quantity;
+
+    /* 交易单号：由外部系统生成并传入 */
+    private String orderNo;
+
     /* 活动 ID */
     private Long activityId;
 

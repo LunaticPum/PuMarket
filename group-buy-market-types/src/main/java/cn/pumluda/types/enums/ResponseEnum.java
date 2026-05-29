@@ -23,6 +23,8 @@ public enum ResponseEnum {
     GROUP_TEAM_NULL("0011", "不存在该拼团队伍"),
     GROUP_TEAM_FULL("0012", "拼团队伍已满"),
     GROUP_TEAM_CLOSED("0013", "拼团队伍已关闭"),
+    ORDER_HAS_GROUP("0014", "订单已有进行中的团"),
+    WRITE_DB_ERROR("0015", "DB 数据写入失败"),
     ;
 
     private String code;

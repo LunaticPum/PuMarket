@@ -6,6 +6,6 @@ public interface StrategyHandler<T, D, R> {
         return null;
     };
 
-    R apply(T requestParameter, D dynamicContext) throws Exception;
+    R apply(T requestParam, D dynamicContext) throws Exception;
 
 }

@@ -20,7 +20,7 @@ CREATE TABLE `trade_order`
     `id`                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `order_no`          VARCHAR(64)     NOT NULL COMMENT '订单号',
     `user_id`           BIGINT          NOT NULL COMMENT '用户 ID',
-    `user_tag`          INT                  DEFAULT NULL COMMENT '人群标签',
+    `user_tag`          INT                      DEFAULT NULL COMMENT '人群标签',
     `order_status`      TINYINT         NOT NULL DEFAULT 0 COMMENT '订单状态：0-订单创建，1-订单结算，2-订单取消，3-。。',
     `total_amount`      DECIMAL(10, 2)  NOT NULL COMMENT '原始总金额',
     `pay_amount`        DECIMAL(10, 2)  NOT NULL COMMENT '实际支付金额',
@@ -66,29 +66,30 @@ CREATE TABLE `trade_order_item`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-# 拼团记录表
+# 参与活动订单记录表
 /* ------------------------------------------------------------------ */
-DROP TABLE IF EXISTS `group_record`;
+DROP TABLE IF EXISTS `activity_order_record`;
 
-CREATE TABLE `group_record`
+CREATE TABLE `activity_order_record`
 (
-    `id`             BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `order_no`       VARCHAR(64)     NOT NULL COMMENT '订单号',
-    `user_id`        BIGINT          NOT NULL COMMENT '用户 ID',
-    `activity_id`    BIGINT          NOT NULL COMMENT '活动 ID',
-    `activity_name`  VARCHAR(128)             DEFAULT NULL COMMENT '活动名称',
-    `group_team_id`  BIGINT          NOT NULL COMMENT '拼团队伍 ID',
-    `group_type`     TINYINT         NOT NULL COMMENT '拼团类型: 1-开团（团长），2-参团（团员）',
-    `quota_occupied` TINYINT                  DEFAULT 0 COMMENT '是否已占用优惠名额：0-未占用，1-已占用',
-    `join_time`      DATETIME        NOT NULL COMMENT '参团/开团时间',
-    `create_time`    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id`                   BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `order_no`             VARCHAR(64)     NOT NULL COMMENT '订单号',
+    `user_id`              BIGINT          NOT NULL COMMENT '用户 ID',
+    `activity_id`          BIGINT          NOT NULL COMMENT '活动 ID',
+    `activity_name`        VARCHAR(128)             DEFAULT NULL COMMENT '活动名称',
+    `activity_business_id` BIGINT          NOT NULL COMMENT '通用活动业务字段：例如，如果是拼团活动则存储拼团队伍 ID',
+    `participation_type`   TINYINT         NOT NULL COMMENT '活动参与动作类型: 1-开团（团长），2-参团（团员），3-排队，4-抽签..',
+    `quota_occupied`       TINYINT                  DEFAULT 0 COMMENT '是否已占用优惠名额：0-未占用，1-已占用',
+    `record_status`        TINYINT         NOT NULL COMMENT '记录处理状态：0-处理中，1-成功，2-失败，3-已取消',
+    `expire_time`          DATETIME                 DEFAULT NULL COMMENT '记录定时清理时间',
+    `join_time`            DATETIME        NOT NULL COMMENT '参与活动时间',
+    `create_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY (`order_no`),
-    UNIQUE KEY `uk_user_team` (`user_id`, `group_team_id`),
-    KEY `idx_user_id` (`user_id`),                         # 查询当前用户的拼团记录
-    KEY `idx_activity_id` (`activity_id`),                 # 查询活动报表
-    KEY `idx_group_team_id` (`group_team_id`, `join_time`) # 查询某个团的所有成员，按参团时间顺序排序
+    KEY `idx_user_id` (`user_id`),                                       # 查询当前用户的拼团记录
+    KEY `idx_activity_id` (`activity_id`),                               # 查询活动报表
+    KEY `idx_activity_business_id` (`activity_business_id`, `join_time`) # 查询某个团的所有成员，按参团时间顺序排序
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -128,11 +129,10 @@ CREATE TABLE `activity_config`
     `id`                   BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `activity_id`          BIGINT          NOT NULL COMMENT '活动 ID',
     `activity_name`        VARCHAR(128)    NOT NULL COMMENT '活动名称',
-    `activity_type`        TINYINT         NOT NULL COMMENT '活动类型：1-拼团，2-凑单，...',
+    `activity_type`        TINYINT         NOT NULL COMMENT '活动类型：0-默认活动，1-拼团，2-凑单，...',
     `discount_expr`        VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
     `total_discount_quota` INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
-    `used_discount_quota`  INT                      DEFAULT 0 COMMENT '占用名额总数（如果是拼团活动则该值等于参团人数）',
-    `limit_tags`           INT          NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
+    `limit_tag`            INT             NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
     `status`               TINYINT         NOT NULL COMMENT '活动状态：0-禁用，1-启用',
     `start_time`           DATETIME        NOT NULL COMMENT '活动开始时间',
     `end_time`             DATETIME        NOT NULL COMMENT '活动结束时间',
@@ -149,15 +149,26 @@ LOCK TABLES `activity_config` WRITE;
     DISABLE KEYS */;
 
 INSERT INTO `activity_config` (activity_id, activity_name, activity_type, discount_expr,
-                               total_discount_quota, used_discount_quota, limit_tags, status, start_time, end_time,
+                               total_discount_quota, limit_tag, status, start_time, end_time,
                                create_time,
                                update_time)
-VALUES (100001,
+VALUES (0,
+        '默认活动',
+        0,
+        'NO_DISCOUNT',
+        0,
+        0,
+        1,
+        '1970-01-01 00:00:00',
+        '2999-12-31 23:59:59',
+        NOW(),
+        NOW()),
+
+       (100001,
         '新人三人拼团活动',
         1,
         '80_PERCENT',
         3,
-        0,
         0,
         1,
         NOW(),
@@ -171,7 +182,6 @@ VALUES (100001,
         1,
         'DIRECT_MINUS_30',
         5,
-        0,
         6,
         1,
         NOW(),
@@ -187,14 +197,14 @@ UNLOCK TABLES;
 # 用户标签
 /* ------------------------------------------------------------------ */
 /* 使用位图标签：用户标签 = 位图组合*/
-DROP TABLE IF EXISTS `user_tags`;
+DROP TABLE IF EXISTS `user_tag_record`;
 
-CREATE TABLE `user_tags`
+CREATE TABLE `user_tag_record`
 (
-    `user_id`     BIGINT UNSIGNED  NOT NULL COMMENT '用户 ID',
-    `user_tag`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户标签位图',
-    `create_time` DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time` DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `user_id`     BIGINT UNSIGNED NOT NULL COMMENT '用户 ID',
+    `user_tag`    INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '用户标签位图',
+    `create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

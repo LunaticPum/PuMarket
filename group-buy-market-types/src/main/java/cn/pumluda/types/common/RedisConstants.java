@@ -26,6 +26,9 @@ public class RedisConstants {
     /* 默认缓存时间：10 分钟，视内存占用情况调整 */
     public final static long CACHE_EXPIRE_MINUTES = 10;
 
+    /* 业务加锁键 */
+    public final static String LOCK_GROUP_ORDER = "lock:group:order";
+
     /* 空值占位符 */
     public final static String NULL_PLACEHOLDER = "::NULL::";
     /* 空值缓存时间：20 秒，视内存占用情况调整 */

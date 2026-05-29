@@ -10,7 +10,7 @@
         <result column="discount_expr" property="discountExpr"/>
         <result column="total_discount_quota" property="totalDiscountQuota"/>
         <result column="used_discount_quota" property="usedDiscountQuota"/>
-        <result column="limit_tags" property="limitTags"/>
+        <result column="limit_tag" property="limitTag"/>
         <result column="status" property="status"/>
         <result column="start_Time" property="startTime"/>
         <result column="end_Time" property="endTime"/>
@@ -25,7 +25,7 @@
                discount_expr,
                total_discount_quota,
                used_discount_quota,
-               limit_tags,
+               limit_tag,
                status,
                start_time,
                end_time
@@ -40,7 +40,7 @@
                discount_expr,
                total_discount_quota,
                used_discount_quota,
-               limit_tags,
+               limit_tag,
                status,
                start_time,
                end_time

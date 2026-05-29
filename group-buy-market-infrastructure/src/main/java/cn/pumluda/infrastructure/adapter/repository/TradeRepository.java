@@ -1,8 +1,7 @@
 package cn.pumluda.infrastructure.adapter.repository;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
-import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
-import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.model.entity.*;
 import cn.pumluda.infrastructure.cache.ICacheService;
 import cn.pumluda.infrastructure.dao.IActivityConfigDao;
 import cn.pumluda.infrastructure.dao.ISkuDao;
@@ -103,6 +102,54 @@ public class TradeRepository implements ITradeRepository {
 
             return null;
         }
+    }
+
+    @Override
+    public UserTagRecordEntity getUserTagRecordById(Long userId) {
+        return null;
+    }
+
+    @Override
+    public List<UserTagRecordEntity> getUserTagRecordByTag(Integer userTag) {
+        return List.of();
+    }
+
+    @Override
+    public GroupTeamEntity getGroupTeamByTeamId(Long groupTeamId) {
+        return null;
+    }
+
+    @Override
+    public GroupTeamEntity getGroupTeamByLeaderUserId(Long leaderUserId) {
+        return null;
+    }
+
+    @Override
+    public List<GroupTeamEntity> getGroupTeamByActivityId(Long activityId) {
+        return List.of();
+    }
+
+    // todo 待实现。。
+
+
+    @Override
+    public ActivityOrderRecordEntity getActivityOrderRecord(String orederNo, Long activityId) {
+        return null;
+    }
+
+    @Override
+    public void addGroupTeam(GroupTeamEntity groupTeam) {
+
+    }
+
+    @Override
+    public void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord) {
+
+    }
+
+    @Override
+    public int reserveSkuStock(Long skuId, int quantity) {
+        return 0;
     }
 
     /* 缓存预热：通过 BeanPostProcessor 实现，利用 @EventListener 定义监听到应用完全启动后自动执行的方法 */

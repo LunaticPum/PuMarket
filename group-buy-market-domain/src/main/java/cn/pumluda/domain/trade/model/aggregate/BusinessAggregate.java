@@ -1,10 +1,8 @@
 package cn.pumluda.domain.trade.model.aggregate;
 
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
-import cn.pumluda.domain.trade.model.entity.GroupTeamEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
-import cn.pumluda.domain.trade.model.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,8 +25,17 @@ public class BusinessAggregate {
     /* 用户 ID */
     private Long userId;
 
+    /* 交易单号 */
+    private String orderNo;
+
+    /* 拼团队伍 ID */
+    private Long groupTeamId;
+
     /* 商品 SKU */
     private SkuEntity sku;
+
+    /* 商品购买数量 */
+    private int quantity;
 
     /* 活动配置 */
     private ActivityConfigEntity activityConfig;

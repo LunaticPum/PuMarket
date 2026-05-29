@@ -2,8 +2,6 @@ package cn.pumluda.domain.trade.service.preCheck;
 
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
-import cn.pumluda.domain.trade.model.entity.UserEntity;
-import cn.pumluda.types.enums.ResponseEnum;
 
 /**
  * Project: group-buy-market-better <p>
@@ -15,7 +13,7 @@ import cn.pumluda.types.enums.ResponseEnum;
  */
 public interface IPreCheckService {
 
-    Object preCheck(Long userId, Long activityId, Long skuId);
+    Object preCheck(Long userId, Long activityId, Long skuId, int quantity);
 
     /**
      * 查询商品数据

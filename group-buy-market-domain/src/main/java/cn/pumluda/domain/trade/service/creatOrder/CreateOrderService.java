@@ -5,8 +5,11 @@ import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.RuleTreeFactory;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.types.designs.ruleTree.StrategyHandler;
+import cn.pumluda.types.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -25,8 +28,16 @@ public class CreateOrderService implements ICreateOrderService {
     @Resource
     private RuleTreeFactory factory;
 
+    /**
+     * 先写 DB 再异步更新 Redis Cache，只保证最终一致性
+     * @param businessAggregate 执行链路所需的基本信息
+     * @return 要落库的订单主表和明细表信息
+     * @throws Exception 规则树中任意节点出现的异常
+     */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public OrderAggregate createOrder(BusinessAggregate businessAggregate) throws Exception {
+
         StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> root = factory.getTreeRoot();
 
         // todo 规则树编排实现

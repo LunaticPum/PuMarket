@@ -40,7 +40,7 @@ public class ActivityConfigPo {
     private Integer usedDiscountQuota;
 
     /* 限流人群标签 */
-    private Integer limitTags;
+    private Integer limitTag;
     /* 活动状态：0-禁用，1-启用 */
     private Integer status;
 

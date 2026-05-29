@@ -6,8 +6,8 @@ import cn.pumluda.domain.trade.model.entity.SkuEntity;
 import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
-import cn.pumluda.types.utils.juc.CompletableFutureUtils;
 import cn.pumluda.types.utils.RedisIdempotencyChecker;
+import cn.pumluda.types.utils.juc.CompletableFutureUtils;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,8 +38,16 @@ public class PreCheckService implements IPreCheckService {
     private ITradeRepository repository;
 
     @Override
-    public Object preCheck(Long userId, Long activityId, Long skuId) {
+    public Object preCheck(Long userId, Long activityId, Long skuId, int quantity) {
         /* 1. 前置基础校验：可并行执行 */
+        log.info(
+                """
+                [创建订单] ========== 前置校验开始 ==========
+                [创建订单] userId={}, skuId={}, activityId={}
+                [创建订单] ================================
+                """, userId, skuId, activityId
+        );
+
         PreCheckResult validatedResult;
         try {
             List<Object> resultList = asyncUtil.supplyParallelWithTimeout(
@@ -91,7 +99,10 @@ public class PreCheckService implements IPreCheckService {
         /* 响应异常：3. 没找到对应活动 */
         if (activityConfig == null) return ResponseEnum.ACTIVITY_NULL;
         /* 响应异常：4. 商品库存不足 */
+        // 商品卖完了
         if (sku.getStock() <= 0) return ResponseEnum.SKU_OUT_OF_STOCK;
+        // 商品不够卖
+        if (sku.getStock() <= quantity) return ResponseEnum.SKU_OUT_OF_STOCK;
         /* 响应异常：5. 商品已下架 */
         if (sku.getStatus() == 0) return ResponseEnum.SKU_OFFLINE;
         /* 响应异常：6. 活动未开启 */
@@ -102,9 +113,13 @@ public class PreCheckService implements IPreCheckService {
 
         /* 前置校验通过则返回查询结果，以供后续链路使用 */
         log.info(
-                "[创建订单] 前置校验通过，活动：{} 商品：{}",
-                JSON.toJSONString(activityConfig),
-                JSON.toJSONString(sku)
+                """
+                [创建订单] ========== 前置校验通过 ==========
+                [创建订单] userId={},
+                [创建订单] activityConfig={},
+                [创建订单] sku={}
+                [创建订单] ================================
+                """, userId, JSON.toJSONString(activityConfig), JSON.toJSONString(sku)
         );
         return validatedResult;
     }

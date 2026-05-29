@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
  * Created by: 16374 <p>
  * Date: 2026/5/27 <p>
  * Time: 10:24 <p>
- * Description: 用户值对象
+ * Description: 用户 Entity
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity {
+public class UserTagRecordEntity {
     private Long userId;
-    private int userTag;
+    private Integer userTag;
 }
