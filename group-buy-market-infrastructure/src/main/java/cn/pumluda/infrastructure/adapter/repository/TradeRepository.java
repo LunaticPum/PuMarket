@@ -257,7 +257,7 @@ public class TradeRepository implements ITradeRepository {
 //        );
 //
 //        long ttlWithSalt =
-//                RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+//                RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 5);
 //
 //        cacheService.set(key, groupTeam, ttlWithSalt, TimeUnit.MINUTES);
 
