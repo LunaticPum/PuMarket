@@ -6,6 +6,7 @@ import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
 import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
+import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
@@ -14,6 +15,7 @@ import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.common.ActivityConstants;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
+import cn.pumluda.types.exception.AppException;
 import cn.pumluda.types.utils.RedisIdempotencyChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +47,7 @@ public class TradeController implements ITradeController {
     @PostMapping("create_order")
     @Override
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
+
         /* 1. 前置校验 */
         Long userId = requestDTO.getUserId();
         String orderNo = requestDTO.getOrderNo();
@@ -52,7 +55,9 @@ public class TradeController implements ITradeController {
         Long skuId = requestDTO.getSkuId();
         int quantity = requestDTO.getQuantity();
 
-        // 非法参数校验
+        String bizId = userId + ":" + activityId + ":" + skuId; // 业务幂等号
+
+        /* 非法参数校验 */
         if (null == userId || StringUtils.isBlank(orderNo) || null == skuId || quantity <= 0) {
             log.error("[创建订单] 请求参数非法，请检查");
             return Response.<CreateOrderResDTO>builder()
@@ -67,7 +72,13 @@ public class TradeController implements ITradeController {
         }
 
         // 前置校验：如果校验结果类型是响应枚举类型，说明前置校验未通过，响应给客户端并告知校验失败原因
-        Object preCheckResult = preCheckService.preCheck(userId, activityId, skuId, quantity);
+        Object preCheckResult = preCheckService.preCheck(
+                userId,
+                activityId,
+                skuId,
+                quantity
+        );  // preCheck 内部会重新拼接一次业务幂等号，分开来传是因为内部其他方法会用到
+
         if (preCheckResult instanceof ResponseEnum result) {
             return Response.<CreateOrderResDTO>builder()
                            .code(result.getCode())
@@ -76,45 +87,70 @@ public class TradeController implements ITradeController {
         }
 
         /* 2. 创建订单 */
-        // 如果前置校验通过，则从校验结果获取事先查询到的数据以及业务幂等号，并与交易单号一起封装为业务数据聚合类
-        BusinessAggregate businessAggregate;
-        String bizId;
-        if (preCheckResult instanceof PreCheckResult result) {
-            bizId = result.getBizId();
-            businessAggregate = BusinessAggregate.builder()
-                                                 .userId(userId)
-                                                 .orderNo(orderNo)
-                                                 .groupTeamId(requestDTO.getGroupTeamId())
-                                                 .sku(result.getSku())
-                                                 .quantity(quantity)
-                                                 .activityConfig(result.getActivityConfig())
-                                                 .tradeSC(TradeSCVo.builder()
-                                                                   .entrySource(requestDTO.getEntrySource())
-                                                                   .channel(requestDTO.getChannel())
-                                                                   .build())
-                                                 .bizId(bizId)
-                                                 .build();
-        } else {
-            log.error("[创建订单] 前置校验结果获取异常");
-            return Response.<CreateOrderResDTO>builder()
-                           .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
-                           .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
-                           .build();
-        }
-
         try {
+            // 如果前置校验通过，则从校验结果获取事先查询到的数据，并与交易单号一起封装为业务数据聚合类
+            BusinessAggregate businessAggregate;
+            if (preCheckResult instanceof PreCheckResult result) {
+                businessAggregate = BusinessAggregate.builder()
+                                                     .userId(userId)
+                                                     .orderNo(orderNo)
+                                                     .groupTeamId(requestDTO.getGroupTeamId())
+                                                     .sku(result.getSku())
+                                                     .quantity(quantity)
+                                                     .activityConfig(result.getActivityConfig())
+                                                     .tradeSC(TradeSCVo.builder()
+                                                                       .entrySource(requestDTO.getEntrySource())
+                                                                       .channel(requestDTO.getChannel())
+                                                                       .build())
+                                                     .build();
+            } else {
+                log.error("[创建订单] 前置校验结果获取异常");
+                return Response.<CreateOrderResDTO>builder()
+                               .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
+                               .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
+                               .build();
+            }
+
             OrderItemEntity orderItem = createOrderService.createOrder(businessAggregate);
+
+            CreateOrderResDTO responseDto = CreateOrderResDTO.builder()
+                                                             .orderNo(orderNo)
+                                                             .payPrice(orderItem.getActualPrice())
+                                                             .orderStatus(OrderStatusEnumVo.CREATE.getCode())
+                                                             .build();
+
+            return Response.<CreateOrderResDTO>builder()
+                           .code(ResponseEnum.SUCCESS.getCode())
+                           .info(ResponseEnum.SUCCESS.getInfo())
+                           .data(responseDto)
+                           .build();
+
+        } catch (AppException e) {
+            log.error(
+                    "[创建订单] 订单创建业务出现已知异常 userId={}, orderNo={}",
+                    requestDTO.getUserId(),
+                    requestDTO.getOrderNo(),
+                    e
+            );
+
+            return Response.<CreateOrderResDTO>builder()
+                           .code(e.getCode())
+                           .info(e.getInfo())
+                           .build();
         } catch (Exception e) {
-            // todo 待完善的异常处理
+            log.error(
+                    "[创建订单] 订单创建业务出现未知异常 req={}, orderNo={}",
+                    requestDTO.getUserId(),
+                    requestDTO.getOrderNo(),
+                    e
+            );
 
-            throw new RuntimeException(e);
+            return Response.<CreateOrderResDTO>builder().code(ResponseEnum.UN_ERROR.getCode()).info(
+                    ResponseEnum.UN_ERROR.getInfo()).build();
+        } finally {
+            // 记得释放幂等锁
+            idempotencyChecker.release(RedisConstants.CREATE_ORDER, bizId);
         }
-
-        // todo MQ 异步通知
-        // 主动删除业务幂等号，避免阻塞下一个订单创建
-        idempotencyChecker.release(RedisConstants.CREATE_ORDER, bizId);
-
-        return null;
     }
 
     @AccessRateLimit(limitKey = "userId", qps = 1, fallback = "testFallback", blockThreshold = 1)

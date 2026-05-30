@@ -43,6 +43,4 @@ public class BusinessAggregate {
     /* 流量来源和支付渠道 */
     private TradeSCVo tradeSC;
 
-    /* 业务幂等号 */
-    private String bizId;
 }

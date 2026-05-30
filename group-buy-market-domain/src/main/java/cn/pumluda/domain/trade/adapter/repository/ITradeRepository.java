@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.adapter.repository;
 
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.*;
 
 import java.util.List;
@@ -40,11 +41,16 @@ public interface ITradeRepository {
 
     /* 新增拼团队伍 */
     void addGroupTeam(GroupTeamEntity groupTeam);
+
     /* 新增交易订单的参与活动记录 */
     void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord);
+
     /* 预占库存 */
     int reserveSkuStock(Long skuId, int quantity);
 
+    /* 新增订单明细 */
+    void addOrderItem(OrderItemEntity orderItem);
 
-
+    /* 根据订单明细更新订单主表记录 */
+    int updateTradeOrder(OrderItemEntity orderItem);
 }

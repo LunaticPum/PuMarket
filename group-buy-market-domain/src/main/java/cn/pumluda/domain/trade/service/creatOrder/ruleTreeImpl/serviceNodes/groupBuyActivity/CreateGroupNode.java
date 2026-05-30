@@ -85,7 +85,7 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
                                                                                  .build();
 
         // 这里写失败了 jdbc 会自动抛异常触发事务回滚
-        dynamicContext.setGroupTeam(groupTeam);
+        dynamicContext.setActivityBusinessId(groupTeamId);
         repository.addActivityOrderRecord(activityOrderRecord);
         repository.addGroupTeam(groupTeam);
 

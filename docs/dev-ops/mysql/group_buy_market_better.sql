@@ -43,24 +43,25 @@ CREATE TABLE `trade_order`
 
 # 订单明细表
 /* ------------------------------------------------------------------ */
-
 DROP TABLE IF EXISTS `trade_order_item`;
 
 CREATE TABLE `trade_order_item`
 (
-    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `order_no`      VARCHAR(64)     NOT NULL COMMENT '订单号',
-    `sku_id`        BIGINT          NOT NULL COMMENT '商品 ID',
-    `product_name`  VARCHAR(128) DEFAULT NULL COMMENT '商品名称',
-    `origin_price`  DECIMAL(10, 2)  NOT NULL COMMENT '商品原单价',
-    `quantity`      INT UNSIGNED    NOT NULL COMMENT '购买数量',
-    `actual_price`  DECIMAL(10, 2)  NOT NULL COMMENT '实际成交价',
-    `activity_id`   BIGINT          NOT NULL COMMENT '活动 ID',
-    `group_team_id` BIGINT          NOT NULL COMMENT '拼团队伍 ID',
+    `id`                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `order_no`             VARCHAR(64)     NOT NULL COMMENT '订单号',
+    `sku_id`               BIGINT          NOT NULL COMMENT '商品 ID',
+    `product_name`         VARCHAR(128) DEFAULT NULL COMMENT '商品名称',
+    `origin_price`         DECIMAL(10, 2)  NOT NULL COMMENT '商品原单价',
+    `quantity`             INT UNSIGNED    NOT NULL COMMENT '购买数量',
+    `actual_price`         DECIMAL(10, 2)  NOT NULL COMMENT '实际成交价',
+    `activity_id`          BIGINT          NOT NULL COMMENT '活动 ID',
+    `activity_type`        TINYINT         NOT NULL COMMENT '活动类型快照',
+    `activity_business_id` BIGINT       DEFAULT NULL COMMENT '活动业务 ID：如果是拼团活动则为拼团队伍ID',
     PRIMARY KEY (`id`),
     KEY `idx_order_no` (`order_no`),
-    KEY `idx_group_team_id` (`group_team_id`),
-    KEY `idx_order_no_sku_id` (`order_no`, `sku_id`)
+    KEY `idx_activity_business_id` (`activity_business_id`),
+    KEY `idx_order_no_sku_id` (`order_no`, `sku_id`),
+    KEY idx_activity_biz (`activity_type`, `activity_business_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
