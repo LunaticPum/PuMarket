@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.pumluda.infrastructure.dao.IActivityConfigDao">
+<mapper namespace="cn.pumluda.infrastructure.dao.IGroupTeamDao">
 
     <resultMap id="dataMap" type="ActivityConfigPo">
         <id column="id" property="id"/>
         <result column="activity_id" property="activityId"/>
-        <result column="activity_name" property="activityName"/>
-        <result column="activity_type" property="activityType"/>
-        <result column="discount_type" property="discountType"/>
-        <result column="discount_config" property="discountConfig"
-                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="total_discount_quota" property="totalDiscountQuota"/>
-        <result column="limit_tag" property="limitTag"/>
-        <result column="status" property="status"/>
-        <result column="start_time" property="startTime"/>
-        <result column="end_time" property="endTime"/>
+        <result column="group_team_id" property="groupTeamId"/>
+        <result column="leader_user_id" property="leaderUserId"/>
+        <result column="required_num" property="requiredNum"/>
+        <result column="current_num" property="currentNum"/>
+        <result column="settled_trade_num" property="settledTradeNum"/>
+        <result column="team_status" property="teamStatus"/>
+        <result column="team_create_time" property="teamCreateTime"/>
+        <result column="team_expire_time" property="teamExpireTime"/>
+        <result column="team_end_time" property="teamEndTime"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
-    <select id="getActivityByActivityId" parameterType="java.lang.Long" resultMap="dataMap">
+    <select id="addGroupTeam" parameterType="java.lang.Long" resultMap="dataMap">
         SELECT activity_id,
                activity_name,
                activity_type,

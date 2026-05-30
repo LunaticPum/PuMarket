@@ -25,4 +25,14 @@ public enum ActivityParticipationTypeEnum {
 
     private int code;
     private String info;
+
+    public static ActivityParticipationTypeEnum of(int code) {
+        return switch (code) {
+            case 1 -> CREATE_GROUP;
+            case 2 -> JOIN_GROUP;
+            case 3 -> QUEUE;
+            case 4 -> DRAW;
+            default -> throw new IllegalStateException("Unexpected value: " + code);
+        };
+    }
 }

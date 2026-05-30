@@ -21,10 +21,13 @@ public class RedisConstants {
     /* 业务缓存键 */
     public final static String CACHE_SKU = "cache:sku";
     public final static String CACHE_ACTIVITY_CONFIG = "cache:activityConfig";
+    public final static String CACHE_USER_TAG_RECORD = "cache:userTagRecord";
+    public final static String CACHE_ACTIVITY_ORDER_RECORD = "cache:activityOrderRecord";
+    public final static String CACHE_GROUP_TEAM = "cache:groupTeam";
     public final static String CACHE_MESSAGE_QUEUE = "cache:msgQueue";
     public final static String CACHE_ORDER = "cache:order";
-    /* 默认缓存时间：10 分钟，视内存占用情况调整 */
-    public final static long CACHE_EXPIRE_MINUTES = 10;
+    /* 默认缓存时间：60 分钟，视内存占用情况调整 */
+    public final static long CACHE_EXPIRE_MINUTES = 60;
 
     /* 业务加锁键 */
     public final static String LOCK_GROUP_ORDER = "lock:group:order";

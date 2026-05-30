@@ -2,12 +2,12 @@ package cn.pumluda.infrastructure.adapter.repository;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.entity.*;
+import cn.pumluda.infrastructure.cache.ICacheManager;
 import cn.pumluda.infrastructure.cache.ICacheService;
-import cn.pumluda.infrastructure.dao.IActivityConfigDao;
-import cn.pumluda.infrastructure.dao.ISkuDao;
-import cn.pumluda.infrastructure.dao.po.ActivityConfigPo;
-import cn.pumluda.infrastructure.dao.po.SkuPo;
+import cn.pumluda.infrastructure.dao.*;
+import cn.pumluda.infrastructure.dao.po.*;
 import cn.pumluda.types.common.RedisConstants;
+import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
 import cn.pumluda.types.enums.DiscountTypeEnum;
 import cn.pumluda.types.utils.RedisKeyBuilder;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
@@ -36,8 +36,15 @@ import java.util.concurrent.TimeUnit;
 public class TradeRepository implements ITradeRepository {
 
     private final IActivityConfigDao activityConfigDao;
+    private final IActivityOrderRecordDao activityOrderRecordDao;
+    private final IGroupTeamDao groupTeamDao;
     private final ISkuDao skuDao;
+    private final ITradeOrderDao tradeOrderDao;
+    private final ITradeOrderItemDao tradeOrderItemDao;
+    private final IUserTagRecordDao userTagRecordDao;
+
     private final ICacheService cacheService;
+    private final ICacheManager cacheManager;
     private final CompletableFutureUtils asyncUtil;
 
     @Override
@@ -59,14 +66,20 @@ public class TradeRepository implements ITradeRepository {
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
             long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(5);
+                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
             long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(5);
+                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -94,14 +107,20 @@ public class TradeRepository implements ITradeRepository {
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
             long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(5);
+                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
             long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(5);
+                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -110,7 +129,40 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public UserTagRecordEntity getUserTagRecordById(Long userId) {
-        return null;
+
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_USER_TAG_RECORD, userId);
+        UserTagRecordEntity cached = cacheService.get(key, UserTagRecordEntity.class);
+        if (cached != null) {
+            return cached;  // 缓存命中
+        }
+
+        UserTagRecordPo userTagRecordPo = userTagRecordDao.getUserTagRecordById(userId);
+
+        if (userTagRecordPo != null) {
+            /* 如果 DB 命中，先写入缓存在返回数据给上游 */
+            UserTagRecordEntity entity = new UserTagRecordEntity();
+            BeanUtils.copyProperties(userTagRecordPo, entity);
+
+            // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
+            long ttlWithSalt =
+                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+            cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+
+            return entity;
+        } else {
+            // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
+            long ttlWithSalt =
+                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+            cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
+
+            return null;
+        }
     }
 
     @Override
@@ -137,84 +189,123 @@ public class TradeRepository implements ITradeRepository {
 
 
     @Override
-    public ActivityOrderRecordEntity getActivityOrderRecord(String orederNo, Long activityId) {
-        return null;
+    public ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId) {
+
+        String key = RedisKeyBuilder.buildKey(
+                RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
+                orderNo,
+                activityId
+        );
+        ActivityOrderRecordEntity cached = cacheService.get(key, ActivityOrderRecordEntity.class);
+        if (cached != null) {
+            return cached;  // 缓存命中
+        }
+
+        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(
+                orderNo,
+                activityId
+        );
+
+        if (activityOrderRecord != null) {
+            /* 如果 DB 命中，先写入缓存在返回数据给上游 */
+            ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
+            BeanUtils.copyProperties(activityOrderRecord, entity);
+
+            /* 部分字段转换 */
+            entity.setParticipationType(ActivityParticipationTypeEnum.of(activityOrderRecord.getParticipationType()));
+
+            // 默认缓存 TTL：10分钟 + -3 ~ 3 分钟的扰动
+            long ttlWithSalt =
+                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+            cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+
+            return entity;
+        } else {
+            // 空对象 TTL：20秒 + -3 ~ 3 秒的扰动
+            long ttlWithSalt =
+                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+            cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
+
+            return null;
+        }
     }
 
     @Override
     public void addGroupTeam(GroupTeamEntity groupTeam) {
+        GroupTeamPo groupTeamPo = new GroupTeamPo();
+        BeanUtils.copyProperties(groupTeam, groupTeamPo);
+
+        groupTeamDao.addGroupTeam(groupTeamPo);
+
+        // todo 异步写缓存 + MQ消息兜底机制
+
+        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
+
+//        Long activityId = groupTeam.getActivityId();
+//        Long groupTeamId = groupTeam.getGroupTeamId();
+//
+//        String key = RedisKeyBuilder.buildKey(
+//                RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
+//                activityId,
+//                groupTeamId
+//        );
+//
+//        long ttlWithSalt =
+//                RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+//
+//        cacheService.set(key, groupTeam, ttlWithSalt, TimeUnit.MINUTES);
 
     }
 
     @Override
     public void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord) {
+        ActivityOrderRecordPo activityOrderRecordPo = new ActivityOrderRecordPo();
+        BeanUtils.copyProperties(activityOrderRecord, activityOrderRecordPo);
+        activityOrderRecordDao.addActivityOrderRecord(activityOrderRecordPo);
 
+        // todo 异步写缓存 + MQ消息兜底机制
+
+        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
     }
 
     @Override
-    public int reserveSkuStock(Long skuId, int quantity) {
-        return 0;
+    public void reserveSkuStock(Long skuId, int quantity) {
+        skuDao.reserveSkuStock(skuId, quantity);
+
+        // todo 异步写缓存 + MQ消息兜底机制
+
+        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
+    }
+
+    @Override
+    public void addOrderItem(OrderItemEntity orderItem) {
+        TradeOrderItemPo tradeOrderItemPo = new TradeOrderItemPo();
+        BeanUtils.copyProperties(orderItem, tradeOrderItemPo);
+        tradeOrderItemDao.addOrderItem(tradeOrderItemPo);
+        // 无缓存
+    }
+
+    @Override
+    public void updateTradeOrder(OrderItemEntity orderItem) {
+        // todo 补充tradeOrderPo
+
+        TradeOrderPo tradeOrderPo = new TradeOrderPo();
+        tradeOrderDao.updateTradeOrder(tradeOrderPo);
+        // 无缓存
     }
 
     /* 缓存预热：通过 BeanPostProcessor 实现，利用 @EventListener 定义监听到应用完全启动后自动执行的方法 */
     @EventListener(ApplicationReadyEvent.class)
     public void preloadHotData() {
         log.info("[仓储实现层] ========== 缓存预热开始 ==========");
-        try {
-            asyncUtil.runParallel(
-                    () -> {
-                        /* SKU 预热 */
-                        List<SkuPo> allSku = skuDao.getAllSku();
-                        if (allSku != null && !allSku.isEmpty()) {
-                            log.info("[仓储实现层] 商品 SKU 数据预热中");
-                            for (SkuPo sku : allSku) {
-                                String key = RedisKeyBuilder.buildKey(
-                                        RedisConstants.CACHE_SKU,
-                                        sku.getSkuId()
-                                );
-                                SkuEntity entity = new SkuEntity();
-                                BeanUtils.copyProperties(sku, entity);
-
-                                long ttlWithSalt =
-                                        RedisConstants.CACHE_EXPIRE_MINUTES +
-                                        ThreadLocalRandom.current().nextLong(5);
-                                cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
-                            }
-                            log.info("[仓储实现层] 商品 SKU 数据预热完成，数量：{}", allSku.size());
-                        }
-                    },
-                    () -> {
-                        /* ActivityConfig 预热 */
-                        List<ActivityConfigPo> allActivity = activityConfigDao.getAllActivity();
-                        if (allActivity != null && !allActivity.isEmpty()) {
-                            log.info("[仓储实现层] 活动配置数据预热中");
-                            for (ActivityConfigPo activity : allActivity) {
-                                String key = RedisKeyBuilder.buildKey(
-                                        RedisConstants.CACHE_ACTIVITY_CONFIG,
-                                        activity.getActivityId()
-                                );
-
-                                ActivityConfigEntity entity = new ActivityConfigEntity();
-                                BeanUtils.copyProperties(activity, entity);
-
-                                /* 部分字段转换 */
-                                entity.setDiscountType(DiscountTypeEnum.of(activity.getDiscountType()));
-
-                                long ttlWithSalt =
-                                        RedisConstants.CACHE_EXPIRE_MINUTES +
-                                        ThreadLocalRandom.current().nextLong(5);
-                                cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
-                            }
-                            log.info(
-                                    "[仓储实现层] 活动配置数据预热完成，数量：{}",
-                                    allActivity.size()
-                            );
-                        }
-                    }
-            );
-        } catch (Exception e) {
-            log.warn("[仓储实现层] 缓存预热出现异常", e);
-        }
+        // 只预热配置项缓存：读多写少数据
+        cacheManager.reloadConfidCache();
         log.info("[仓储实现层] ========== 缓存预热结束 ==========");
     }
 

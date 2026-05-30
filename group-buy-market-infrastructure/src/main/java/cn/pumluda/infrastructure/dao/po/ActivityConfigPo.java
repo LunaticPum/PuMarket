@@ -1,5 +1,7 @@
 package cn.pumluda.infrastructure.dao.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,11 +38,13 @@ public class ActivityConfigPo {
     /* 优惠类型：1-直减，2-直降，3-折扣，4-满减 */
     private Integer discountType;
     /* 优惠配置(JSON) */
+    @TableField(
+            value = "discount_config",
+            typeHandler = JacksonTypeHandler.class
+    )
     private Map<String, Object> discountConfig;
     /* 总优惠名额数量（拼团时表示成团人数） */
     private Integer totalDiscountQuota;
-    /* 已占用的优惠名额数量 */
-    private Integer usedDiscountQuota;
 
     /* 限流人群标签 */
     private Integer limitTag;

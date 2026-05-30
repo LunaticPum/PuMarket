@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.model.entity;
 
+import cn.pumluda.types.enums.UserTagEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

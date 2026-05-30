@@ -1,15 +1,15 @@
 package cn.pumluda.domain.trade.model.aggregate;
 
-import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
+import cn.pumluda.domain.trade.model.entity.UserTagRecordEntity;
 import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
-import cn.pumluda.domain.trade.model.entity.UserTagRecordEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Project: group-buy-market-better <p>
@@ -40,5 +40,12 @@ public class OrderAggregate {
 
     /* 交易流量入口和支付渠道 */
     private TradeSCVo tradeSC;
+
+    /* 订单创建时间 */
+    private Date orderCreateTime;
+    /* 订单过期时间 */
+    private Date orderExpireTime;
+    /* 订单结束时间 */
+    private Date orderEndTime;
 
 }

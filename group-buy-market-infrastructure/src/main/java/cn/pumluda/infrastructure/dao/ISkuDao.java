@@ -16,8 +16,10 @@ import java.util.List;
 @Mapper
 public interface ISkuDao {
 
-    SkuPo getSkuById(Long SkuId);
+    SkuPo getSkuById(Long skuId);
 
     List<SkuPo> getAllSku();
+
+    void reserveSkuStock(Long skuId, int quantity);
 
 }

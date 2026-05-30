@@ -29,7 +29,6 @@ CREATE TABLE `trade_order`
     `pay_channel`       VARCHAR(32)     NOT NULL COMMENT '支付渠道',
     `order_create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `order_expire_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '有效截止时间',
-    `pay_time`          DATETIME                 DEFAULT NULL COMMENT '订单支付时间',
     `order_end_time`    DATETIME                 DEFAULT NULL COMMENT '订单结束时间（支付/取消/异常）',
     `create_time`       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -80,8 +79,8 @@ CREATE TABLE `activity_order_record`
     `participation_type`   TINYINT         NOT NULL COMMENT '活动参与动作类型: 1-开团（团长），2-参团（团员），3-排队，4-抽签..',
     `quota_occupied`       TINYINT                  DEFAULT 0 COMMENT '是否已占用优惠名额：0-未占用，1-已占用',
     `record_status`        TINYINT         NOT NULL COMMENT '记录处理状态：0-处理中，1-成功，2-失败，3-已取消',
-    `expire_time`          DATETIME                 DEFAULT NULL COMMENT '记录定时清理时间',
     `join_time`            DATETIME        NOT NULL COMMENT '参与活动时间',
+    `expire_time`          DATETIME                 DEFAULT NULL COMMENT '记录定时清理时间',
     `create_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -284,11 +283,14 @@ DROP TABLE IF EXISTS `user_tag_record`;
 
 CREATE TABLE `user_tag_record`
 (
+    `id`          BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `user_id`     BIGINT UNSIGNED NOT NULL COMMENT '用户 ID',
     `user_tag`    INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '用户标签位图',
     `create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`user_id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`user_id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 

@@ -61,7 +61,6 @@ public class ActivityOrderRecordEntity {
     /* 参与活动时间 */
     private Date joinTime;
 
-
     /**
      * 活动参与记录的过期时间（TTL）。
      * 用途：

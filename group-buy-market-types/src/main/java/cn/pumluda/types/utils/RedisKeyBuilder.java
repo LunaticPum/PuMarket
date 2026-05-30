@@ -1,5 +1,9 @@
 package cn.pumluda.types.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+
 /**
  * Project: group-buy-market-better <p>
  * File: RedisKeyBuilder <p>
@@ -11,12 +15,15 @@ package cn.pumluda.types.utils;
 
 public final class RedisKeyBuilder {
 
-    public static String buildKey(String prefix, Object key) {
-        if (key == null) {
+    public static String buildKey(String prefix, Object... key) {
+        if (key == null || key.length == 0) {
             throw new IllegalArgumentException("Redis Key cannot be null");
         }
 
-        return prefix + ":" + key;
+        return prefix + ":" + StringUtils.join(
+                Arrays.stream(key).map(String::valueOf).toArray(),
+                ":"
+        );
     }
 
 }

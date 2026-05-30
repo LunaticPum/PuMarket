@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class RedisCacheService implements ICacheService {
+public class CacheService implements ICacheService {
 
     private final RedissonClient redissonClient;
 

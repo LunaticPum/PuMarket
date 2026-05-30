@@ -1,4 +1,4 @@
-package cn.pumluda.domain.trade.model.entity;
+package cn.pumluda.infrastructure.dao.po;
 
 import cn.pumluda.domain.trade.model.valobj.GroupTeamStatusEnumVo;
 import lombok.AllArgsConstructor;
@@ -10,18 +10,20 @@ import java.util.Date;
 
 /**
  * Project: group-buy-market-better <p>
- * File: GroupTeamEntity <p>
+ * File: GroupTeamPo <p>
  * Created by: 16374 <p>
- * Date: 2026/5/28 <p>
- * Time: 18:17 <p>
- * Description: 拼团队伍 Entity
+ * Date: 2026/5/30 <p>
+ * Time: 15:26 <p>
+ * Description: 拼团队伍 PO
  */
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupTeamEntity {
+public class GroupTeamPo {
+
+    /* 自增主键 */
+    private Long id;
 
     /* 活动 ID */
     private Long activityId;
@@ -30,19 +32,25 @@ public class GroupTeamEntity {
     /* 团长用户 ID */
     private Long leaderUserId;
 
-    /* 成团所需人数：成团条件人数 - 团内已结算订单量 */
-    private Integer requiredNum;
-    /* 当前参团人数：优惠（参团）名额占用量 */
-    private Integer currentNum;
+    /* 成团所需人数 */
+    private int requiredNum;
+    /* 当前参团人数 */
+    private int currentNum;
     /* 团内已结算订单量 */
-    private Integer settledTradeNum;
-    /* 当前拼团队伍状态：0-进行中，1-已成团，2-已过期，3-已取消 */
-    private GroupTeamStatusEnumVo teamStatus;
+    private int settledTradeNum;
+    /* 当前拼团队伍状态 */
+    private int teamStatus;
 
     /* 开团时间 */
     private Date teamCreateTime;
     /* 队伍有效截止时间 */
     private Date teamExpireTime;
-    /* 队伍结束时间 */
+    /* 队伍结束时间*/
     private Date teamEndTime;
+
+    /* 记录创建时间 */
+    private Date createTime;
+    /* 记录更新时间 */
+    private Date updateTime;
+
 }
