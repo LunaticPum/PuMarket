@@ -7,7 +7,8 @@
         <result column="activity_id" property="activityId"/>
         <result column="activity_name" property="activityName"/>
         <result column="activity_type" property="activityType"/>
-        <result column="discount_expr" property="discountExpr"/>
+        <result column="discount_type" property="discountType"/>
+        <result column="discount_config" property="discountConfig"/>
         <result column="total_discount_quota" property="totalDiscountQuota"/>
         <result column="limit_tag" property="limitTag"/>
         <result column="status" property="status"/>
@@ -21,7 +22,8 @@
         SELECT activity_id,
                activity_name,
                activity_type,
-               discount_expr,
+               discount_type,
+               discount_config,
                total_discount_quota,
                limit_tag,
                status,
@@ -35,7 +37,8 @@
         SELECT activity_id,
                activity_name,
                activity_type,
-               discount_expr,
+               discount_type,
+               discount_config,
                total_discount_quota,
                limit_tag,
                status,

@@ -2,8 +2,8 @@ package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.switchNodes;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.ActivityOrderRecordEntity;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.groupBuyActivity.CreateGroupNode;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.groupBuyActivity.JoinGroupNode;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderAggregate> {
+public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderItemEntity> {
 
     @Resource
     private ITradeRepository repository;
@@ -48,7 +48,7 @@ public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregat
     private RedissonClient redissonClient;
 
     @Override
-    public OrderAggregate apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
+    public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
 
         String orderNo = requestParam.getOrderNo();
         Long activityId = requestParam.getActivityConfig().getActivityId();
@@ -114,7 +114,7 @@ public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregat
     }
 
     @Override
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
         /* 查询用户参团方式 */
         if (null == requestParam.getGroupTeamId()) {
             return createGroupNode;

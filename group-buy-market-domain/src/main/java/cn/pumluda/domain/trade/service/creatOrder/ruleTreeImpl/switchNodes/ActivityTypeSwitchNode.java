@@ -1,7 +1,7 @@
 package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.switchNodes;
 
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.defaultActivity.DefaultActivityNode;
 import cn.pumluda.types.designs.ruleTree.AbstractStrategyRouter;
@@ -24,7 +24,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Service
-public class ActivityTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderAggregate> {
+public class ActivityTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderItemEntity> {
 
     @Resource
     private GroupTypeSwitchNode groupTypeSwitchNode;
@@ -32,13 +32,13 @@ public class ActivityTypeSwitchNode extends AbstractStrategyRouter<BusinessAggre
     private DefaultActivityNode defaultActivityNode;
 
     @Override
-    public OrderAggregate apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
+    public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
         // 不做任何处理，直接进行分支路由
         return router(requestParam, dynamicContext);
     }
 
     @Override
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
         Integer activityType = requestParam.getActivityConfig().getActivityType();
 
         /* 营销降级策略：目标人群限流 */

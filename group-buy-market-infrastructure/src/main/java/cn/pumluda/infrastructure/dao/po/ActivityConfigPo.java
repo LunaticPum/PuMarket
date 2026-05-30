@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Project: group-buy-market-better <p>
@@ -29,12 +30,14 @@ public class ActivityConfigPo {
     private Long activityId;
     /* 活动名称 */
     private String activityName;
-    /* 活动类型 */
+    /* 活动类型：0-默认活动，1-拼团，2-凑单 */
     private Integer activityType;
 
-    /* 优惠表达式 */
-    private String discountExpr;
-    /* 总优惠名额数量 */
+    /* 优惠类型：1-直减，2-直降，3-折扣，4-满减 */
+    private Integer discountType;
+    /* 优惠配置(JSON) */
+    private Map<String, Object> discountConfig;
+    /* 总优惠名额数量（拼团时表示成团人数） */
     private Integer totalDiscountQuota;
     /* 已占用的优惠名额数量 */
     private Integer usedDiscountQuota;

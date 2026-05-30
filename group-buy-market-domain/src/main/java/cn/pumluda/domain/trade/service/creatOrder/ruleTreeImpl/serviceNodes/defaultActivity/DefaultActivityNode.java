@@ -1,7 +1,7 @@
 package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.defaultActivity;
 
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.types.designs.ruleTree.AbstractStrategyRouter;
 import cn.pumluda.types.designs.ruleTree.StrategyHandler;
@@ -18,15 +18,15 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class DefaultActivityNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderAggregate> {
+public class DefaultActivityNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderItemEntity> {
 
     @Override
-    public OrderAggregate apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
+    public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
         return null;
     }
 
     @Override
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
         return null;
     }
 }

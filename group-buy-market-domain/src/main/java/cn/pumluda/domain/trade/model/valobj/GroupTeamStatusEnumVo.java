@@ -25,13 +25,10 @@ public enum GroupTeamStatusEnumVo {
     private String info;
 
     public static GroupTeamStatusEnumVo getStatus(Integer code) {
-        switch (code) {
-            case 1:
-                return COMPLETE;
-            case 2:
-                return FAILED;
-            default:
-                return PROGRESS;
-        }
+        return switch (code) {
+            case 1 -> COMPLETE;
+            case 2 -> FAILED;
+            default -> PROGRESS;
+        };
     }
 }

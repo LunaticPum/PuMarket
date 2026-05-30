@@ -41,7 +41,4 @@ public class OrderAggregate {
     /* 交易流量入口和支付渠道 */
     private TradeSCVo tradeSC;
 
-    /* 交易明细 */
-    private OrderItemEntity orderItemEntity;
-
 }

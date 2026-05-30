@@ -2,7 +2,7 @@ package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.model.entity.UserTagRecordEntity;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.switchNodes.ActivityTypeSwitchNode;
@@ -23,7 +23,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Service
-public class RootNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderAggregate> {
+public class RootNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderItemEntity> {
 
     @Resource
     private ActivityTypeSwitchNode activityTypeSwitchNode;
@@ -31,7 +31,7 @@ public class RootNode extends AbstractStrategyRouter<BusinessAggregate, DynamicC
     private ITradeRepository repository;
 
     @Override
-    public OrderAggregate apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
+    public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
         /* 识别用户标签记录，若有记录则存到上下文，供链路的后续服务实现使用 */
         Long userId = requestParam.getUserId();
         String orderNo = requestParam.getOrderNo();
@@ -59,7 +59,7 @@ public class RootNode extends AbstractStrategyRouter<BusinessAggregate, DynamicC
     }
 
     @Override
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
         return activityTypeSwitchNode;
     }
 }

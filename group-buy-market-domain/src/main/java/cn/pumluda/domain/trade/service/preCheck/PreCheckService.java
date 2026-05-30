@@ -43,17 +43,19 @@ public class PreCheckService implements IPreCheckService {
         log.info(
                 """
                 [创建订单] ========== 前置校验开始 ==========
-                [创建订单] userId={}, skuId={}, activityId={}
+                [创建订单] userId={}, activityId={}, skuId={}
                 [创建订单] ================================
-                """, userId, skuId, activityId
+                """, userId, activityId, skuId
         );
+
+        String bizId = userId + ":" + activityId + ":" + skuId;
 
         PreCheckResult validatedResult;
         try {
             List<Object> resultList = asyncUtil.supplyParallelWithTimeout(
                     2, TimeUnit.SECONDS,
                     /* 幂等性校验：每个用户在每 5 秒内只能发起一次创建订单请求 */
-                    () -> idempotencyChecker.tryAcquire(RedisConstants.CREATE_ORDER, userId, 5),
+                    () -> idempotencyChecker.tryAcquire(RedisConstants.CREATE_ORDER, bizId, 5),
                     /* 商品库存校验 */
                     () -> findValidSkuBySkuId(skuId),
                     /* 活动有效性校验 */
@@ -63,7 +65,8 @@ public class PreCheckService implements IPreCheckService {
             validatedResult = new PreCheckResult(
                     Boolean.TRUE.equals(resultList.get(0)),
                     (SkuEntity) resultList.get(1),
-                    (ActivityConfigEntity) resultList.get(2)
+                    (ActivityConfigEntity) resultList.get(2),
+                    bizId
             );
         } catch (TimeoutException e) {
             /* 响应异常：前置校验处理超时 */

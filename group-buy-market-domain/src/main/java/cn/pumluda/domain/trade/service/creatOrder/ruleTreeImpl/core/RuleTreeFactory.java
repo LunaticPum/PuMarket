@@ -1,7 +1,7 @@
 package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core;
 
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.RootNode;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
 import cn.pumluda.types.designs.ruleTree.StrategyHandler;
@@ -22,7 +22,7 @@ public class RuleTreeFactory {
 
     private final RootNode rootNode;
 
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> getTreeRoot() {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> getTreeRoot() {
         return rootNode;
     }
 

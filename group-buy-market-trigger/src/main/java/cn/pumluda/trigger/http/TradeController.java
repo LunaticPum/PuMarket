@@ -5,7 +5,7 @@ import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
@@ -76,9 +76,11 @@ public class TradeController implements ITradeController {
         }
 
         /* 2. 创建订单 */
-        // 如果前置校验通过，则从校验结果获取事先查询到的数据，并与交易单号一起封装为业务数据聚合类
+        // 如果前置校验通过，则从校验结果获取事先查询到的数据以及业务幂等号，并与交易单号一起封装为业务数据聚合类
         BusinessAggregate businessAggregate;
+        String bizId;
         if (preCheckResult instanceof PreCheckResult result) {
+            bizId = result.getBizId();
             businessAggregate = BusinessAggregate.builder()
                                                  .userId(userId)
                                                  .orderNo(orderNo)
@@ -90,6 +92,7 @@ public class TradeController implements ITradeController {
                                                                    .entrySource(requestDTO.getEntrySource())
                                                                    .channel(requestDTO.getChannel())
                                                                    .build())
+                                                 .bizId(bizId)
                                                  .build();
         } else {
             log.error("[创建订单] 前置校验结果获取异常");
@@ -100,7 +103,7 @@ public class TradeController implements ITradeController {
         }
 
         try {
-            OrderAggregate order = createOrderService.createOrder(businessAggregate);
+            OrderItemEntity orderItem = createOrderService.createOrder(businessAggregate);
         } catch (Exception e) {
             // todo 待完善的异常处理
 
@@ -109,7 +112,7 @@ public class TradeController implements ITradeController {
 
         // todo MQ 异步通知
         // 主动删除业务幂等号，避免阻塞下一个订单创建
-        idempotencyChecker.release(RedisConstants.CREATE_ORDER, userId);
+        idempotencyChecker.release(RedisConstants.CREATE_ORDER, bizId);
 
         return null;
     }

@@ -5,12 +5,13 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
-import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.ActivityOrderRecordEntity;
 import cn.pumluda.domain.trade.model.entity.GroupTeamEntity;
+import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.model.valobj.GroupTeamStatusEnumVo;
 import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context.DynamicContext;
+import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.OrderDiscountCalcNode;
 import cn.pumluda.types.designs.ruleTree.AbstractStrategyRouter;
 import cn.pumluda.types.designs.ruleTree.StrategyHandler;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
@@ -33,7 +34,7 @@ import java.util.Date;
 
 @Slf4j
 @Service
-public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderAggregate> {
+public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, DynamicContext, OrderItemEntity> {
 
     // todo 首次使用 HuTool，利用雪花算法生成全局唯一 ID
     private final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
@@ -43,7 +44,7 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
     private OrderDiscountCalcNode orderDiscountCalcNode;
 
     @Override
-    public OrderAggregate apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
+    public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
 
         long groupTeamId = snowflake.nextId();
         log.info("[创建订单-拼团活动订单] 拼团方式：开团 已分配拼团队伍 ID：{}", groupTeamId);
@@ -84,6 +85,7 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
                                                                                  .build();
 
         // 这里写失败了 jdbc 会自动抛异常触发事务回滚
+        dynamicContext.setGroupTeam(groupTeam);
         repository.addActivityOrderRecord(activityOrderRecord);
         repository.addGroupTeam(groupTeam);
 
@@ -120,7 +122,7 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
     }
 
     @Override
-    public StrategyHandler<BusinessAggregate, DynamicContext, OrderAggregate> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
+    public StrategyHandler<BusinessAggregate, DynamicContext, OrderItemEntity> get(BusinessAggregate requestParam, DynamicContext dynamicContext) {
         return orderDiscountCalcNode;
     }
 }

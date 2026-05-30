@@ -26,8 +26,13 @@ public class DynamicContext {
     /* 用户 ID + 标签 */
     private UserTagRecordEntity userTagRecord;
 
+    /* 拼团队伍 */
+    private GroupTeamEntity groupTeam;
+
     /* 优惠金额：优惠表达式(商品单价) * 下单数量 */
     private BigDecimal discountPrice;
     /* 原始金额：商品单价 * 下单数量 */
     private BigDecimal originalPrice;
+    /* 实际金额 */
+    private BigDecimal actualPrice;
 }

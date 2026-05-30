@@ -19,4 +19,5 @@ public class PreCheckResult {
     private final boolean firstCreate;
     private final SkuEntity sku;
     private final ActivityConfigEntity activityConfig;
+    private final String bizId;
 }

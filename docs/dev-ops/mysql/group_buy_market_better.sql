@@ -25,7 +25,6 @@ CREATE TABLE `trade_order`
     `total_amount`      DECIMAL(10, 2)  NOT NULL COMMENT '原始总金额',
     `pay_amount`        DECIMAL(10, 2)  NOT NULL COMMENT '实际支付金额',
     `discount_amount`   DECIMAL(10, 2)  NOT NULL COMMENT '优惠金额',
-    `biz_id`            VARCHAR(64)     NOT NULL COMMENT '业务幂等号',
     `entry_source`      TINYINT         NOT NULL COMMENT '流量入口（枚举类型）',
     `pay_channel`       VARCHAR(32)     NOT NULL COMMENT '支付渠道',
     `order_create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -36,7 +35,6 @@ CREATE TABLE `trade_order`
     `update_time`       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_order_no` (`order_no`),
-    UNIQUE KEY `uq_biz_id` (`biz_id`),
     KEY `idx_user_id` (`user_id`),                                       # 按用户 ID 查询订单
     KEY `idx_order_status_expire` (`order_status`, `order_expire_time`), # 超时关单
     KEY `idx_trade_sc` (`entry_source`, `pay_channel`)
@@ -130,7 +128,8 @@ CREATE TABLE `activity_config`
     `activity_id`          BIGINT          NOT NULL COMMENT '活动 ID',
     `activity_name`        VARCHAR(128)    NOT NULL COMMENT '活动名称',
     `activity_type`        TINYINT         NOT NULL COMMENT '活动类型：0-默认活动，1-拼团，2-凑单，...',
-    `discount_expr`        VARCHAR(255)    NOT NULL COMMENT '优惠表达式',
+    `discount_type`        TINYINT         NOT NULL COMMENT '优惠类型：1-直减，2-直降，3-折扣，4-满减',
+    `discount_config`      JSON                     DEFAULT NULL COMMENT '优惠配置',
     `total_discount_quota` INT             NOT NULL COMMENT '优惠名额总数（如果是拼团活动则该值等于成团所需人数）',
     `limit_tag`            INT             NOT NULL DEFAULT 0 COMMENT '限流标签，可输入多个人群标签，被限流的无法参加活动',
     `status`               TINYINT         NOT NULL COMMENT '活动状态：0-禁用，1-启用',
@@ -148,46 +147,129 @@ LOCK TABLES `activity_config` WRITE;
 /*!40000 ALTER TABLE `activity_config`
     DISABLE KEYS */;
 
-INSERT INTO `activity_config` (activity_id, activity_name, activity_type, discount_expr,
-                               total_discount_quota, limit_tag, status, start_time, end_time,
+INSERT INTO `activity_config` (activity_id,
+                               activity_name,
+                               activity_type,
+                               discount_type,
+                               discount_config,
+                               total_discount_quota,
+                               limit_tag,
+                               status,
+                               start_time,
+                               end_time,
                                create_time,
                                update_time)
-VALUES (0,
-        '默认活动',
-        0,
-        'NO_DISCOUNT',
-        0,
-        0,
-        1,
-        '1970-01-01 00:00:00',
-        '2999-12-31 23:59:59',
-        NOW(),
-        NOW()),
+VALUES
+    -- 默认活动
+    (0,
+     '默认活动',
+     0,
+     0,
+     NULL,
+     0,
+     0,
+     1,
+     '1970-01-01 00:00:00',
+     '2999-12-31 23:59:59',
+     NOW(),
+     NOW()),
 
-       (100001,
-        '新人三人拼团活动',
-        1,
-        '80_PERCENT',
-        3,
-        0,
-        1,
-        NOW(),
-        DATE_ADD(NOW(), INTERVAL 1 DAY),
-        NOW(),
-        NOW()),
+    -- 三人成团，8折优惠
+    (100001,
+     '新人三人拼团8折活动',
+     1,
+     3,
+     JSON_OBJECT(
+             'percent', 80
+     ),
+     3,
+     0,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 7 DAY),
+     NOW(),
+     NOW()),
 
--- 五人拼团，限制黑名单和薅羊毛用户，直降30元
-       (100002,
-        '五人团立减30活动',
-        1,
-        'DIRECT_MINUS_30',
-        5,
-        6,
-        1,
-        NOW(),
-        DATE_ADD(NOW(), INTERVAL 1 DAY),
-        NOW(),
-        NOW());
+    -- 五人成团，立减30元
+    (100002,
+     '五人成团立减30元',
+     1,
+     1,
+     JSON_OBJECT(
+             'amount', 30
+     ),
+     5,
+     6,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 7 DAY),
+     NOW(),
+     NOW()),
+
+    -- 三人成团，直降到99元
+    (100003,
+     '三人成团99元秒杀',
+     1,
+     2,
+     JSON_OBJECT(
+             'price', 99
+     ),
+     3,
+     0,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 3 DAY),
+     NOW(),
+     NOW()),
+
+    -- 十人成团，5折优惠
+    (100004,
+     '十人成团半价购',
+     1,
+     3,
+     JSON_OBJECT(
+             'percent', 50
+     ),
+     10,
+     0,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 15 DAY),
+     NOW(),
+     NOW()),
+
+    -- 五人成团，满200减50
+    (100005,
+     '五人成团满200减50',
+     1,
+     4,
+     JSON_OBJECT(
+             'threshold', 200,
+             'amount', 50
+     ),
+     5,
+     0,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 10 DAY),
+     NOW(),
+     NOW()),
+
+    -- 八人成团，立减100元
+    (100006,
+     '八人成团立减100元',
+     1,
+     1,
+     JSON_OBJECT(
+             'amount', 100
+     ),
+     8,
+     2,
+     1,
+     NOW(),
+     DATE_ADD(NOW(), INTERVAL 30 DAY),
+     NOW(),
+     NOW());
 
 /*!40000 ALTER TABLE `activity_config`
     ENABLE KEYS */;

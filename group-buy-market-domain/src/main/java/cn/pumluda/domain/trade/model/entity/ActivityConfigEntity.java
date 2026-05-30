@@ -1,11 +1,13 @@
 package cn.pumluda.domain.trade.model.entity;
 
+import cn.pumluda.types.enums.DiscountTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Project: group-buy-market-better <p>
@@ -28,8 +30,9 @@ public class ActivityConfigEntity {
     /* 活动类型 */
     private Integer activityType;
 
-    /* 优惠表达式 */
-    private String discountExpr;
+    /* 优惠配置 */
+    private DiscountTypeEnum discountType;
+    private Map<String, Object> discountConfig;
     /* 总优惠名额数量 */
     private Integer totalDiscountQuota;
     /* 已占用的优惠名额数量 */

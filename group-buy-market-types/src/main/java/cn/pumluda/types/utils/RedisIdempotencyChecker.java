@@ -19,7 +19,7 @@ import java.time.Duration;
 public class RedisIdempotencyChecker {
 
     /* 黑名单业务键名前缀 */
-    private static final String IDEMPOTENCY_KEY_PREFIX = "idem";
+    private static final String IDEMPOTENCY_KEY_PREFIX = "idempotency";
     private final RedissonClient redissonClient;
 
     public RedisIdempotencyChecker(RedissonClient redissonClient) {
@@ -29,13 +29,13 @@ public class RedisIdempotencyChecker {
     /**
      * 尝试设置幂等键，如果键不存在则设置成功 `SETNX`（代表首次请求），否则失败（代表重复请求）
      *
-     * @param businessKey  业务唯一标识
-     * @param idempotentId 幂等唯一标识
-     * @param ttlSeconds   键存活时间（秒）
+     * @param businessKey 业务唯一标识
+     * @param bizId       业务幂等号
+     * @param ttlSeconds  键存活时间（秒）
      * @return true 表示首次请求，false 表示重复请求
      */
-    public boolean tryAcquire(String businessKey, Long idempotentId, long ttlSeconds) {
-        String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + idempotentId;
+    public boolean tryAcquire(String businessKey, String bizId, long ttlSeconds) {
+        String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + bizId;
 
         RBucket<String> bucket = redissonClient.getBucket(key);
         return bucket.setIfAbsent("1", Duration.ofSeconds(ttlSeconds));
@@ -44,11 +44,11 @@ public class RedisIdempotencyChecker {
     /**
      * 释放幂等键（业务失败时调用，允许用户使用相同幂等 ID 进行业务重试）
      *
-     * @param businessKey  业务唯一标识
-     * @param idempotentId 幂等唯一标识
+     * @param businessKey 业务唯一标识
+     * @param bizId       业务幂等号
      */
-    public void release(String businessKey, Long idempotentId) {
-        String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + idempotentId;
+    public void release(String businessKey, String bizId) {
+        String key = IDEMPOTENCY_KEY_PREFIX + ":" + businessKey + ":" + bizId;
         redissonClient.getBucket(key).delete();
     }
 }

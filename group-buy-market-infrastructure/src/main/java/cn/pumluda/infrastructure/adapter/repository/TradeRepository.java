@@ -8,6 +8,7 @@ import cn.pumluda.infrastructure.dao.ISkuDao;
 import cn.pumluda.infrastructure.dao.po.ActivityConfigPo;
 import cn.pumluda.infrastructure.dao.po.SkuPo;
 import cn.pumluda.types.common.RedisConstants;
+import cn.pumluda.types.enums.DiscountTypeEnum;
 import cn.pumluda.types.utils.RedisKeyBuilder;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,9 @@ public class TradeRepository implements ITradeRepository {
             /* 如果 DB 命中，先写入缓存在返回数据给上游 */
             ActivityConfigEntity entity = new ActivityConfigEntity();
             BeanUtils.copyProperties(activityConfigPo, entity);
+
+            /* 部分字段转换 */
+            entity.setDiscountType(DiscountTypeEnum.of(activityConfigPo.getDiscountType()));
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
             long ttlWithSalt =
@@ -192,6 +196,9 @@ public class TradeRepository implements ITradeRepository {
 
                                 ActivityConfigEntity entity = new ActivityConfigEntity();
                                 BeanUtils.copyProperties(activity, entity);
+
+                                /* 部分字段转换 */
+                                entity.setDiscountType(DiscountTypeEnum.of(activity.getDiscountType()));
 
                                 long ttlWithSalt =
                                         RedisConstants.CACHE_EXPIRE_MINUTES +
