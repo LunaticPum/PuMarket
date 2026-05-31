@@ -85,7 +85,7 @@ CREATE TABLE `activity_order_record`
     `create_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY (`order_no`),
+    UNIQUE KEY (`activity_id`, `user_id`),
     KEY `idx_user_id` (`user_id`),                                       # 查询当前用户的拼团记录
     KEY `idx_activity_id` (`activity_id`),                               # 查询活动报表
     KEY `idx_activity_business_id` (`activity_business_id`, `join_time`) # 查询某个团的所有成员，按参团时间顺序排序
@@ -102,6 +102,7 @@ CREATE TABLE `group_team`
     `activity_id`       BIGINT          NOT NULL COMMENT '活动 ID',
     `group_team_id`     BIGINT          NOT NULL COMMENT '拼团队伍 ID',
     `leader_user_id`    BIGINT          NOT NULL COMMENT '团长用户 ID',
+    `sku_id`            BIGINT          NOT NULL COMMENT '商品 ID',
     `required_num`      INT             NOT NULL COMMENT '成团所需人数',
     `current_num`       INT                      DEFAULT 0 COMMENT '当前参团人数',
     `settled_trade_num` INT                      DEFAULT 0 COMMENT '团内结算交易量',

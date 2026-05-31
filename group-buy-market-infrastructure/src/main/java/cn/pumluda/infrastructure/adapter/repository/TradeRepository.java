@@ -3,6 +3,7 @@ package cn.pumluda.infrastructure.adapter.repository;
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.*;
+import cn.pumluda.domain.trade.model.valobj.GroupTeamStatusEnumVo;
 import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.infrastructure.cache.ICacheManager;
@@ -150,8 +151,35 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
-    public GroupTeamEntity getGroupTeamByTeamId(Long groupTeamId) {
-        return null;
+    public GroupTeamEntity getGroupTeam(Long activityId, Long groupTeamId) {
+
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_GROUP_TEAM, activityId, groupTeamId);
+        GroupTeamEntity cached = cacheService.get(key, GroupTeamEntity.class);
+        if (cached != null) {
+            return cached;  // 缓存命中
+        }
+
+        GroupTeamPo groupTeamPo = groupTeamDao.getGroupTeam(activityId, groupTeamId);
+
+        if (groupTeamPo != null) {
+            /* 如果 DB 命中，先写入缓存在返回数据给上游 */
+            GroupTeamEntity entity = new GroupTeamEntity();
+            BeanUtils.copyProperties(groupTeamPo, entity);
+
+            entity.setTeamStatus(GroupTeamStatusEnumVo.of(groupTeamPo.getTeamStatus()));
+
+            // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
+            long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+            cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+
+            return entity;
+        } else {
+            // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
+            long ttlWithSalt = RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(0, 10);
+            cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
+
+            return null;
+        }
     }
 
     @Override
@@ -164,19 +192,19 @@ public class TradeRepository implements ITradeRepository {
         return List.of();
     }
 
-    // todo 待实现。。
+    // todo 额外功能，有需要再实现
 
 
     @Override
-    public ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId) {
+    public ActivityOrderRecordEntity getActivityOrderRecord(Long userId, Long activityId) {
 
-        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, orderNo, activityId);
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId);
         ActivityOrderRecordEntity cached = cacheService.get(key, ActivityOrderRecordEntity.class);
         if (cached != null) {
             return cached;  // 缓存命中
         }
 
-        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(orderNo, activityId);
+        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
 
         if (activityOrderRecord != null) {
             /* 如果 DB 命中，先写入缓存在返回数据给上游 */
@@ -228,6 +256,7 @@ public class TradeRepository implements ITradeRepository {
                                              .activityId(groupTeam.getActivityId())
                                              .groupTeamId(groupTeam.getGroupTeamId())
                                              .leaderUserId(groupTeam.getLeaderUserId())
+                                             .skuId(groupTeam.getSkuId())
                                              .requiredNum(groupTeam.getRequiredNum())
                                              .currentNum(groupTeam.getCurrentNum())
                                              .settledTradeNum(groupTeam.getSettledTradeNum())
@@ -238,7 +267,7 @@ public class TradeRepository implements ITradeRepository {
 
         groupTeamDao.addGroupTeam(groupTeamPo);
 
-        // todo 异步写缓存 + MQ消息兜底机制
+        // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
 
         // todo entity 转换，不要将整个entity存入缓存，只存必要信息
 
@@ -259,6 +288,13 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
+    public void joinGroupTeam(Long activityId, Long groupTeamId) {
+        groupTeamDao.joinGroupTeam(activityId, groupTeamId);
+
+        // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
+    }
+
+    @Override
     public void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord) {
         ActivityOrderRecordPo activityOrderRecordPo = ActivityOrderRecordPo.builder()
                                                                            .orderNo(activityOrderRecord.getOrderNo())
@@ -276,7 +312,7 @@ public class TradeRepository implements ITradeRepository {
 
         activityOrderRecordDao.addActivityOrderRecord(activityOrderRecordPo);
 
-        // todo 异步写缓存 + MQ消息兜底机制
+        // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
 
         // todo entity 转换，不要将整个entity存入缓存，只存必要信息
     }
@@ -285,7 +321,7 @@ public class TradeRepository implements ITradeRepository {
     public void reserveSkuStock(Long skuId, int quantity) {
         skuDao.reserveSkuStock(skuId, quantity);
 
-        // todo 异步写缓存 + MQ消息兜底机制
+        // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
 
         // todo entity 转换，不要将整个entity存入缓存，只存必要信息
     }

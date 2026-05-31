@@ -29,6 +29,8 @@ public class GroupTeamEntity {
     private Long groupTeamId;
     /* 团长用户 ID */
     private Long leaderUserId;
+    /* 绑定的商品 ID：拼团购买的是什么商品 */
+    private Long skuId;
 
     /* 成团所需人数：成团条件人数 - 团内已结算订单量 */
     private Integer requiredNum;

@@ -24,7 +24,7 @@ public enum GroupTeamStatusEnumVo {
     private Integer code;
     private String info;
 
-    public static GroupTeamStatusEnumVo getStatus(Integer code) {
+    public static GroupTeamStatusEnumVo of(Integer code) {
         return switch (code) {
             case 1 -> COMPLETE;
             case 2 -> FAILED;

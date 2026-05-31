@@ -2,6 +2,7 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.GroupTeamPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * Project: group-buy-market-better <p>
@@ -15,5 +16,9 @@ import org.apache.ibatis.annotations.Mapper;
 public interface IGroupTeamDao {
 
     void addGroupTeam(GroupTeamPo groupTeam);
+
+    void joinGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
+
+    GroupTeamPo getGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 
 }

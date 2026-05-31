@@ -7,6 +7,7 @@
         <result column="activity_id" property="activityId"/>
         <result column="group_team_id" property="groupTeamId"/>
         <result column="leader_user_id" property="leaderUserId"/>
+        <result column="sku_id" property="skuId"/>
         <result column="required_num" property="requiredNum"/>
         <result column="current_num" property="currentNum"/>
         <result column="settled_trade_num" property="settledTradeNum"/>
@@ -19,12 +20,13 @@
     </resultMap>
 
     <insert id="addGroupTeam" parameterType="GroupTeamPo">
-        INSERT INTO group_buy_market_better.group_team(activity_id, group_team_id, leader_user_id, required_num,
+        INSERT INTO group_buy_market_better.group_team(activity_id, group_team_id, leader_user_id, sku_id, required_num,
                                                        current_num, settled_trade_num, team_status, team_create_time,
                                                        team_expire_time, create_time, update_time)
         values (#{activityId},
                 #{groupTeamId},
                 #{leaderUserId},
+                #{skuId},
                 #{requiredNum},
                 #{currentNum},
                 #{settledTradeNum},
@@ -34,5 +36,31 @@
                 now(),
                 now())
     </insert>
+
+    <update id="joinGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET current_num = current_num + 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+    </update>
+
+    <select id="getGroupTeam" resultType="GroupTeamPo">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+    </select>
 
 </mapper>

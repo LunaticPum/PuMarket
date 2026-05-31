@@ -31,6 +31,8 @@ public class GroupTeamPo {
     private Long groupTeamId;
     /* 团长用户 ID */
     private Long leaderUserId;
+    /* 商品 ID */
+    private Long skuId;
 
     /* 成团所需人数 */
     private int requiredNum;

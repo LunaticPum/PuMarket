@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface IActivityOrderRecordDao {
 
-    ActivityOrderRecordPo getActivityOrderRecord(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
+    ActivityOrderRecordPo getActivityOrderRecord(@Param("userId") Long userId, @Param("activityId") Long activityId);
 
     void addActivityOrderRecord(ActivityOrderRecordPo activityOrderRecord);
 

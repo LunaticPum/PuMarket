@@ -21,8 +21,8 @@ public enum ResponseEnum {
     ACTIVITY_EXPIRED("0009", "活动已过期"),
     ACTIVITY_NOT_STARTED("0010", "活动未开始"),
     GROUP_TEAM_NULL("0011", "不存在该拼团队伍"),
-    GROUP_TEAM_FULL("0012", "拼团队伍已满"),
-    GROUP_TEAM_CLOSED("0013", "拼团队伍已关闭"),
+    GROUP_TEAM_FAIL("0012", "该拼团队伍已不可参与"),
+    GROUP_TEAM_FULL("0013", "该拼团队伍已满"),
     ORDER_HAS_GROUP("0014", "订单已有进行中的团"),
     WRITE_DB_ERROR("0015", "DB 数据写入失败"),
     DUPLICATE_TRADE_ORDER("0016", "该笔交易订单已存在");

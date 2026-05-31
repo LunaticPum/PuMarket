@@ -34,7 +34,6 @@ public class OrderDiscountCalcNode extends AbstractStrategyRouter<BusinessAggreg
     @Resource
     private Map<String, DiscountCalculator> discountCalculatorMap;
 
-
     @Override
     public OrderItemEntity apply(BusinessAggregate requestParam, DynamicContext dynamicContext) throws Exception {
 

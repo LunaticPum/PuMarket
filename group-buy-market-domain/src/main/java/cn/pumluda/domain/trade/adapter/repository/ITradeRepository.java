@@ -27,8 +27,8 @@ public interface ITradeRepository {
     /* 按标签查找用户：统计指定标签下的用户人群 */
     List<UserTagRecordEntity> getUserTagRecordByTag(Integer userTag);
 
-    /* 按拼团队伍 ID 查找拼团队伍 */
-    GroupTeamEntity getGroupTeamByTeamId(Long groupTeamId);
+    /* 按活动 ID 和 拼团队伍 ID 查找拼团队伍 */
+    GroupTeamEntity getGroupTeam(Long activityId, Long groupTeamId);
 
     /* 按团长用户 ID 查找拼团队伍 */
     GroupTeamEntity getGroupTeamByLeaderUserId(Long leaderUserId);
@@ -36,14 +36,17 @@ public interface ITradeRepository {
     /* 按活动 ID 查找拼团队伍：统计指定活动的拼团情况 */
     List<GroupTeamEntity> getGroupTeamByActivityId(Long activityId);
 
-    /* 按交易单号和活动 ID 查找交易订单的参与活动记录 */
-    ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId);
+    /* 按用户 ID 查找参与活动的订单记录 */
+    ActivityOrderRecordEntity getActivityOrderRecord(Long userId, Long activityId);
 
     /* 按交易单号查找交易订单 */
     OrderAggregate getOrderByOrderNo(String orderNo);
 
     /* 新增拼团队伍 */
     void addGroupTeam(GroupTeamEntity groupTeam);
+
+    /* 更新拼团队伍信息：新增参团人员 */
+    void joinGroupTeam(Long activityId, Long groupTeamId);
 
     /* 新增交易订单的参与活动记录 */
     void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord);

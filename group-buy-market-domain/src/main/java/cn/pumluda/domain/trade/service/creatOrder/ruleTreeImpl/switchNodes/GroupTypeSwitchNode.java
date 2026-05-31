@@ -76,9 +76,9 @@ public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregat
                 );
             }
 
-            /* 1. 查询用户是否已有拼团活动参与记录 */
+            /* 1. 查询用户在当前活动中是否已有拼团活动参与记录：一个活动中每个用户只能同时有一个活动参与且处理中记录， */
             ActivityOrderRecordEntity activityOrderRecord = repository.getActivityOrderRecord(
-                    orderNo,
+                    requestParam.getUserId(),
                     activityId
             );
 

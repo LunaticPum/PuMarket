@@ -55,6 +55,7 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
                                                    .activityId(activityConfig.getActivityId())
                                                    .groupTeamId(groupTeamId)
                                                    .leaderUserId(requestParam.getUserId())
+                                                   .skuId(requestParam.getSku().getSkuId())
                                                    .requiredNum(activityConfig.getTotalDiscountQuota())
                                                    .currentNum(1)
                                                    .settledTradeNum(0)

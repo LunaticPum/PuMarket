@@ -30,8 +30,8 @@
                join_time,
                expire_time
         FROM group_buy_market_better.activity_order_record
-        WHERE order_no = #{orderNo}
-          AND activity_id = #{activityId}
+        WHERE user_id = #{userId}
+        AND activity_id = #{activityId}
     </select>
 
     <insert id="addActivityOrderRecord" parameterType="ActivityOrderRecordPo">
