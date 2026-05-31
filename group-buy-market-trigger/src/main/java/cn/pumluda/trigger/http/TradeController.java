@@ -14,6 +14,7 @@ import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.common.ActivityConstants;
 import cn.pumluda.types.common.RedisConstants;
+import cn.pumluda.types.enums.ActivityTypeEnum;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.exception.AppException;
 import cn.pumluda.types.utils.RedisIdempotencyChecker;
@@ -44,6 +45,7 @@ public class TradeController implements ITradeController {
     @Resource
     private RedisIdempotencyChecker idempotencyChecker;
 
+    @AccessRateLimit(limitKey = "userId", qps = 20, fallback = "testFallback", blockThreshold = 10)
     @PostMapping("create_order")
     @Override
     public Response<CreateOrderResDTO> createOrder(@RequestBody CreateOrderReqDTO requestDTO) {
@@ -74,6 +76,7 @@ public class TradeController implements ITradeController {
         // 前置校验：如果校验结果类型是响应枚举类型，说明前置校验未通过，响应给客户端并告知校验失败原因
         Object preCheckResult = preCheckService.preCheck(
                 userId,
+                orderNo,
                 activityId,
                 skuId,
                 quantity
@@ -100,7 +103,6 @@ public class TradeController implements ITradeController {
                                                      .activityConfig(result.getActivityConfig())
                                                      .tradeSC(TradeSCVo.builder()
                                                                        .entrySource(requestDTO.getEntrySource())
-                                                                       .channel(requestDTO.getChannel())
                                                                        .build())
                                                      .build();
             } else {
@@ -116,8 +118,14 @@ public class TradeController implements ITradeController {
             CreateOrderResDTO responseDto = CreateOrderResDTO.builder()
                                                              .orderNo(orderNo)
                                                              .payPrice(orderItem.getActualPrice())
+                                                             .discountPrice(orderItem.getDiscountPrice())
+                                                             .activityId(orderItem.getActivityId())
+                                                             .activityType(ActivityTypeEnum.of(orderItem.getActivityType()))
                                                              .orderStatus(OrderStatusEnumVo.CREATE.getCode())
                                                              .build();
+
+            // 记得释放幂等锁
+            idempotencyChecker.release(RedisConstants.CREATE_ORDER, bizId);
 
             return Response.<CreateOrderResDTO>builder()
                            .code(ResponseEnum.SUCCESS.getCode())
@@ -147,9 +155,6 @@ public class TradeController implements ITradeController {
 
             return Response.<CreateOrderResDTO>builder().code(ResponseEnum.UN_ERROR.getCode()).info(
                     ResponseEnum.UN_ERROR.getInfo()).build();
-        } finally {
-            // 记得释放幂等锁
-            idempotencyChecker.release(RedisConstants.CREATE_ORDER, bizId);
         }
     }
 
@@ -162,5 +167,10 @@ public class TradeController implements ITradeController {
 
     public String testFallback(String info) {
         return "limit";
+    }
+
+    public Response<CreateOrderResDTO> testFallback(CreateOrderReqDTO requestDTO) {
+        return Response.<CreateOrderResDTO>builder()
+                       .info("检测到您当前的行为异常，请等候后续处理").build();
     }
 }

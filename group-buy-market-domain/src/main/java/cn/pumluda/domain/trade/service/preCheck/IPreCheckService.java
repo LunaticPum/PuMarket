@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.service.preCheck;
 
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
 
@@ -13,7 +14,7 @@ import cn.pumluda.domain.trade.model.entity.SkuEntity;
  */
 public interface IPreCheckService {
 
-    Object preCheck(Long userId, Long activityId, Long skuId, int quantity);
+    Object preCheck(Long userId, String orderNo, Long activityId, Long skuId, int quantity);
 
     /**
      * 查询商品数据
@@ -23,6 +24,12 @@ public interface IPreCheckService {
      */
     SkuEntity findValidSkuBySkuId(Long skuId);
 
+    /**
+     * 查找重复订单
+     * @param orderNo 交易单号
+     * @return 交易订单主表记录
+     */
+    OrderAggregate finalDuplicatedOrder(String orderNo);
 
     /**
      * 查询仍在有效期内的活动配置

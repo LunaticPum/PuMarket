@@ -15,8 +15,6 @@ import cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.serviceNodes.Orde
 import cn.pumluda.types.designs.ruleTree.AbstractStrategyRouter;
 import cn.pumluda.types.designs.ruleTree.StrategyHandler;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
-import cn.pumluda.types.enums.ResponseEnum;
-import cn.pumluda.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -66,41 +64,25 @@ public class CreateGroupNode extends AbstractStrategyRouter<BusinessAggregate, D
                                                    .build();
 
         ActivityOrderRecordEntity activityOrderRecord = ActivityOrderRecordEntity.builder()
-                                                                                 .orderNo(
-                                                                                         requestParam.getOrderNo())
+                                                                                 .orderNo(requestParam.getOrderNo())
                                                                                  .userId(requestParam.getUserId())
-                                                                                 .activityId(
-                                                                                         activityConfig.getActivityId())
-                                                                                 .activityName(
-                                                                                         activityConfig.getActivityName())
-                                                                                 .activityBusinessId(
-                                                                                         groupTeamId)
+                                                                                 .activityId(activityConfig.getActivityId())
+                                                                                 .activityName(activityConfig.getActivityName())
+                                                                                 .activityBusinessId(groupTeamId)
                                                                                  .participationType(
                                                                                          ActivityParticipationTypeEnum.CREATE_GROUP)
                                                                                  .quotaOccupied(1)
                                                                                  .recordStatus(0)
                                                                                  .joinTime(now)
-                                                                                 .expireTime(
-                                                                                         expireTime)
+                                                                                 .expireTime(expireTime)
                                                                                  .build();
 
         // 这里写失败了 jdbc 会自动抛异常触发事务回滚
         dynamicContext.setActivityBusinessId(groupTeamId);
         repository.addActivityOrderRecord(activityOrderRecord);
         repository.addGroupTeam(groupTeam);
-
-        /* 为订单预占商品库存：MySQL InnoDB 会对商品 SKU 表中的匹配行加行锁，保证 UPDATE 原子操作 */
-        int result = repository.reserveSkuStock(
-                requestParam.getSku().getSkuId(),
-                requestParam.getQuantity()
-        );
-
-        if (result == 0) {
-            throw new AppException(
-                    ResponseEnum.SKU_OUT_OF_STOCK.getCode(),
-                    ResponseEnum.SKU_OUT_OF_STOCK.getInfo()
-            );
-        }
+        // 为订单预占商品库存：MySQL InnoDB 会对商品 SKU 表中的匹配行加行锁，保证 UPDATE 原子操作
+        repository.reserveSkuStock(requestParam.getSku().getSkuId(), requestParam.getQuantity());
 
         log.info(
                 """

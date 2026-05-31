@@ -1,5 +1,6 @@
 package cn.pumluda.api.dto;
 
+import cn.pumluda.types.enums.ActivityTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,15 @@ public class CreateOrderResDTO {
 
     /* 实际支付金额 */
     private BigDecimal payPrice;
+
+    /* 优惠金额 */
+    private BigDecimal discountPrice;
+
+    /* 活动 ID */
+    private Long activityId;
+
+    /* 活动类型 */
+    private ActivityTypeEnum activityType;
 
     /* 订单状态 */
     private Integer orderStatus;

@@ -37,6 +37,8 @@ public class TradeOrderItemPo {
     private int quantity;
     /* 实际价格（如果由优惠则算上优惠） */
     private BigDecimal actualPrice;
+    /* 总优惠金额 */
+    private BigDecimal discountPrice;
 
     /* 活动 ID */
     private Long activityId;

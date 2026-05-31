@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.service.preCheck.dto;
 
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PreCheckResult {
     private final boolean firstCreate;
+    private final OrderAggregate order;
     private final SkuEntity sku;
     private final ActivityConfigEntity activityConfig;
     private final String bizId;

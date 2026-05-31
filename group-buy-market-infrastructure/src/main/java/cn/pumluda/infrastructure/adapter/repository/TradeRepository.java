@@ -1,7 +1,10 @@
 package cn.pumluda.infrastructure.adapter.repository;
 
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.*;
+import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
+import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.infrastructure.cache.ICacheManager;
 import cn.pumluda.infrastructure.cache.ICacheService;
 import cn.pumluda.infrastructure.dao.*;
@@ -65,21 +68,13 @@ public class TradeRepository implements ITradeRepository {
             BeanUtils.copyProperties(skuPo, entity);
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
-            long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
-            long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -106,21 +101,13 @@ public class TradeRepository implements ITradeRepository {
             entity.setDiscountType(DiscountTypeEnum.of(activityConfigPo.getDiscountType()));
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
-            long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
-            long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -144,21 +131,13 @@ public class TradeRepository implements ITradeRepository {
             BeanUtils.copyProperties(userTagRecordPo, entity);
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
-            long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + 0 ~ 5 秒的扰动
-            long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -191,20 +170,13 @@ public class TradeRepository implements ITradeRepository {
     @Override
     public ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId) {
 
-        String key = RedisKeyBuilder.buildKey(
-                RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
-                orderNo,
-                activityId
-        );
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, orderNo, activityId);
         ActivityOrderRecordEntity cached = cacheService.get(key, ActivityOrderRecordEntity.class);
         if (cached != null) {
             return cached;  // 缓存命中
         }
 
-        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(
-                orderNo,
-                activityId
-        );
+        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(orderNo, activityId);
 
         if (activityOrderRecord != null) {
             /* 如果 DB 命中，先写入缓存在返回数据给上游 */
@@ -215,21 +187,13 @@ public class TradeRepository implements ITradeRepository {
             entity.setParticipationType(ActivityParticipationTypeEnum.of(activityOrderRecord.getParticipationType()));
 
             // 默认缓存 TTL：10分钟 + -3 ~ 3 分钟的扰动
-            long ttlWithSalt =
-                    RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
 
             return entity;
         } else {
             // 空对象 TTL：20秒 + -3 ~ 3 秒的扰动
-            long ttlWithSalt =
-                    RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(
-                            0,
-                            10
-                    );
+            long ttlWithSalt = RedisConstants.NULL_EXPIRE_SECONDS + ThreadLocalRandom.current().nextLong(0, 10);
             cacheService.set(key, RedisConstants.NULL_PLACEHOLDER, ttlWithSalt, TimeUnit.SECONDS);
 
             return null;
@@ -237,9 +201,40 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
+    public OrderAggregate getOrderByOrderNo(String orderNo) {
+
+        TradeOrderPo tradeOrderPo = tradeOrderDao.getOrderByOrderNo(orderNo);
+        if (null == tradeOrderPo) return null;
+
+        OrderAggregate entity = new OrderAggregate();
+        BeanUtils.copyProperties(tradeOrderPo, entity);
+
+        UserTagRecordEntity userTagRecord = new UserTagRecordEntity(
+                tradeOrderPo.getUserId(),
+                tradeOrderPo.getUserTag()
+        );
+        TradeSCVo tradeSC = new TradeSCVo(tradeOrderPo.getEntrySource(), tradeOrderPo.getPayChannel());
+
+        entity.setUserTagRecord(userTagRecord);
+        entity.setOrderStatus(OrderStatusEnumVo.of(tradeOrderPo.getOrderStatus()));
+        entity.setTradeSC(tradeSC);
+
+        return entity;
+    }
+
+    @Override
     public void addGroupTeam(GroupTeamEntity groupTeam) {
-        GroupTeamPo groupTeamPo = new GroupTeamPo();
-        BeanUtils.copyProperties(groupTeam, groupTeamPo);
+        GroupTeamPo groupTeamPo = GroupTeamPo.builder()
+                                             .activityId(groupTeam.getActivityId())
+                                             .groupTeamId(groupTeam.getGroupTeamId())
+                                             .leaderUserId(groupTeam.getLeaderUserId())
+                                             .requiredNum(groupTeam.getRequiredNum())
+                                             .currentNum(groupTeam.getCurrentNum())
+                                             .settledTradeNum(groupTeam.getSettledTradeNum())
+                                             .teamStatus(groupTeam.getTeamStatus().getCode())
+                                             .teamCreateTime(groupTeam.getTeamCreateTime())
+                                             .teamExpireTime(groupTeam.getTeamExpireTime())
+                                             .build();
 
         groupTeamDao.addGroupTeam(groupTeamPo);
 
@@ -265,8 +260,20 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public void addActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord) {
-        ActivityOrderRecordPo activityOrderRecordPo = new ActivityOrderRecordPo();
-        BeanUtils.copyProperties(activityOrderRecord, activityOrderRecordPo);
+        ActivityOrderRecordPo activityOrderRecordPo = ActivityOrderRecordPo.builder()
+                                                                           .orderNo(activityOrderRecord.getOrderNo())
+                                                                           .userId(activityOrderRecord.getUserId())
+                                                                           .activityId(activityOrderRecord.getActivityId())
+                                                                           .activityName(activityOrderRecord.getActivityName())
+                                                                           .activityBusinessId(activityOrderRecord.getActivityBusinessId())
+                                                                           .participationType(activityOrderRecord.getParticipationType()
+                                                                                                                 .getCode())
+                                                                           .quotaOccupied(activityOrderRecord.getQuotaOccupied())
+                                                                           .recordStatus(activityOrderRecord.getRecordStatus())
+                                                                           .joinTime(activityOrderRecord.getJoinTime())
+                                                                           .expireTime(activityOrderRecord.getExpireTime())
+                                                                           .build();
+
         activityOrderRecordDao.addActivityOrderRecord(activityOrderRecordPo);
 
         // todo 异步写缓存 + MQ消息兜底机制
@@ -285,18 +292,37 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public void addOrderItem(OrderItemEntity orderItem) {
-        TradeOrderItemPo tradeOrderItemPo = new TradeOrderItemPo();
-        BeanUtils.copyProperties(orderItem, tradeOrderItemPo);
+        TradeOrderItemPo tradeOrderItemPo = TradeOrderItemPo.builder()
+                                                            .orderNo(orderItem.getOrderNo())
+                                                            .skuId(orderItem.getSkuId())
+                                                            .productName(orderItem.getProductName())
+                                                            .originPrice(orderItem.getOriginPrice())
+                                                            .quantity(orderItem.getQuantity())
+                                                            .actualPrice(orderItem.getActualPrice())
+                                                            .discountPrice(orderItem.getDiscountPrice())
+                                                            .activityId(orderItem.getActivityId())
+                                                            .activityType(orderItem.getActivityType())
+                                                            .activityBusinessId(orderItem.getActivityBusinessId())
+                                                            .build();
         tradeOrderItemDao.addOrderItem(tradeOrderItemPo);
         // 无缓存
     }
 
     @Override
-    public void updateTradeOrder(OrderItemEntity orderItem) {
-        // todo 补充tradeOrderPo
-
-        TradeOrderPo tradeOrderPo = new TradeOrderPo();
-        tradeOrderDao.updateTradeOrder(tradeOrderPo);
+    public void addTradeOrder(OrderAggregate order) {
+        TradeOrderPo tradeOrderPo = TradeOrderPo.builder()
+                                                .orderNo(order.getOrderNo())
+                                                .userId(order.getUserTagRecord().getUserId())
+                                                .userTag(order.getUserTagRecord().getUserTag())
+                                                .orderStatus(order.getOrderStatus().getCode())
+                                                .totalAmount(order.getTotalAmount())
+                                                .payAmount(order.getPayAmount())
+                                                .discountAmount(order.getDiscountAmount())
+                                                .entrySource(order.getTradeSC().getEntrySource())
+                                                .orderCreateTime(order.getOrderCreateTime())
+                                                .orderExpireTime(order.getOrderExpireTime())
+                                                .build();
+        tradeOrderDao.addTradeOrder(tradeOrderPo);
         // 无缓存
     }
 

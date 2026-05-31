@@ -27,7 +27,7 @@ public class OrderAggregate {
 
     /* 交易单号 */
     private String orderNo;
-    /* 用户标签记录：可为空，只有部分被打上标签的用户会有 */
+    /* 用户标签记录：标签可为空，只有部分被打上标签的用户会有 */
     private UserTagRecordEntity userTagRecord;
     /* 交易状态 */
     private OrderStatusEnumVo orderStatus;

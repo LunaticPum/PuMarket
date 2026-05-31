@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.ITradeOrderItemDao">
+
+    <resultMap id="dataMap" type="TradeOrderItemPo">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="product_name" property="productName"/>
+        <result column="origin_price" property="originPrice"/>
+        <result column="quantity" property="quantity"/>
+        <result column="actual_price" property="actualPrice"/>
+        <result column="discount_price" property="discountPrice"/>
+        <result column="activity_id" property="activityId"/>
+        <result column="activity_type" property="activityType"/>
+        <result column="activity_business_id" property="activityBusinessId"/>
+    </resultMap>
+
+    <insert id="addOrderItem" parameterType="TradeOrderItemPo">
+        INSERT INTO group_buy_market_better.trade_order_item(order_no, sku_id, product_name, origin_price, quantity,
+                                                             actual_price, discount_price, activity_id, activity_type,
+                                                             activity_business_id)
+        VALUES (#{orderNo},
+                #{skuId},
+                #{productName},
+                #{originPrice},
+                #{quantity},
+                #{actualPrice},
+                #{discountPrice},
+                #{activityId},
+                #{activityType},
+                #{activityBusinessId})
+    </insert>
+
+</mapper>

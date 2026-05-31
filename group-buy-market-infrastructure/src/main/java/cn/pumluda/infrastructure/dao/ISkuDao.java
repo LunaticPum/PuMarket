@@ -2,6 +2,7 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.SkuPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,6 +21,6 @@ public interface ISkuDao {
 
     List<SkuPo> getAllSku();
 
-    void reserveSkuStock(Long skuId, int quantity);
+    void reserveSkuStock(@Param("skuId") Long skuId, @Param("quantity") int quantity);
 
 }

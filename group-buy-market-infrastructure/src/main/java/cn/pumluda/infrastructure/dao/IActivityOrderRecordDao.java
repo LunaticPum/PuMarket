@@ -2,6 +2,7 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.ActivityOrderRecordPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * Project: group-buy-market-better <p>
@@ -14,7 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface IActivityOrderRecordDao {
 
-    ActivityOrderRecordPo getActivityOrderRecord(String orderNo, Long activityId);
+    ActivityOrderRecordPo getActivityOrderRecord(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
 
     void addActivityOrderRecord(ActivityOrderRecordPo activityOrderRecord);
 

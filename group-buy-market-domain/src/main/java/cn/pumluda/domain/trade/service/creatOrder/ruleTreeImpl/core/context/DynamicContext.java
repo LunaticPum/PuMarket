@@ -31,8 +31,8 @@ public class DynamicContext {
 
     /* 优惠金额：优惠表达式(商品单价) * 下单数量 */
     private BigDecimal discountPrice;
-    /* 原始金额：商品单价 * 下单数量 */
-    private BigDecimal originalPrice;
+    /* 原始总价：商品单价 * 下单数量 */
+    private BigDecimal totalAmount;
     /* 实际金额 */
     private BigDecimal actualPrice;
 }

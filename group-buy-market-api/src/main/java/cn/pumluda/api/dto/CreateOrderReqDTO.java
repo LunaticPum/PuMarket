@@ -35,8 +35,8 @@ public class CreateOrderReqDTO {
     /* 流量来源 */
     private Integer entrySource;
 
-    /* 交易渠道 */
-    private String channel;
+    /* 结算订单请求才有：交易渠道 */
+//    private String channel;
 
 }
 

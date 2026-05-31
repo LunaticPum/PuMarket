@@ -20,5 +20,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserTagRecordEntity {
     private Long userId;
-    private Integer userTag;
+    private Integer userTag = 0;
 }

@@ -34,4 +34,15 @@
         FROM group_buy_market_better.product_sku
     </select>
 
+    <update id="reserveSkuStock">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock        = stock - #{quantity},
+            locked_stock = locked_stock + #{quantity}
+        WHERE sku_id = #{skuId}
+          AND stock >= #{quantity}
+          AND status = 1
+        ]]>
+    </update>
+
 </mapper>

@@ -1,6 +1,5 @@
 package cn.pumluda.infrastructure.dao;
 
-import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.infrastructure.dao.po.TradeOrderPo;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -15,6 +14,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface ITradeOrderDao {
 
-    void updateTradeOrder(TradeOrderPo tradeOrder);
+    TradeOrderPo getOrderByOrderNo(String orderNo);
+
+    void addTradeOrder(TradeOrderPo tradeOrder);
 
 }

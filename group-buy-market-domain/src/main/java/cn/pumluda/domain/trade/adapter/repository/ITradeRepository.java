@@ -1,5 +1,6 @@
 package cn.pumluda.domain.trade.adapter.repository;
 
+import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.*;
 
 import java.util.List;
@@ -38,6 +39,9 @@ public interface ITradeRepository {
     /* 按交易单号和活动 ID 查找交易订单的参与活动记录 */
     ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId);
 
+    /* 按交易单号查找交易订单 */
+    OrderAggregate getOrderByOrderNo(String orderNo);
+
     /* 新增拼团队伍 */
     void addGroupTeam(GroupTeamEntity groupTeam);
 
@@ -51,5 +55,5 @@ public interface ITradeRepository {
     void addOrderItem(OrderItemEntity orderItem);
 
     /* 根据订单明细更新订单主表记录 */
-    void updateTradeOrder(OrderItemEntity orderItem);
+    void addTradeOrder(OrderAggregate order);
 }

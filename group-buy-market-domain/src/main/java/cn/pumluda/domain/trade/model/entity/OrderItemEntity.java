@@ -29,11 +29,13 @@ public class OrderItemEntity {
     /* 商品名称 */
     private String productName;
     /* 商品原始单价 */
-    private BigDecimal skuPrice;
+    private BigDecimal originPrice;
     /* 商品购买数量 */
     private int quantity;
     /* 实际支付价格（有优惠就总价扣减优惠金额） */
     private BigDecimal actualPrice;
+    /* 总优惠金额 */
+    private BigDecimal discountPrice;
 
     /* 活动 ID */
     private Long activityId;

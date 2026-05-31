@@ -55,7 +55,7 @@ public class OrderDiscountCalcNode extends AbstractStrategyRouter<BusinessAggreg
                 discountConfig
         );
 
-        dynamicContext.setOriginalPrice(sku.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        dynamicContext.setTotalAmount(sku.getPrice().multiply(BigDecimal.valueOf(quantity)));
         dynamicContext.setDiscountPrice(calculateResult[0]);
         dynamicContext.setActualPrice(calculateResult[1]);
 
