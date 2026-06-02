@@ -13,15 +13,18 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CacheType {
+public enum EventType {
 
-    GROUP_TEAM("GROUP_TEAM"),
+    CACHE_REFRESH("CACHE_REFRESH"),
 
-    ACTIVITY_ORDER_RECORD("ACTIVITY_ORDER_RECORD"),
+    SKU_STOCK_EXHAUSTED("SKU_STOCK_EXHAUSTED"),
 
-    SKU("SKU"),
+    ORDER_TIMEOUT_CLOSE("ORDER_TIMEOUT_CLOSE"),
 
-    ACTIVITY_CONFIG("ACTIVITY_CONFIG");
+    GROUP_TIMEOUT_CLOSE("GROUP_TIMEOUT_CLOSE"),
+
+    ACTIVITY_ORDER_RECORD_TIMEOUT_CLOSE("ACTIVITY_TIMEOUT_CLOSE"),
+    ;
 
     private final String name;
 

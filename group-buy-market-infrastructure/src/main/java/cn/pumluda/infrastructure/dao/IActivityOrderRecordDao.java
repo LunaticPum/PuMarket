@@ -1,8 +1,11 @@
 package cn.pumluda.infrastructure.dao;
 
+import cn.pumluda.infrastructure.dao.po.ActivityConfigPo;
 import cn.pumluda.infrastructure.dao.po.ActivityOrderRecordPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * Project: group-buy-market-better <p>
@@ -16,7 +19,9 @@ import org.apache.ibatis.annotations.Param;
 public interface IActivityOrderRecordDao {
 
     ActivityOrderRecordPo getActivityOrderRecord(@Param("userId") Long userId, @Param("activityId") Long activityId);
-
     void addActivityOrderRecord(ActivityOrderRecordPo activityOrderRecord);
 
+    List<ActivityOrderRecordPo> queryTimeoutRecord();
+
+    void closeActivityOrder(@Param("userId") Long userId, @Param("activityId") Long activityId);
 }

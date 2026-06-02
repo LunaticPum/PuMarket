@@ -58,4 +58,31 @@
         FROM group_buy_market_better.trade_order
         WHERE order_no = #{orderNo}
     </select>
+
+    <select id="queryTimeoutOrders" resultMap="dataMap">
+        <![CDATA[
+        SELECT order_no,
+               user_id,
+               user_tag,
+               order_status,
+               total_amount,
+               pay_amount,
+               discount_amount,
+               entry_source,
+               pay_channel,
+               order_create_time,
+               order_expire_time,
+               order_end_time
+        FROM group_buy_market_better.trade_order
+        WHERE order_expire_time <= now()
+          AND order_status = 0
+        ]]>
+    </select>
+
+    <update id="closeTradeOrder">
+        UPDATE group_buy_market_better.trade_order
+        SET order_status = 3
+        WHERE order_no = #{orderNo}
+          AND user_id = #{userId}
+    </update>
 </mapper>

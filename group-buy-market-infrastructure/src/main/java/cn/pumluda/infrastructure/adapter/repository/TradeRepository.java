@@ -12,9 +12,9 @@ import cn.pumluda.infrastructure.dao.*;
 import cn.pumluda.infrastructure.dao.po.*;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
-import cn.pumluda.types.enums.CacheType;
 import cn.pumluda.types.enums.DiscountTypeEnum;
-import cn.pumluda.types.event.CacheRefreshEvent;
+import cn.pumluda.types.enums.EventType;
+import cn.pumluda.types.event.EventEnvelope;
 import cn.pumluda.types.utils.RedisKeyBuilder;
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +71,25 @@ public class TradeRepository implements ITradeRepository {
             SkuEntity entity = new SkuEntity();
             /* BeanUtils：po -> entity */
             BeanUtils.copyProperties(skuPo, entity);
+
+            if (skuPo.getStock() != null && skuPo.getStock() <= 0) {
+                if (skuPo.getStatus() != 0) {
+                    skuDao.updateSkuStatus(skuId, 0);
+                }
+
+                // 发出库存告罄通知，异步调用库存补货 RPC 接口
+                EventEnvelope event = EventEnvelope.builder()
+                                                   .eventType(EventType.SKU_STOCK_EXHAUSTED)
+                                                   .bizId(UUID.randomUUID().toString())
+                                                   .shardKey(String.valueOf(skuId))
+                                                   .payload(JSON.toJSONString(Map.of(
+                                                           "skuId", skuId
+                                                   )))
+                                                   .build();
+
+                createMqTask("SKU", "restock-topic", event);
+            }
+
 
             // 默认缓存 TTL：10分钟 + 0 ~ 5 分钟的扰动
             long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
@@ -271,20 +291,21 @@ public class TradeRepository implements ITradeRepository {
         groupTeamDao.addGroupTeam(groupTeamPo);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
+        EventEnvelope event = EventEnvelope.builder()
+                                           .eventType(EventType.CACHE_REFRESH)
+                                           .bizId(UUID.randomUUID().toString())
+                                           .shardKey(groupTeam.getActivityId().toString())
+                                           .payload(JSON.toJSONString(Map.of(
+                                                   "cacheType",
+                                                   "GROUP_TEAM",
+                                                   "activityId",
+                                                   groupTeam.getActivityId(),
+                                                   "groupTeamId",
+                                                   groupTeam.getGroupTeamId()
+                                           )))
+                                           .build();
 
-        CacheRefreshEvent event = CacheRefreshEvent.builder()
-                                                   .shardKey(groupTeam.getActivityId()
-                                                                      .toString())  // 按活动 ID 分批顺序处理
-                                                   .cacheType(CacheType.GROUP_TEAM)
-                                                   .activityId(groupTeam.getActivityId())
-                                                   .groupTeamId(groupTeam.getGroupTeamId())
-                                                   .build();
-
-        MqTaskPo task = MqTaskPo.builder().bizId(UUID.randomUUID().toString()).bizType("GROUP").eventType(
-                "CACHE_REFRESH").topic("cache-refresh-topic").shardKey(groupTeam.getActivityId().toString()).payload(
-                JSON.toJSONString(event)).status(0).retryTimes(0).maxRetryTimes(3).build();
-
-        mqTaskDao.insert(task);
+        createMqTask("GROUP", "cache-refresh-topic", event);
     }
 
     @Override
@@ -292,15 +313,17 @@ public class TradeRepository implements ITradeRepository {
         groupTeamDao.joinGroupTeam(activityId, groupTeamId);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
-        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(activityId.toString())  // 按活动 ID 分批顺序处理
-                                                   .cacheType(CacheType.GROUP_TEAM).activityId(activityId).groupTeamId(
-                        groupTeamId).build();
+        EventEnvelope event = EventEnvelope.builder().eventType(EventType.CACHE_REFRESH).bizId(
+                UUID.randomUUID().toString()).shardKey(activityId.toString()).payload(JSON.toJSONString(Map.of(
+                "cacheType",
+                "GROUP_TEAM",
+                "activityId",
+                activityId,
+                "groupTeamId",
+                groupTeamId
+        ))).build();
 
-        MqTaskPo task = MqTaskPo.builder().bizId(UUID.randomUUID().toString()).bizType("GROUP").eventType(
-                "CACHE_REFRESH").topic("cache-refresh-topic").shardKey(activityId.toString()).payload(JSON.toJSONString(
-                event)).status(0).retryTimes(0).maxRetryTimes(3).build();
-
-        mqTaskDao.insert(task);
+        createMqTask("GROUP", "cache-refresh-topic", event);
     }
 
     @Override
@@ -322,24 +345,21 @@ public class TradeRepository implements ITradeRepository {
         activityOrderRecordDao.addActivityOrderRecord(activityOrderRecordPo);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
-        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(activityOrderRecordPo.getActivityId()
-                                                                                            .toString())  // 按活动 ID 分批顺序处理
-                                                   .cacheType(CacheType.ACTIVITY_ORDER_RECORD).userId(
-                        activityOrderRecordPo.getUserId()).activityId(activityOrderRecordPo.getActivityId()).build();
+        EventEnvelope event = EventEnvelope.builder()
+                                           .eventType(EventType.CACHE_REFRESH)
+                                           .bizId(UUID.randomUUID().toString())
+                                           .shardKey(activityOrderRecordPo.getActivityId().toString())
+                                           .payload(JSON.toJSONString(Map.of(
+                                                   "cacheType",
+                                                   "ACTIVITY_ORDER_RECORD",
+                                                   "userId",
+                                                   activityOrderRecordPo.getUserId(),
+                                                   "activityId",
+                                                   activityOrderRecordPo.getActivityId()
+                                           )))
+                                           .build();
 
-        MqTaskPo task = MqTaskPo.builder()
-                                .bizId(UUID.randomUUID().toString())
-                                .bizType("ACTIVITY")
-                                .eventType("CACHE_REFRESH")
-                                .topic("cache-refresh-topic")
-                                .shardKey(activityOrderRecordPo.getActivityId().toString())
-                                .payload(JSON.toJSONString(event))
-                                .status(0)
-                                .retryTimes(0)
-                                .maxRetryTimes(3)
-                                .build();
-
-        mqTaskDao.insert(task);
+        createMqTask("GROUP", "cache-refresh-topic", event);
     }
 
     @Override
@@ -347,22 +367,16 @@ public class TradeRepository implements ITradeRepository {
         skuDao.reserveSkuStock(skuId, quantity);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
-        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(skuId.toString())  // 按商品 SKU ID 分批顺序处理
-                                                   .cacheType(CacheType.ACTIVITY_ORDER_RECORD).skuId(skuId).build();
 
-        MqTaskPo task = MqTaskPo.builder()
-                                .bizId(UUID.randomUUID().toString())
-                                .bizType("SKU")
-                                .eventType("CACHE_REFRESH")
-                                .topic("cache-refresh-topic")
-                                .shardKey(skuId.toString())
-                                .payload(JSON.toJSONString(event))
-                                .status(0)
-                                .retryTimes(0)
-                                .maxRetryTimes(3)
-                                .build();
+        EventEnvelope event = EventEnvelope.builder()
+                                           .eventType(EventType.CACHE_REFRESH)
+                                           .bizId(UUID.randomUUID()
+                                                      .toString())
+                                           .shardKey(skuId.toString())
+                                           .payload(JSON.toJSONString(Map.of("cacheType", "SKU", "skuId", skuId)))
+                                           .build();
 
-        mqTaskDao.insert(task);
+        createMqTask("SKU", "cache-refresh-topic", event);
     }
 
     @Override
@@ -409,6 +423,23 @@ public class TradeRepository implements ITradeRepository {
         // 只预热配置项缓存：读多写少数据
         cacheManager.reloadConfigCache();
         log.info("[仓储实现层] ========== 缓存预热结束 ==========");
+    }
+
+    private void createMqTask(String bizType, String topic, EventEnvelope event) {
+        MqTaskPo task = MqTaskPo.builder()
+                                .bizId(event.getBizId())
+                                .bizType(bizType)
+                                .eventType(event.getEventType()
+                                                .name())
+                                .topic(topic)
+                                .shardKey(event.getShardKey())
+                                .payload(JSON.toJSONString(event))
+                                .status(0)
+                                .retryTimes(0)
+                                .maxRetryTimes(3)
+                                .build();
+
+        mqTaskDao.insert(task);
     }
 
 }

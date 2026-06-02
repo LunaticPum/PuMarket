@@ -63,4 +63,39 @@
           AND group_team_id = #{groupTeamId}
     </select>
 
+    <select id="queryTimeoutGroups" resultMap="dataMap">
+        <![CDATA[
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time
+        FROM group_buy_market_better.group_team
+        WHERE team_expire_time <= now()
+        AND team_status = 0
+        ]]>
+    </select>
+
+    <update id="closeGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET team_status = 2
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
+    <update id="repairQuota">
+        UPDATE group_buy_market_better.group_team
+        SET current_num = current_num - 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
 </mapper>

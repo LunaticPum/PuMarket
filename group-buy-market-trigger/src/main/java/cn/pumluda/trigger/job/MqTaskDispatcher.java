@@ -2,8 +2,8 @@ package cn.pumluda.trigger.job;
 
 import cn.pumluda.infrastructure.dao.IMqTaskDao;
 import cn.pumluda.infrastructure.dao.po.MqTaskPo;
-import cn.pumluda.infrastructure.mq.kafka.producer.CacheRefreshProducer;
-import cn.pumluda.types.event.CacheRefreshEvent;
+import cn.pumluda.infrastructure.mq.kafka.producer.MqProducer;
+import cn.pumluda.types.event.EventEnvelope;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +28,7 @@ public class MqTaskDispatcher {
     @Resource
     private IMqTaskDao mqTaskDao;
     @Resource
-    private CacheRefreshProducer producer;
+    private MqProducer producer;
 
     @Scheduled(fixedDelay = 1000)
     public void dispatch() {
@@ -36,8 +36,8 @@ public class MqTaskDispatcher {
 
         for (MqTaskPo task : tasks) {
             try {
-                CacheRefreshEvent event = JSON.parseObject(task.getPayload(), CacheRefreshEvent.class);
-                producer.send(event);
+                EventEnvelope event = JSON.parseObject(task.getPayload(), EventEnvelope.class);
+                producer.send(task.getTopic(), event);
                 mqTaskDao.markSuccess(task.getId());
             } catch (Exception e) {
                 int newRetry = task.getRetryTimes() + 1;

@@ -45,4 +45,12 @@
         ]]>
     </update>
 
+    <update id="updateSkuStatus">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET status = #{status}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
 </mapper>

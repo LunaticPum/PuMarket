@@ -2,6 +2,7 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.TradeOrderPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public interface ITradeOrderDao {
 
     void addTradeOrder(TradeOrderPo tradeOrder);
 
-    List<String> queryTimeoutOrders();
+    List<TradeOrderPo> queryTimeoutOrders();
 
+    void closeTradeOrder(@Param("orderNo") String orderNo, @Param("userId") Long userId);
 }
