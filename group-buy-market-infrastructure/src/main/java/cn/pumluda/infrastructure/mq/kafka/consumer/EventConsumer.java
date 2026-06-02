@@ -1,6 +1,7 @@
 package cn.pumluda.infrastructure.mq.kafka.consumer;
 
 import cn.pumluda.types.event.EventEnvelope;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -30,10 +31,12 @@ public class EventConsumer {
             },
             groupId = "biz-group"
     )
-    public void consume(EventEnvelope event) {
-        EventHandler eventHandler = eventHandlerMap.get(event.getEventType().name());
+    public void consume(String message) {
+        EventEnvelope event = JSON.parseObject(message, EventEnvelope.class);
 
-        eventHandler.handle(event);
+        EventHandler handler = eventHandlerMap.get(event.getEventType().name());
+
+        handler.handle(event);
     }
 
 }
