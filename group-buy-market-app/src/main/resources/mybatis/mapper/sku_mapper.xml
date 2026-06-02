@@ -53,4 +53,29 @@
         ]]>
     </update>
 
+    <update id="consumeLockedStockBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET locked_stock = locked_stock - #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <update id="restockSkuBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock = stock + #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <update id="repairStockBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock = stock + #{quantity},
+            locked_stock = locked_stock - #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
 </mapper>

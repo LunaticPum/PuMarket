@@ -16,4 +16,6 @@ public interface ITradeOrderItemDao {
 
     void addOrderItem(TradeOrderItemPo TradeOrderItem);
 
+    TradeOrderItemPo getOrderItem(String orderNo);
+
 }

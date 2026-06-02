@@ -85,4 +85,18 @@
         WHERE order_no = #{orderNo}
           AND user_id = #{userId}
     </update>
+
+    <update id="settleTradeOrder">
+        UPDATE group_buy_market_better.trade_order
+        SET order_status = 1
+        WHERE order_no = #{orderNo}
+          AND user_id = #{userId}
+    </update>
+
+    <update id="cancelTradeOrder">
+        UPDATE group_buy_market_better.trade_order
+        SET order_status = 2
+        WHERE order_no = #{orderNo}
+          AND user_id = #{userId}
+    </update>
 </mapper>

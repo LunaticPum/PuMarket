@@ -24,4 +24,10 @@ public interface ISkuDao {
     void reserveSkuStock(@Param("skuId") Long skuId, @Param("quantity") int quantity);
 
     void updateSkuStatus(@Param("skuId") Long skuId, @Param("status") int status);
+
+    void consumeLockedStockBySkuId(@Param("skuId") Long skuId, @Param("quantity") int quantity);
+
+    void restockSkuBySkuId(@Param("skuId") Long skuId, @Param("quantity") int quantity);
+
+    void repairStockBySkuId(@Param("skuId") Long skuId, @Param("quantity") int quantity);
 }

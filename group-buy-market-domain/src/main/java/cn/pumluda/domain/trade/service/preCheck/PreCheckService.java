@@ -4,6 +4,7 @@ import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
 import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ResponseEnum;
@@ -111,9 +112,9 @@ public class PreCheckService implements IPreCheckService {
             return ResponseEnum.DUPLICATE_CREATE_ORDER_REQUEST;
         }
         /* 响应异常：2. 交易订单已存在 */
-        if (order != null) {
+        if (order != null && order.getOrderStatus().equals(OrderStatusEnumVo.CREATE)) {
             log.error(
-                    "[创建订单] 已存在交易订单 userId={}, orderNo={}, activityId={}, skuId={}",
+                    "[创建订单] 已存在未处理的交易订单 userId={}, orderNo={}, activityId={}, skuId={}",
                     userId, orderNo, activityId, skuId
             );
             return ResponseEnum.DUPLICATE_TRADE_ORDER;

@@ -28,4 +28,6 @@ public interface IGroupTeamDao {
     void closeGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 
     void repairQuota(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
+
+    void addSettledNum(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 }

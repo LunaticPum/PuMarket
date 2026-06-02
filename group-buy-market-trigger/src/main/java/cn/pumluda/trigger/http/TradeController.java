@@ -3,6 +3,8 @@ package cn.pumluda.trigger.http;
 import cn.pumluda.api.ITradeController;
 import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
+import cn.pumluda.api.dto.SettleOrderReqDTO;
+import cn.pumluda.api.dto.SettleOrderResDTO;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
 import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
@@ -11,6 +13,7 @@ import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
 import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
+import cn.pumluda.infrastructure.gateway.PaymentCallback;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.common.ActivityConstants;
 import cn.pumluda.types.common.RedisConstants;
@@ -44,6 +47,9 @@ public class TradeController implements ITradeController {
     private ICreateOrderService createOrderService;
     @Resource
     private RedisIdempotencyChecker idempotencyChecker;
+
+    @Resource
+    private PaymentCallback paymentCallback;
 
     @AccessRateLimit(limitKey = "userId", qps = 20, fallback = "testFallback", blockThreshold = 10)
     @PostMapping("create_order")
@@ -158,15 +164,24 @@ public class TradeController implements ITradeController {
         }
     }
 
-    @AccessRateLimit(limitKey = "userId", qps = 1, fallback = "testFallback", blockThreshold = 1)
-    @GetMapping("test")
-    public String testLimit(@RequestParam(name = "userId") String userId) {
-        return "test";
+    @PostMapping("settle_order")
+    @Override
+    public Response<SettleOrderResDTO> settleOrder(@RequestBody SettleOrderReqDTO requestDTO) {
+        paymentCallback.settleTrade(requestDTO.getOrderNo(), requestDTO.getUserId());
+        return Response.<SettleOrderResDTO>builder()
+                       .code(ResponseEnum.SUCCESS.getCode())
+                       .info(ResponseEnum.SUCCESS.getInfo())
+                       .build();
     }
 
-
-    public String testFallback(String info) {
-        return "limit";
+    @PostMapping("cancel_order")
+    @Override
+    public Response<SettleOrderResDTO> cancelOrder(@RequestBody SettleOrderReqDTO requestDTO) {
+        paymentCallback.cancelTrade(requestDTO.getOrderNo(), requestDTO.getUserId());
+        return Response.<SettleOrderResDTO>builder()
+                       .code(ResponseEnum.SUCCESS.getCode())
+                       .info(ResponseEnum.SUCCESS.getInfo())
+                       .build();
     }
 
     public Response<CreateOrderResDTO> testFallback(CreateOrderReqDTO requestDTO) {

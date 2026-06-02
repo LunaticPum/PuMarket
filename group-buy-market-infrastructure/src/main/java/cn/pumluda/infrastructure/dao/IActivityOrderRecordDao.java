@@ -24,4 +24,6 @@ public interface IActivityOrderRecordDao {
     List<ActivityOrderRecordPo> queryTimeoutRecord();
 
     void closeActivityOrder(@Param("userId") Long userId, @Param("activityId") Long activityId);
+
+    void settleActivityOrder(@Param("userId") Long userId, @Param("activityId") Long activityId);
 }

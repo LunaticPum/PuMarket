@@ -32,4 +32,18 @@
                 #{activityBusinessId})
     </insert>
 
+    <select id="getOrderItem" parameterType="java.lang.String" resultType="TradeOrderItemPo">
+        SELECT order_no,
+               sku_id,
+               product_name,
+               origin_price,
+               quantity,
+               actual_price,
+               discount_price,
+               activity_id,
+               activity_type,
+               activity_business_id
+        FROM group_buy_market_better.trade_order_item
+        WHERE order_no = #{orderNo}
+    </select>
 </mapper>

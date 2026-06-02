@@ -24,4 +24,9 @@ public interface ITradeOrderDao {
     List<TradeOrderPo> queryTimeoutOrders();
 
     void closeTradeOrder(@Param("orderNo") String orderNo, @Param("userId") Long userId);
+
+    void settleTradeOrder(@Param("orderNo") String orderNo, @Param("userId") Long userId);
+
+    void cancelTradeOrder(@Param("orderNo") String orderNo, @Param("userId") Long userId);
+
 }

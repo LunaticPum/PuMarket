@@ -98,4 +98,12 @@
           AND team_status = 0
     </update>
 
+    <update id="addSettledNum">
+        UPDATE group_buy_market_better.group_team
+        SET settled_trade_num = settled_trade_num + 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
 </mapper>

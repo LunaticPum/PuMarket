@@ -1,13 +1,13 @@
 package cn.pumluda.infrastructure.mq.kafka.consumer.impl;
 
-import cn.hutool.core.lang.TypeReference;
+import cn.pumluda.infrastructure.gateway.ProductRPC;
 import cn.pumluda.infrastructure.mq.kafka.consumer.EventHandler;
 import cn.pumluda.types.enums.EventType;
 import cn.pumluda.types.event.EventEnvelope;
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -21,6 +21,9 @@ import java.util.Map;
 @Component("SKU_STOCK_EXHAUSTED")
 @Slf4j
 public class SkuStockExhaustedHandler implements EventHandler {
+
+    @Resource
+    private ProductRPC productRPC;
 
     @Override
     public EventType support() {
@@ -37,8 +40,11 @@ public class SkuStockExhaustedHandler implements EventHandler {
         );
 
         // TODO
-        // 发送邮件
-        // 发送短信
-        // RPC补货通知
+        productRPC.restockProductBySkuId((Long) payload.get("skuId"));
+        log.info(
+                "商品补货成功，补充 100 件商品 skuId={}",
+                payload.get("skuId")
+        );
+
     }
 }
