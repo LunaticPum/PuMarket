@@ -1,6 +1,7 @@
 package cn.pumluda.infrastructure.gateway;
 
 import cn.pumluda.infrastructure.dao.*;
+import cn.pumluda.infrastructure.dao.po.GroupTeamPo;
 import cn.pumluda.infrastructure.dao.po.TradeOrderItemPo;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,11 @@ public class PaymentCallback {
 
         skuDao.repairStockBySkuId(skuId, quantity);
         groupTeamDao.repairQuota(activityId, groupTeamId);
+
+        GroupTeamPo groupTeam = groupTeamDao.getGroupTeam(activityId, groupTeamId);
+        if (groupTeam.getLeaderUserId().equals(userId)) {
+            groupTeamDao.closeGroupTeam(activityId, groupTeamId);
+        }
         activityOrderRecordDao.closeActivityOrder(userId, activityId);
     }
 
