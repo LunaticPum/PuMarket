@@ -1,11 +1,11 @@
 package cn.pumluda.infrastructure.cache;
 
 import cn.pumluda.domain.trade.model.entity.*;
+import cn.pumluda.domain.trade.model.valobj.GroupTeamStatusEnumVo;
 import cn.pumluda.infrastructure.dao.*;
-import cn.pumluda.infrastructure.dao.po.ActivityConfigPo;
-import cn.pumluda.infrastructure.dao.po.SkuPo;
-import cn.pumluda.infrastructure.dao.po.UserTagRecordPo;
+import cn.pumluda.infrastructure.dao.po.*;
 import cn.pumluda.types.common.RedisConstants;
+import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
 import cn.pumluda.types.enums.DiscountTypeEnum;
 import cn.pumluda.types.utils.RedisKeyBuilder;
 import cn.pumluda.types.utils.juc.CompletableFutureUtils;
@@ -43,12 +43,8 @@ public class CacheManager implements ICacheManager {
     private final CompletableFutureUtils asyncUtil;
 
     @Override
-    public void reloadConfidCache() {
-        asyncUtil.runParallel(
-                this::reloadSkuCache,
-                this::reloadActivityCache,
-                this::reloadUserTagCache
-        );
+    public void reloadConfigCache() {
+        asyncUtil.runParallel(this::reloadSkuCache, this::reloadActivityCache, this::reloadUserTagCache);
     }
 
     @Override
@@ -70,15 +66,15 @@ public class CacheManager implements ICacheManager {
                     /* 部分字段转换 */
                     entity.setDiscountType(DiscountTypeEnum.of(activity.getDiscountType()));
 
-                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES +
-                                       ThreadLocalRandom.current().nextLong(0, 10);
+                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
                     cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
                 }
                 log.info("[仓储实现层] 活动配置缓存重加载完成，数量：{}", allActivity.size());
             } else {
-                log.info(
-                        "[仓储实现层] 活动配置记录为空"
-                );
+                log.info("[仓储实现层] 活动配置记录为空");
             }
 
         } catch (BeansException e) {
@@ -98,15 +94,15 @@ public class CacheManager implements ICacheManager {
                     SkuEntity entity = new SkuEntity();
                     BeanUtils.copyProperties(sku, entity);
 
-                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES +
-                                       ThreadLocalRandom.current().nextLong(0, 10);
+                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
                     cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
                 }
                 log.info("[仓储实现层] 商品 SKU 缓存重加载完成，数量：{}", allSku.size());
             } else {
-                log.info(
-                        "[仓储实现层] 商品 SKU 记录为空"
-                );
+                log.info("[仓储实现层] 商品 SKU 记录为空");
             }
 
         } catch (BeansException e) {
@@ -129,18 +125,15 @@ public class CacheManager implements ICacheManager {
                     UserTagRecordEntity entity = new UserTagRecordEntity();
                     BeanUtils.copyProperties(userTagRecord, entity);
 
-                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES +
-                                       ThreadLocalRandom.current().nextLong(0, 10);
+                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
                     cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
                 }
-                log.info(
-                        "[仓储实现层] 用户标签记录缓存重加载完成，数量：{}",
-                        allUserTagRecord.size()
-                );
+                log.info("[仓储实现层] 用户标签记录缓存重加载完成，数量：{}", allUserTagRecord.size());
             } else {
-                log.info(
-                        "[仓储实现层] 用户标签记录为空"
-                );
+                log.info("[仓储实现层] 用户标签记录为空");
             }
 
         } catch (BeansException e) {
@@ -149,13 +142,62 @@ public class CacheManager implements ICacheManager {
     }
 
     @Override
-    public void refreshGroupTeam(GroupTeamEntity groupTeam) {
+    public void refreshGroupTeamCache(Long activityId, Long groupTeamId) {
+        GroupTeamPo groupTeamPo = groupTeamDao.getGroupTeam(activityId, groupTeamId);
+        if (null == groupTeamPo) return;
 
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_GROUP_TEAM, activityId, groupTeamId);
+
+        GroupTeamEntity entity = new GroupTeamEntity();
+        BeanUtils.copyProperties(groupTeamPo, entity);
+        entity.setTeamStatus(GroupTeamStatusEnumVo.of(groupTeamPo.getTeamStatus()));
+
+        long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+        cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
     }
 
     @Override
-    public void refreshActivityOrderRecord(ActivityOrderRecordEntity activityOrderRecord) {
+    public void refreshActivityOrderRecordCache(Long userId, Long activityId) {
+        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
+        if (null == activityOrderRecordPo) return;
 
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId, activityId);
+
+        ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
+        BeanUtils.copyProperties(activityOrderRecordPo, entity);
+        entity.setParticipationType(ActivityParticipationTypeEnum.of(activityOrderRecordPo.getParticipationType()));
+
+        long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+        cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public void refreshActivityCache(Long activityId) {
+        ActivityConfigPo activityConfigPo = activityConfigDao.getActivityByActivityId(activityId);
+        if (null == activityConfigPo) return;
+
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_CONFIG, activityId);
+
+        ActivityConfigEntity entity = new ActivityConfigEntity();
+        BeanUtils.copyProperties(activityConfigPo, entity);
+        entity.setDiscountType(DiscountTypeEnum.of(activityConfigPo.getDiscountType()));
+
+        long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+        cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public void refreshSkuCache(Long skuId) {
+        SkuPo skuPo = skuDao.getSkuById(skuId);
+        if (null == skuPo) return;
+
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_SKU, skuId);
+
+        SkuEntity entity = new SkuEntity();
+        BeanUtils.copyProperties(skuPo, entity);
+
+        long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 10);
+        cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
     }
 
     @Override

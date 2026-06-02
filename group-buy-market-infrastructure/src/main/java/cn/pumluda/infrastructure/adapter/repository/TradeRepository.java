@@ -12,9 +12,11 @@ import cn.pumluda.infrastructure.dao.*;
 import cn.pumluda.infrastructure.dao.po.*;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
+import cn.pumluda.types.enums.CacheType;
 import cn.pumluda.types.enums.DiscountTypeEnum;
+import cn.pumluda.types.event.CacheRefreshEvent;
 import cn.pumluda.types.utils.RedisKeyBuilder;
-import cn.pumluda.types.utils.juc.CompletableFutureUtils;
+import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +25,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -46,10 +49,10 @@ public class TradeRepository implements ITradeRepository {
     private final ITradeOrderDao tradeOrderDao;
     private final ITradeOrderItemDao tradeOrderItemDao;
     private final IUserTagRecordDao userTagRecordDao;
+    private final IMqTaskDao mqTaskDao;
 
     private final ICacheService cacheService;
     private final ICacheManager cacheManager;
-    private final CompletableFutureUtils asyncUtil;
 
     @Override
     public SkuEntity getSkuById(Long skuId) {
@@ -198,7 +201,7 @@ public class TradeRepository implements ITradeRepository {
     @Override
     public ActivityOrderRecordEntity getActivityOrderRecord(Long userId, Long activityId) {
 
-        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId);
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId, activityId);
         ActivityOrderRecordEntity cached = cacheService.get(key, ActivityOrderRecordEntity.class);
         if (cached != null) {
             return cached;  // 缓存命中
@@ -269,22 +272,19 @@ public class TradeRepository implements ITradeRepository {
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
 
-        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
+        CacheRefreshEvent event = CacheRefreshEvent.builder()
+                                                   .shardKey(groupTeam.getActivityId()
+                                                                      .toString())  // 按活动 ID 分批顺序处理
+                                                   .cacheType(CacheType.GROUP_TEAM)
+                                                   .activityId(groupTeam.getActivityId())
+                                                   .groupTeamId(groupTeam.getGroupTeamId())
+                                                   .build();
 
-//        Long activityId = groupTeam.getActivityId();
-//        Long groupTeamId = groupTeam.getGroupTeamId();
-//
-//        String key = RedisKeyBuilder.buildKey(
-//                RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
-//                activityId,
-//                groupTeamId
-//        );
-//
-//        long ttlWithSalt =
-//                RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(0, 5);
-//
-//        cacheService.set(key, groupTeam, ttlWithSalt, TimeUnit.MINUTES);
+        MqTaskPo task = MqTaskPo.builder().bizId(UUID.randomUUID().toString()).bizType("GROUP").eventType(
+                "CACHE_REFRESH").topic("cache-refresh-topic").shardKey(groupTeam.getActivityId().toString()).payload(
+                JSON.toJSONString(event)).status(0).retryTimes(0).maxRetryTimes(3).build();
 
+        mqTaskDao.insert(task);
     }
 
     @Override
@@ -292,6 +292,15 @@ public class TradeRepository implements ITradeRepository {
         groupTeamDao.joinGroupTeam(activityId, groupTeamId);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
+        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(activityId.toString())  // 按活动 ID 分批顺序处理
+                                                   .cacheType(CacheType.GROUP_TEAM).activityId(activityId).groupTeamId(
+                        groupTeamId).build();
+
+        MqTaskPo task = MqTaskPo.builder().bizId(UUID.randomUUID().toString()).bizType("GROUP").eventType(
+                "CACHE_REFRESH").topic("cache-refresh-topic").shardKey(activityId.toString()).payload(JSON.toJSONString(
+                event)).status(0).retryTimes(0).maxRetryTimes(3).build();
+
+        mqTaskDao.insert(task);
     }
 
     @Override
@@ -313,8 +322,24 @@ public class TradeRepository implements ITradeRepository {
         activityOrderRecordDao.addActivityOrderRecord(activityOrderRecordPo);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
+        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(activityOrderRecordPo.getActivityId()
+                                                                                            .toString())  // 按活动 ID 分批顺序处理
+                                                   .cacheType(CacheType.ACTIVITY_ORDER_RECORD).userId(
+                        activityOrderRecordPo.getUserId()).activityId(activityOrderRecordPo.getActivityId()).build();
 
-        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
+        MqTaskPo task = MqTaskPo.builder()
+                                .bizId(UUID.randomUUID().toString())
+                                .bizType("ACTIVITY")
+                                .eventType("CACHE_REFRESH")
+                                .topic("cache-refresh-topic")
+                                .shardKey(activityOrderRecordPo.getActivityId().toString())
+                                .payload(JSON.toJSONString(event))
+                                .status(0)
+                                .retryTimes(0)
+                                .maxRetryTimes(3)
+                                .build();
+
+        mqTaskDao.insert(task);
     }
 
     @Override
@@ -322,8 +347,22 @@ public class TradeRepository implements ITradeRepository {
         skuDao.reserveSkuStock(skuId, quantity);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
+        CacheRefreshEvent event = CacheRefreshEvent.builder().shardKey(skuId.toString())  // 按商品 SKU ID 分批顺序处理
+                                                   .cacheType(CacheType.ACTIVITY_ORDER_RECORD).skuId(skuId).build();
 
-        // todo entity 转换，不要将整个entity存入缓存，只存必要信息
+        MqTaskPo task = MqTaskPo.builder()
+                                .bizId(UUID.randomUUID().toString())
+                                .bizType("SKU")
+                                .eventType("CACHE_REFRESH")
+                                .topic("cache-refresh-topic")
+                                .shardKey(skuId.toString())
+                                .payload(JSON.toJSONString(event))
+                                .status(0)
+                                .retryTimes(0)
+                                .maxRetryTimes(3)
+                                .build();
+
+        mqTaskDao.insert(task);
     }
 
     @Override
@@ -348,7 +387,8 @@ public class TradeRepository implements ITradeRepository {
     public void addTradeOrder(OrderAggregate order) {
         TradeOrderPo tradeOrderPo = TradeOrderPo.builder()
                                                 .orderNo(order.getOrderNo())
-                                                .userId(order.getUserTagRecord().getUserId())
+                                                .userId(order.getUserTagRecord()
+                                                             .getUserId())
                                                 .userTag(order.getUserTagRecord().getUserTag())
                                                 .orderStatus(order.getOrderStatus().getCode())
                                                 .totalAmount(order.getTotalAmount())
@@ -367,7 +407,7 @@ public class TradeRepository implements ITradeRepository {
     public void preloadHotData() {
         log.info("[仓储实现层] ========== 缓存预热开始 ==========");
         // 只预热配置项缓存：读多写少数据
-        cacheManager.reloadConfidCache();
+        cacheManager.reloadConfigCache();
         log.info("[仓储实现层] ========== 缓存预热结束 ==========");
     }
 

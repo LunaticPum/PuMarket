@@ -349,27 +349,29 @@ VALUES (200001,
     ENABLE KEYS */;
 UNLOCK TABLES;
 
-# 本地消息表
+# 补偿任务表
 /* ------------------------------------------------------------------ */
-DROP TABLE IF EXISTS `mq_outbox`;
+DROP TABLE IF EXISTS `mq_task`;
 
-CREATE TABLE `mq_outbox`
+CREATE TABLE `mq_task`
 (
-    `id`              BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `biz_id`          VARCHAR(64)     NOT NULL COMMENT '业务幂等ID（唯一）',
-    `order_no`        VARCHAR(64)     NOT NULL COMMENT '订单号',
-    `msg_type`        VARCHAR(32)     NOT NULL COMMENT '消息类型：ORDER_TIMEOUT 超时关单、GROUP_SUCC 拼团队伍成团、..',
-    `payload`         JSON            NOT NULL COMMENT '消息体',
-    `status`          TINYINT         NOT NULL DEFAULT 0 COMMENT '消息状态：0-待发送，1-发送中，2-已发送，3-失败',
-    `retry_times`     INT             NOT NULL DEFAULT 3 COMMENT '已重试次数',
-    `max_retry_times` INT             NOT NULL DEFAULT 3 COMMENT '最大重试次数',
+    `id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `biz_id`          VARCHAR(64)     NOT NULL COMMENT '业务幂等ID（全局唯一，用于防重复投递）',
+    `biz_type`        VARCHAR(32)     NOT NULL COMMENT '业务类型：ORDER / GROUP_TEAM / SKU / USER_TAG / CACHE_REFRESH',
+    `event_type`      VARCHAR(64)     NOT NULL COMMENT '事件类型：ORDER_TIMEOUT / GROUP_CREATE / SKU_UPDATE / CACHE_REFRESH',
+    `payload`         JSON            NOT NULL COMMENT '消息体（事件内容）',
+    `status`          TINYINT         NOT NULL DEFAULT 0 COMMENT '状态：0-待投递 1-投递中 2-成功 3-失败',
+    `retry_times`     INT             NOT NULL DEFAULT 0 COMMENT '已重试次数',
+    `max_retry_times` INT             NOT NULL DEFAULT 5 COMMENT '最大重试次数',
     `next_retry_time` DATETIME                 DEFAULT NULL COMMENT '下次重试时间',
+    `shard_key`       VARCHAR(64)              DEFAULT NULL COMMENT '分区Key（Kafka key，用于顺序控制）',
+    `topic`           VARCHAR(128)    NOT NULL COMMENT '目标MQ topic',
     `create_time`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY (`biz_id`),
-    UNIQUE KEY `uk_order_msg` (`order_no`, `msg_type`),
-    KEY `idx_status_time` (`status`, `create_time`),
-    KEY `idx_retry_time` (`next_retry_time`)
+    UNIQUE KEY `uk_biz_id` (`biz_id`),
+    KEY `idx_status_retry` (`status`, `next_retry_time`),
+    KEY `idx_biz_type` (`biz_type`),
+    KEY `idx_topic` (`topic`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
