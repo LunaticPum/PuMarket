@@ -35,12 +35,7 @@ public class GroupTimeoutHandler implements EventHandler {
 
     @Override
     public void handle(EventEnvelope event) {
-        Map<String, Object> payload =
-                JSON.parseObject(
-                        event.getPayload(),
-                        new TypeReference<Map<String, Object>>() {
-                        }
-                );
+        Map<String, Object> payload = event.getPayload();
 
         Long activityId = (Long) payload.get("activityId");
         Long groupTeamId = (Long) payload.get("groupTeamId");

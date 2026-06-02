@@ -30,12 +30,7 @@ public class SkuStockExhaustedHandler implements EventHandler {
     @Override
     public void handle(EventEnvelope event) {
 
-        Map<String, Object> payload =
-                JSON.parseObject(
-                        event.getPayload(),
-                        new TypeReference<Map<String, Object>>() {
-                        }
-                );
+        Map<String, Object> payload = event.getPayload();
         log.warn(
                 "商品库存告罄 skuId={}",
                 payload.get("skuId")

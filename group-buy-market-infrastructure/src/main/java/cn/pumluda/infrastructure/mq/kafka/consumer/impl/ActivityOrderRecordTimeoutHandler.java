@@ -1,13 +1,11 @@
 package cn.pumluda.infrastructure.mq.kafka.consumer.impl;
 
-import cn.hutool.core.lang.TypeReference;
 import cn.pumluda.infrastructure.dao.IActivityOrderRecordDao;
 import cn.pumluda.infrastructure.dao.IGroupTeamDao;
 import cn.pumluda.infrastructure.dao.po.ActivityOrderRecordPo;
 import cn.pumluda.infrastructure.mq.kafka.consumer.EventHandler;
 import cn.pumluda.types.enums.EventType;
 import cn.pumluda.types.event.EventEnvelope;
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -38,12 +36,7 @@ public class ActivityOrderRecordTimeoutHandler implements EventHandler {
 
     @Override
     public void handle(EventEnvelope event) {
-        Map<String, Object> payload =
-                JSON.parseObject(
-                        event.getPayload(),
-                        new TypeReference<Map<String, Object>>() {
-                        }
-                );
+        Map<String, Object> payload = event.getPayload();
 
         Long userId = (Long) payload.get("userId");
         Long activityId = (Long) payload.get("activityId");

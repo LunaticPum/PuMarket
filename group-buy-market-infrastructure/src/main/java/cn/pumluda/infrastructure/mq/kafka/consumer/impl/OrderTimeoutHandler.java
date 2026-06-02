@@ -35,12 +35,7 @@ public class OrderTimeoutHandler implements EventHandler {
 
     @Override
     public void handle(EventEnvelope event) {
-        Map<String, Object> payload =
-                JSON.parseObject(
-                        event.getPayload(),
-                        new TypeReference<Map<String, Object>>() {
-                        }
-                );
+        Map<String, Object> payload = event.getPayload();
 
         String orderNo = (String) payload.get("orderNo");
         Long userId = (Long) payload.get("userId");
