@@ -20,4 +20,5 @@ public interface IActivityConfigDao {
 
     List<ActivityConfigPo> getAllActivity();
 
+    List<Long> queryTimeoutActivities();
 }

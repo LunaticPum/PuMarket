@@ -3,6 +3,8 @@ package cn.pumluda.infrastructure.dao;
 import cn.pumluda.infrastructure.dao.po.TradeOrderPo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * Project: group-buy-market-better <p>
  * File: ITradeOrderDao <p>
@@ -17,5 +19,7 @@ public interface ITradeOrderDao {
     TradeOrderPo getOrderByOrderNo(String orderNo);
 
     void addTradeOrder(TradeOrderPo tradeOrder);
+
+    List<String> queryTimeoutOrders();
 
 }

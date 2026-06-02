@@ -4,6 +4,8 @@ import cn.pumluda.infrastructure.dao.po.GroupTeamPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * Project: group-buy-market-better <p>
  * File: IActivityConfigDao <p>
@@ -20,5 +22,7 @@ public interface IGroupTeamDao {
     void joinGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 
     GroupTeamPo getGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
+
+    List<Long> queryTimeoutGroups();
 
 }

@@ -10,9 +10,9 @@ services:
     volumes:
       - ./nginx/html:/usr/share/nginx/html
     privileged: true
-  group-buy-market-pumluda:
+  group-buy-market:
     image: docker.io/system/group-buy-market-pumluda-app:1.0-SNAPSHOT
-    container_name: group-buy-market-pumluda
+    container_name: group-buy-market
     restart: on-failure
     ports:
       - "8091:8091"
