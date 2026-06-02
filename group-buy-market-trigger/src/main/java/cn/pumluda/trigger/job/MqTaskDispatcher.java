@@ -51,5 +51,23 @@ public class MqTaskDispatcher {
                 log.error("MQ 任务发送失败 id={}", task.getId(), e);
             }
         }
+
+        cleanFinishedTasks();
+    }
+
+    private void cleanFinishedTasks() {
+        try {
+            int total = mqTaskDao.countAllTasks();
+
+            if (total > 50) {
+                int deleteCount = total - 50;
+
+                int deleted = mqTaskDao.cleanSuccessTasks(deleteCount);
+
+                log.info("mq_task 清理完成，删除成功任务数={}", deleted);
+            }
+        } catch (Exception e) {
+            log.error("mq_task 清理失败", e);
+        }
     }
 }

@@ -60,4 +60,17 @@
         WHERE biz_id = #{bizId}
     </select>
 
+    <select id="countAllTasks" resultType="int">
+        SELECT COUNT(1)
+        FROM group_buy_market_better.mq_task
+    </select>
+
+    <delete id="cleanSuccessTasks">
+        DELETE
+        FROM group_buy_market_better.mq_task
+        WHERE status = 2
+        ORDER BY update_time
+        LIMIT #{limit}
+    </delete>
+
 </mapper>
