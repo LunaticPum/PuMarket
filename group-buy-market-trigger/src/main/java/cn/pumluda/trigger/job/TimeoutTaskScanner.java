@@ -43,7 +43,7 @@ public class TimeoutTaskScanner {
     @Resource
     private IMqTaskDao mqTaskDao;
 
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(fixedDelay = 6000)
     public void scan() {
 
         // 1. 超时订单
