@@ -138,6 +138,9 @@ public class PreCheckService implements IPreCheckService {
                     skuId,
                     sku.getStock()
             );
+
+            
+
             return ResponseEnum.SKU_OUT_OF_STOCK;
         }
         // 商品不够卖

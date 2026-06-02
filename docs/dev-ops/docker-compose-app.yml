@@ -11,7 +11,7 @@ services:
       - ./nginx/html:/usr/share/nginx/html
     privileged: true
   group-buy-market:
-    image: docker.io/system/group-buy-market-pumluda-app:1.0-SNAPSHOT
+    image: docker.io/system/group-buy-market-app:1.0-SNAPSHOT
     container_name: group-buy-market
     restart: on-failure
     ports:
