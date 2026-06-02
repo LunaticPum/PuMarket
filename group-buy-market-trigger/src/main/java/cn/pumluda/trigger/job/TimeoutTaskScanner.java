@@ -50,74 +50,80 @@ public class TimeoutTaskScanner {
         List<TradeOrderPo> timeoutOrders = orderDao.queryTimeoutOrders();
 
         for (TradeOrderPo order : timeoutOrders) {
-            EventEnvelope event =
-                    EventEnvelope.builder()
-                                 .eventType(EventType.ORDER_TIMEOUT_CLOSE)
-                                 .bizId("ORDER_TIMEOUT:" + order.getOrderNo())
-                                 .shardKey(order.getUserId().toString())
-                                 .payload(JSON.toJSONString(
-                                         Map.of(
-                                                 "orderNo", order.getOrderNo(),
-                                                 "userId", order.getUserId()
-                                         )
-                                 ))
-                                 .build();
+            if (order.getOrderStatus() == 0) {
+                EventEnvelope event =
+                        EventEnvelope.builder()
+                                     .eventType(EventType.ORDER_TIMEOUT_CLOSE)
+                                     .bizId("ORDER_TIMEOUT:" + order.getOrderNo())
+                                     .shardKey(order.getUserId().toString())
+                                     .payload(JSON.toJSONString(
+                                             Map.of(
+                                                     "orderNo", order.getOrderNo(),
+                                                     "userId", order.getUserId()
+                                             )
+                                     ))
+                                     .build();
 
-            createTask(
-                    "ORDER",
-                    "order-timeout-topic",
-                    event
-            );
+                createTask(
+                        "ORDER",
+                        "order-timeout-topic",
+                        event
+                );
+            }
         }
 
         // 2. 超时拼团
         List<GroupTeamPo> timeoutGroups = groupTeamDao.queryTimeoutGroups();
 
         for (GroupTeamPo group : timeoutGroups) {
-            EventEnvelope event =
-                    EventEnvelope.builder()
-                                 .eventType(EventType.GROUP_TIMEOUT_CLOSE)
-                                 .bizId("GROUP_TIMEOUT:" + group.getGroupTeamId())
-                                 .shardKey(group.getActivityId().toString())
-                                 .payload(JSON.toJSONString(
-                                         Map.of(
-                                                 "activityId", group.getActivityId(),
-                                                 "groupTeamId", group.getGroupTeamId()
-                                         )
-                                 ))
-                                 .build();
+            if (group.getTeamStatus() == 0) {
+                EventEnvelope event =
+                        EventEnvelope.builder()
+                                     .eventType(EventType.GROUP_TIMEOUT_CLOSE)
+                                     .bizId("GROUP_TIMEOUT:" + group.getGroupTeamId())
+                                     .shardKey(group.getActivityId().toString())
+                                     .payload(JSON.toJSONString(
+                                             Map.of(
+                                                     "activityId", group.getActivityId(),
+                                                     "groupTeamId", group.getGroupTeamId()
+                                             )
+                                     ))
+                                     .build();
 
-            createTask(
-                    "GROUP",
-                    "group-timeout-topic",
-                    event
-            );
+                createTask(
+                        "GROUP",
+                        "group-timeout-topic",
+                        event
+                );
+            }
         }
 
         // 3. 超时活动订单记录
         List<ActivityOrderRecordPo> timeoutRecords = activityOrderRecordDao.queryTimeoutRecord();
 
         for (ActivityOrderRecordPo record : timeoutRecords) {
-            EventEnvelope event =
-                    EventEnvelope.builder()
-                                 .eventType(EventType.ACTIVITY_ORDER_RECORD_TIMEOUT_CLOSE)
-                                 .bizId("ACTIVITY_ORDER_RECORD_TIMEOUT:" + record.getOrderNo())
-                                 .shardKey(record.getActivityId().toString())
-                                 .payload(JSON.toJSONString(
-                                         Map.of(
-                                                 "activityId",
-                                                 record.getActivityId(),
-                                                 "userId",
-                                                 record.getUserId()
-                                         )
-                                 ))
-                                 .build();
+            if (record.getRecordStatus() == 0) {
+                EventEnvelope event =
+                        EventEnvelope.builder()
+                                     .eventType(EventType.ACTIVITY_ORDER_RECORD_TIMEOUT_CLOSE)
+                                     .bizId("ACTIVITY_ORDER_RECORD_TIMEOUT:" + record.getOrderNo())
+                                     .shardKey(record.getActivityId().toString())
+                                     .payload(JSON.toJSONString(
+                                             Map.of(
+                                                     "activityId",
+                                                     record.getActivityId(),
+                                                     "userId",
+                                                     record.getUserId()
+                                             )
+                                     ))
+                                     .build();
 
-            createTask(
-                    "ACTIVITY",
-                    "activity-order-record-timeout-topic",
-                    event
-            );
+                createTask(
+                        "ACTIVITY",
+                        "activity-order-record-timeout-topic",
+                        event
+                );
+            }
         }
     }
 
