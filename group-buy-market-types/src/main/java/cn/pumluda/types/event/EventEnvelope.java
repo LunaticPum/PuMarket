@@ -1,8 +1,10 @@
 package cn.pumluda.types.event;
 
 import cn.pumluda.types.enums.EventType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Project: group-buy-market-better <p>
@@ -14,6 +16,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventEnvelope {
 
     private EventType eventType;
