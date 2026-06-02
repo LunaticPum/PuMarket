@@ -56,7 +56,7 @@ public class PaymentCallback {
         groupTeamDao.repairQuota(activityId, groupTeamId);
 
         GroupTeamPo groupTeam = groupTeamDao.getGroupTeam(activityId, groupTeamId);
-        if (groupTeam.getLeaderUserId().equals(userId)) {
+        if (null != groupTeam && groupTeam.getLeaderUserId().equals(userId)) {
             groupTeamDao.closeGroupTeam(activityId, groupTeamId);
         }
         activityOrderRecordDao.closeActivityOrder(userId, activityId);
