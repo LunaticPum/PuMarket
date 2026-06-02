@@ -56,12 +56,12 @@ public class TimeoutTaskScanner {
                                      .eventType(EventType.ORDER_TIMEOUT_CLOSE)
                                      .bizId("ORDER_TIMEOUT:" + order.getOrderNo())
                                      .shardKey(order.getUserId().toString())
-                                     .payload(JSON.toJSONString(
+                                     .payload(
                                              Map.of(
                                                      "orderNo", order.getOrderNo(),
                                                      "userId", order.getUserId()
                                              )
-                                     ))
+                                     )
                                      .build();
 
                 createTask(
@@ -82,12 +82,12 @@ public class TimeoutTaskScanner {
                                      .eventType(EventType.GROUP_TIMEOUT_CLOSE)
                                      .bizId("GROUP_TIMEOUT:" + group.getGroupTeamId())
                                      .shardKey(group.getActivityId().toString())
-                                     .payload(JSON.toJSONString(
+                                     .payload(
                                              Map.of(
                                                      "activityId", group.getActivityId(),
                                                      "groupTeamId", group.getGroupTeamId()
                                              )
-                                     ))
+                                     )
                                      .build();
 
                 createTask(
@@ -108,14 +108,14 @@ public class TimeoutTaskScanner {
                                      .eventType(EventType.ACTIVITY_ORDER_RECORD_TIMEOUT_CLOSE)
                                      .bizId("ACTIVITY_ORDER_RECORD_TIMEOUT:" + record.getOrderNo())
                                      .shardKey(record.getActivityId().toString())
-                                     .payload(JSON.toJSONString(
+                                     .payload(
                                              Map.of(
                                                      "activityId",
                                                      record.getActivityId(),
                                                      "userId",
                                                      record.getUserId()
                                              )
-                                     ))
+                                     )
                                      .build();
 
                 createTask(

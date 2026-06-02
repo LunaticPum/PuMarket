@@ -1,11 +1,9 @@
 package cn.pumluda.infrastructure.mq.kafka.consumer.impl;
 
-import cn.hutool.core.lang.TypeReference;
 import cn.pumluda.infrastructure.cache.ICacheManager;
 import cn.pumluda.infrastructure.mq.kafka.consumer.EventHandler;
 import cn.pumluda.types.enums.EventType;
 import cn.pumluda.types.event.EventEnvelope;
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -34,12 +32,7 @@ public class CacheRefreshHandler implements EventHandler {
 
     @Override
     public void handle(EventEnvelope event) {
-        Map<String, Object> payload =
-                JSON.parseObject(
-                        event.getPayload(),
-                        new TypeReference<Map<String, Object>>() {
-                        }
-                );
+        Map<String, Object> payload = event.getPayload();
 
         String cacheType = (String) payload.get("cacheType");
 

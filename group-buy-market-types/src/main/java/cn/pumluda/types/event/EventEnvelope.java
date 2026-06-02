@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * Project: group-buy-market-better <p>
  * File: EventEncelope <p>
@@ -26,6 +28,6 @@ public class EventEnvelope {
 
     private String shardKey;
 
-    private String payload;
+    private Map<String, Object> payload;
 
 }

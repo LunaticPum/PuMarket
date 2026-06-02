@@ -82,9 +82,7 @@ public class TradeRepository implements ITradeRepository {
                                                    .eventType(EventType.SKU_STOCK_EXHAUSTED)
                                                    .bizId(UUID.randomUUID().toString())
                                                    .shardKey(String.valueOf(skuId))
-                                                   .payload(JSON.toJSONString(Map.of(
-                                                           "skuId", skuId
-                                                   )))
+                                                   .payload(Map.of("skuId", skuId))
                                                    .build();
 
                 createMqTask("SKU", "restock-topic", event);
@@ -262,7 +260,7 @@ public class TradeRepository implements ITradeRepository {
 
         UserTagRecordEntity userTagRecord = new UserTagRecordEntity(
                 tradeOrderPo.getUserId(),
-                tradeOrderPo.getUserTag()
+                                                                    tradeOrderPo.getUserTag()
         );
         TradeSCVo tradeSC = new TradeSCVo(tradeOrderPo.getEntrySource(), tradeOrderPo.getPayChannel());
 
@@ -293,16 +291,17 @@ public class TradeRepository implements ITradeRepository {
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
         EventEnvelope event = EventEnvelope.builder()
                                            .eventType(EventType.CACHE_REFRESH)
-                                           .bizId(UUID.randomUUID().toString())
+                                           .bizId(UUID.randomUUID()
+                                                      .toString())
                                            .shardKey(groupTeam.getActivityId().toString())
-                                           .payload(JSON.toJSONString(Map.of(
+                                           .payload(Map.of(
                                                    "cacheType",
                                                    "GROUP_TEAM",
                                                    "activityId",
                                                    groupTeam.getActivityId(),
                                                    "groupTeamId",
                                                    groupTeam.getGroupTeamId()
-                                           )))
+                                           ))
                                            .build();
 
         createMqTask("GROUP", "cache-refresh-topic", event);
@@ -313,15 +312,20 @@ public class TradeRepository implements ITradeRepository {
         groupTeamDao.joinGroupTeam(activityId, groupTeamId);
 
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
-        EventEnvelope event = EventEnvelope.builder().eventType(EventType.CACHE_REFRESH).bizId(
-                UUID.randomUUID().toString()).shardKey(activityId.toString()).payload(JSON.toJSONString(Map.of(
-                "cacheType",
-                "GROUP_TEAM",
-                "activityId",
-                activityId,
-                "groupTeamId",
-                groupTeamId
-        ))).build();
+        EventEnvelope event = EventEnvelope.builder()
+                                           .eventType(EventType.CACHE_REFRESH)
+                                           .bizId(UUID.randomUUID()
+                                                      .toString())
+                                           .shardKey(activityId.toString())
+                                           .payload(Map.of(
+                                                   "cacheType",
+                                                   "GROUP_TEAM",
+                                                   "activityId",
+                                                   activityId,
+                                                   "groupTeamId",
+                                                   groupTeamId
+                                           ))
+                                           .build();
 
         createMqTask("GROUP", "cache-refresh-topic", event);
     }
@@ -347,16 +351,17 @@ public class TradeRepository implements ITradeRepository {
         // todo 发送延迟消息到 Redis 消息队列，实现记录过期处理
         EventEnvelope event = EventEnvelope.builder()
                                            .eventType(EventType.CACHE_REFRESH)
-                                           .bizId(UUID.randomUUID().toString())
+                                           .bizId(UUID.randomUUID()
+                                                      .toString())
                                            .shardKey(activityOrderRecordPo.getActivityId().toString())
-                                           .payload(JSON.toJSONString(Map.of(
+                                           .payload(Map.of(
                                                    "cacheType",
                                                    "ACTIVITY_ORDER_RECORD",
                                                    "userId",
                                                    activityOrderRecordPo.getUserId(),
                                                    "activityId",
                                                    activityOrderRecordPo.getActivityId()
-                                           )))
+                                           ))
                                            .build();
 
         createMqTask("GROUP", "cache-refresh-topic", event);
@@ -373,7 +378,7 @@ public class TradeRepository implements ITradeRepository {
                                            .bizId(UUID.randomUUID()
                                                       .toString())
                                            .shardKey(skuId.toString())
-                                           .payload(JSON.toJSONString(Map.of("cacheType", "SKU", "skuId", skuId)))
+                                           .payload(Map.of("cacheType", "SKU", "skuId", skuId))
                                            .build();
 
         createMqTask("SKU", "cache-refresh-topic", event);
