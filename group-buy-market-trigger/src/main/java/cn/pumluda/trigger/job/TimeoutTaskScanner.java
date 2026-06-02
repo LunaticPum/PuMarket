@@ -132,6 +132,8 @@ public class TimeoutTaskScanner {
             String topic,
             EventEnvelope event
     ) {
+        boolean exists = mqTaskDao.exists(event.getBizId());
+        if (exists) return;
 
         MqTaskPo task = MqTaskPo.builder()
                                 .bizId(event.getBizId())

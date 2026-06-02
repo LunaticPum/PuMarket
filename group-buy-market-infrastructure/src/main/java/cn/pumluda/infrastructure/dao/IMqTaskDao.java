@@ -30,4 +30,5 @@ public interface IMqTaskDao {
 
     void updateRetry(@Param("id") Long id, @Param("retryTimes") int retryTimes, @Param("nextRetryTime") Date nextRetryTime);
 
+    boolean exists(String bizId);
 }

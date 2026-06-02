@@ -54,4 +54,10 @@
         WHERE id = #{id}
     </update>
 
+    <select id="exists" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM group_buy_market_better.mq_task
+        WHERE biz_id = #{bizId}
+    </select>
+
 </mapper>
