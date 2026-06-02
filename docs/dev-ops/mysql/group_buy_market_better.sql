@@ -369,7 +369,7 @@ CREATE TABLE `mq_task`
     `create_time`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_biz_id` (`biz_id`),
+    KEY `idx_biz_id` (biz_id),
     KEY `idx_status_retry` (`status`, `next_retry_time`),
     KEY `idx_biz_type` (`biz_type`),
     KEY `idx_topic` (`topic`)

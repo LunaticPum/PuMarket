@@ -51,7 +51,7 @@ spring:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
 
-        spring.json.trusted.packages: cn.pumluda.types.event
+        spring.json.trusted.packages: cn.pumluda.types.event.EventEnvelope
         spring.json.use.type.headers: true
 
     listener:
