@@ -125,10 +125,11 @@ services:
     networks:
       - my-network
     healthcheck:
-      test: [ "CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list" ]
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
   kafka-ui:
     image: provectuslabs/kafka-ui:0.14.0
@@ -139,9 +140,7 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-      - KAFKA_UI_AUTHENTICATION_METHOD=BASIC
-      - KAFKA_UI_BASIC_AUTH_USER=admin
-      - KAFKA_UI_BASIC_AUTH_PASSWORD=admin
+      - AUTH_TYPE=DISABLED
     depends_on:
       kafka:
         condition: service_healthy
