@@ -139,10 +139,12 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-      - KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=PLAINTEXT
+      - KAFKA_UI_AUTHENTICATION_METHOD=BASIC
+      - KAFKA_UI_BASIC_AUTH_USER=admin
+      - KAFKA_UI_BASIC_AUTH_PASSWORD=admin
     depends_on:
       kafka:
-        condition: service_started
+        condition: service_healthy
     networks:
       - my-network
 
