@@ -132,7 +132,7 @@ services:
       start_period: 20s
 
   kafka-ui:
-    image: provectuslabs/kafka-ui:0.14.0
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/provectuslabs/kafka-ui:0.14.0
     container_name: kafka-ui
     restart: always
     ports:
