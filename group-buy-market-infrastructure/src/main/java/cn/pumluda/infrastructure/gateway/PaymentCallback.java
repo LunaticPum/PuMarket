@@ -69,7 +69,7 @@ public class PaymentCallback {
                                             ))
                                             .build();
 
-        createMqTask("GROUP", "cache-refresh-topic", event1);
+        createMqTask("GROUP", event1);
 
         EventEnvelope event2 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -85,7 +85,7 @@ public class PaymentCallback {
                                                     activityOrderRecordPo.getActivityId()
                                             ))
                                             .build();
-        createMqTask("GROUP", "cache-refresh-topic", event2);
+        createMqTask("GROUP", event2);
 
         EventEnvelope event3 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -95,7 +95,7 @@ public class PaymentCallback {
                                             .payload(Map.of("cacheType", "SKU", "skuId", skuId))
                                             .build();
 
-        createMqTask("SKU", "cache-refresh-topic", event3);
+        createMqTask("SKU", event3);
     }
 
     public void cancelTrade(String orderNo, Long userId) {
@@ -133,7 +133,7 @@ public class PaymentCallback {
                                             ))
                                             .build();
 
-        createMqTask("GROUP", "cache-refresh-topic", event1);
+        createMqTask("GROUP", event1);
 
         EventEnvelope event2 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -149,7 +149,7 @@ public class PaymentCallback {
                                                     activityOrderRecordPo.getActivityId()
                                             ))
                                             .build();
-        createMqTask("GROUP", "cache-refresh-topic", event2);
+        createMqTask("GROUP", event2);
 
         EventEnvelope event3 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -159,16 +159,16 @@ public class PaymentCallback {
                                             .payload(Map.of("cacheType", "SKU", "skuId", skuId))
                                             .build();
 
-        createMqTask("SKU", "cache-refresh-topic", event3);
+        createMqTask("SKU", event3);
     }
 
-    private void createMqTask(String bizType, String topic, EventEnvelope event) {
+    private void createMqTask(String bizType, EventEnvelope event) {
         MqTaskPo task = MqTaskPo.builder()
                                 .bizId(event.getBizId())
                                 .bizType(bizType)
                                 .eventType(event.getEventType()
                                                 .name())
-                                .topic(topic)
+                                .topic("cache-refresh-topic")
                                 .shardKey(event.getShardKey())
                                 .payload(JSON.toJSONString(event))
                                 .status(0)
