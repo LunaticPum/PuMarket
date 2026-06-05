@@ -87,7 +87,7 @@ public class GroupTypeSwitchNode extends AbstractStrategyRouter<BusinessAggregat
                 Date expireTime = activityOrderRecord.getExpireTime();
                 boolean isNotExpired = expireTime == null || expireTime.after(new Date());
                 boolean isProcessing = activityOrderRecord.getRecordStatus() == 0;
-                log.info("RecordStatus = {}, isProcessing = {}", activityOrderRecord.getRecordStatus(), isProcessing);
+
                 /* 已存在正在处理中的拼团记录，当前订单不可重复参与拼团。 */
                 if (isNotExpired && isProcessing) {
                     log.error(
