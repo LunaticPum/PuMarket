@@ -126,6 +126,23 @@ services:
     networks:
       - my-network
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:0.14.0
+    container_name: kafka-ui
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPERCONNECT=
+      - KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=PLAINTEXT
+    depends_on:
+      kafka:
+        condition: service_started
+    networks:
+      - my-network
+
 networks:
   my-network:
     driver: bridge
