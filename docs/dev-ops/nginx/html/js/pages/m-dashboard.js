@@ -40,7 +40,7 @@ const MktDashboard = {
     document.querySelectorAll('.pub-act-item').forEach(el => {
       el.onclick = () => {
         const aid = el.dataset.actid;
-        if (aid) MktApp.navigate('activityDetail', { activityId: Number(aid) });
+        if (aid) MktApp.navigate('activityDetail', { activityId: aid });
       };
     });
   }
