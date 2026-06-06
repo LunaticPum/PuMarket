@@ -63,6 +63,23 @@
           AND group_team_id = #{groupTeamId}
     </select>
 
+    <select id="getAllGroupTeam" resultMap="dataMap">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+    </select>
+
     <select id="queryTimeoutGroups" resultMap="dataMap">
         <![CDATA[
         SELECT activity_id,

@@ -42,6 +42,10 @@ public interface ICacheManager {
      */
     void reloadUserTagCache();
 
+    void reloadGroupTeamCache();
+
+    void reloadActivityOrderRecordCache();
+
     /**
      * 刷新指定拼团队伍缓存。
      * <p>

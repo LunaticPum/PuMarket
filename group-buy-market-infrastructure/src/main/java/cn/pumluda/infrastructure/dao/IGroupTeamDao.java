@@ -23,6 +23,8 @@ public interface IGroupTeamDao {
 
     GroupTeamPo getGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 
+    List<GroupTeamPo> getAllGroupTeam();
+
     List<GroupTeamPo> queryTimeoutGroups();
 
     void closeGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);

@@ -44,7 +44,13 @@ public class CacheManager implements ICacheManager {
 
     @Override
     public void reloadConfigCache() {
-        asyncUtil.runParallel(this::reloadSkuCache, this::reloadActivityCache, this::reloadUserTagCache);
+        asyncUtil.runParallel(
+                this::reloadSkuCache,
+                this::reloadActivityCache,
+                this::reloadUserTagCache,
+                this::reloadGroupTeamCache,
+                this::reloadActivityOrderRecordCache
+        );
     }
 
     @Override
@@ -138,6 +144,74 @@ public class CacheManager implements ICacheManager {
 
         } catch (BeansException e) {
             log.error("[仓储实现层] 用户标签记录缓存重加载失败");
+        }
+    }
+
+    @Override
+    public void reloadGroupTeamCache() {
+        try {
+            log.info("[仓储实现层] 拼团队伍记录缓存重加载中");
+
+            List<GroupTeamPo> allGroupTeam = groupTeamDao.getAllGroupTeam();
+
+            if (allGroupTeam != null && !allGroupTeam.isEmpty()) {
+                for (GroupTeamPo groupTeam : allGroupTeam) {
+                    String key = RedisKeyBuilder.buildKey(
+                            RedisConstants.CACHE_GROUP_TEAM,
+                            groupTeam.getActivityId(),
+                            groupTeam.getGroupTeamId()
+                    );
+                    GroupTeamEntity entity = new GroupTeamEntity();
+                    BeanUtils.copyProperties(groupTeam, entity);
+                    entity.setTeamStatus(GroupTeamStatusEnumVo.of(groupTeam.getTeamStatus()));
+
+                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+                    cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+                }
+                log.info("[仓储实现层] 拼团队伍记录缓存重加载完成，数量：{}", allGroupTeam.size());
+            } else {
+                log.info("[仓储实现层] 拼团队伍记录为空");
+            }
+
+        } catch (BeansException e) {
+            log.error("[仓储实现层] 拼团队伍记录缓存重加载失败");
+        }
+    }
+
+    @Override
+    public void reloadActivityOrderRecordCache() {
+        try {
+            log.info("[仓储实现层] 活动订单记录缓存重加载中");
+
+            List<ActivityOrderRecordPo> allActivityOrderRecord = activityOrderRecordDao.getAllActivityOrderRecord();
+
+            if (allActivityOrderRecord != null && !allActivityOrderRecord.isEmpty()) {
+                for (ActivityOrderRecordPo activityOrderRecord : allActivityOrderRecord) {
+                    String key = RedisKeyBuilder.buildKey(
+                            RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
+                            activityOrderRecord.getUserId(),
+                            activityOrderRecord.getActivityId()
+                    );
+                    ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
+                    BeanUtils.copyProperties(activityOrderRecord, entity);
+                    entity.setParticipationType(ActivityParticipationTypeEnum.of(activityOrderRecord.getParticipationType()));
+
+                    long ttlWithSalt = RedisConstants.CACHE_EXPIRE_MINUTES + ThreadLocalRandom.current().nextLong(
+                            0,
+                            10
+                    );
+                    cacheService.set(key, entity, ttlWithSalt, TimeUnit.MINUTES);
+                }
+                log.info("[仓储实现层] 活动订单记录缓存重加载完成，数量：{}", allActivityOrderRecord.size());
+            } else {
+                log.info("[仓储实现层] 活动订单记录为空");
+            }
+
+        } catch (BeansException e) {
+            log.error("[仓储实现层] 活动订单记录缓存重加载失败");
         }
     }
 

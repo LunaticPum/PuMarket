@@ -85,6 +85,7 @@ CREATE TABLE `activity_order_record`
     `create_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_order_activity` (`order_no`, `activity_id`),
     KEY `idx_user_id` (`user_id`),                                       # 查询当前用户的拼团记录
     KEY `idx_activity_id` (`activity_id`),                               # 查询活动报表
     KEY `idx_activity_business_id` (`activity_business_id`, `join_time`) # 查询某个团的所有成员，按参团时间顺序排序
