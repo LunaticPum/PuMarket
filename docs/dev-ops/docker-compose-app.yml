@@ -15,7 +15,7 @@ services:
     container_name: group-buy-market
     restart: on-failure
     ports:
-      - "8091:8091"
+      - "8091:8080"
     environment:
       - TZ=PRC
       - SERVER_PORT=8091

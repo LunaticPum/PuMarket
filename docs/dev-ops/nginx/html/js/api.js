@@ -3,7 +3,7 @@
  */
 const API = (() => {
   // 后端地址：本地开发用 localhost，部署时改为实际地址
-  const BASE = 'http://localhost:8080/api/v1';
+  const BASE = 'http://134.175.232.110:8091/api/v1';
 
   async function request(url, body) {
     const res = await fetch(`${BASE}${url}`, {
