@@ -29,6 +29,9 @@ public class ActivityManageService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void createActivity(ActivityConfigEntity activity, List<Long> skuIds) {
+        // 0. 先写入 activity_config 主表
+        repository.insertActivityConfig(activity);
+
         // 1. 冲突检测
         List<String> conflictDetails = new ArrayList<>();
         for (Long skuId : skuIds) {

@@ -20,4 +20,6 @@ public interface IActivityConfigDao {
 
     List<ActivityConfigPo> getAllActivity();
 
+    void insertActivityConfig(ActivityConfigPo po);
+
 }

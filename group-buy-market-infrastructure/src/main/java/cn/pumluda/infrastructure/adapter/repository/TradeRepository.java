@@ -267,7 +267,8 @@ public class TradeRepository implements ITradeRepository {
         }
         Date now = new Date();
         return activityPos.stream()
-                          .filter(po -> po.getStatus() == 1
+                          .filter(po -> po.getActivityType() != null && po.getActivityType() != 0
+                                        && po.getStatus() == 1
                                         && po.getStartTime().before(now)
                                         && po.getEndTime().after(now))
                           .map(po -> {
@@ -393,6 +394,23 @@ public class TradeRepository implements ITradeRepository {
     }
 
     // ==================== 活动-商品关联 ====================
+
+    @Override
+    public void insertActivityConfig(ActivityConfigEntity entity) {
+        ActivityConfigPo po = ActivityConfigPo.builder()
+                .activityId(entity.getActivityId())
+                .activityName(entity.getActivityName())
+                .activityType(entity.getActivityType())
+                .discountType(entity.getDiscountType() != null ? entity.getDiscountType().getCode() : 0)
+                .discountConfig(entity.getDiscountConfig())
+                .totalDiscountQuota(entity.getTotalDiscountQuota())
+                .limitTag(entity.getLimitTag())
+                .status(entity.getStatus())
+                .startTime(entity.getStartTime())
+                .endTime(entity.getEndTime())
+                .build();
+        activityConfigDao.insertActivityConfig(po);
+    }
 
     @Override
     public void insertActivityProduct(Long activityId, Long skuId) {

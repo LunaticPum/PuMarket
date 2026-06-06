@@ -5,6 +5,8 @@ import cn.pumluda.api.dto.*;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.service.marketing.ActivityDetailResult;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.service.activityManage.ActivityManageService;
 import cn.pumluda.domain.trade.service.marketing.*;
@@ -44,6 +46,8 @@ public class MarketingController implements IMarketingController {
 
     @Resource
     private ITradeRepository repository;
+
+    private final Snowflake snowflake = IdUtil.getSnowflake(2, 1);
 
     @PostMapping("login")
     @Override
@@ -300,7 +304,7 @@ public class MarketingController implements IMarketingController {
     public Response<?> createActivity(@RequestBody CreateActivityReqDTO req) {
         try {
             ActivityConfigEntity entity = new ActivityConfigEntity();
-            entity.setActivityId(System.currentTimeMillis()); // 简易 ID 生成
+            entity.setActivityId(snowflake.nextId());
             entity.setActivityName(req.getActivityName());
             entity.setActivityType(req.getActivityType());
             entity.setDiscountType(DiscountTypeEnum.of(req.getDiscountType()));
