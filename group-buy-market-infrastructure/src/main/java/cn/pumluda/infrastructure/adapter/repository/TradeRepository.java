@@ -735,7 +735,9 @@ public class TradeRepository implements ITradeRepository {
     @EventListener(ApplicationReadyEvent.class)
     public void preloadHotData() {
         log.info("[仓储实现层] ========== 缓存预热开始 ==========");
-        // 只预热配置项缓存：读多写少数据
+        // 清除旧缓存，强制从 DB 重新加载
+        cacheService.delete(RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_CONFIG, "*"));
+        // 预热配置项缓存
         cacheManager.reloadConfigCache();
         log.info("[仓储实现层] ========== 缓存预热结束 ==========");
     }
