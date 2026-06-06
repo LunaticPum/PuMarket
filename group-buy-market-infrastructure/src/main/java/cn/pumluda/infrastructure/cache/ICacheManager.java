@@ -82,4 +82,8 @@ public interface ICacheManager {
      */
     void evictActivityOrderRecord(String cacheKey);
 
+    void evictActivityConfig(String cacheKey);
+
+    void evictSku(String cacheKey);
+
 }

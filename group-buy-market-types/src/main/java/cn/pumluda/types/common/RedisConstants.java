@@ -17,6 +17,8 @@ public class RedisConstants {
 
     /* 业务逻辑键 */
     public final static String CREATE_ORDER = "create:order";
+    public final static String SETTLE_ORDER = "settle:order";
+    public final static String CANCEL_ORDER = "cancel:order";
 
     /* 业务缓存键 */
     public final static String CACHE_SKU = "cache:sku";

@@ -46,4 +46,21 @@
         FROM group_buy_market_better.trade_order_item
         WHERE order_no = #{orderNo}
     </select>
+
+    <select id="countSoldBySkuId" resultType="int">
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM group_buy_market_better.trade_order_item
+        WHERE sku_id = #{skuId}
+    </select>
+
+    <select id="getProductSalesRanking" resultType="TradeOrderItemPo">
+        SELECT sku_id,
+               product_name,
+               SUM(quantity)    AS quantity,
+               SUM(actual_price * quantity) AS actual_price
+        FROM group_buy_market_better.trade_order_item
+        GROUP BY sku_id, product_name
+        ORDER BY SUM(quantity) DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

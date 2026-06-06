@@ -286,4 +286,14 @@ public class CacheManager implements ICacheManager {
     public void evictActivityOrderRecord(String cacheKey) {
 
     }
+
+    @Override
+    public void evictActivityConfig(String cacheKey) {
+
+    }
+
+    @Override
+    public void evictSku(String cacheKey) {
+
+    }
 }

@@ -6,14 +6,15 @@ import cn.pumluda.api.dto.CreateOrderResDTO;
 import cn.pumluda.api.dto.SettleOrderReqDTO;
 import cn.pumluda.api.dto.SettleOrderResDTO;
 import cn.pumluda.api.response.Response;
+import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
 import cn.pumluda.domain.trade.model.aggregate.BusinessAggregate;
 import cn.pumluda.domain.trade.model.entity.OrderItemEntity;
 import cn.pumluda.domain.trade.model.valobj.OrderStatusEnumVo;
 import cn.pumluda.domain.trade.model.valobj.TradeSCVo;
 import cn.pumluda.domain.trade.service.creatOrder.ICreateOrderService;
+import cn.pumluda.domain.trade.service.lifecycle.ITradeLifecycleService;
 import cn.pumluda.domain.trade.service.preCheck.IPreCheckService;
 import cn.pumluda.domain.trade.service.preCheck.dto.PreCheckResult;
-import cn.pumluda.infrastructure.gateway.PaymentCallback;
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.common.ActivityConstants;
 import cn.pumluda.types.common.RedisConstants;
@@ -49,7 +50,7 @@ public class TradeController implements ITradeController {
     private RedisIdempotencyChecker idempotencyChecker;
 
     @Resource
-    private PaymentCallback paymentCallback;
+    private ITradeLifecycleService tradeLifecycleService;
 
     @AccessRateLimit(limitKey = "userId", qps = 20, fallback = "testFallback", blockThreshold = 10)
     @PostMapping("create_order")
@@ -164,28 +165,120 @@ public class TradeController implements ITradeController {
         }
     }
 
+    @AccessRateLimit(limitKey = "userId", qps = 5, fallback = "settleFallback", blockThreshold = 10)
     @PostMapping("settle_order")
     @Override
     public Response<SettleOrderResDTO> settleOrder(@RequestBody SettleOrderReqDTO requestDTO) {
-        paymentCallback.settleTrade(requestDTO.getOrderNo(), requestDTO.getUserId());
-        return Response.<SettleOrderResDTO>builder()
-                       .code(ResponseEnum.SUCCESS.getCode())
-                       .info(ResponseEnum.SUCCESS.getInfo())
-                       .build();
+        try {
+            String orderNo = requestDTO.getOrderNo();
+            Long userId = requestDTO.getUserId();
+
+            /* 参数校验 */
+            if (orderNo == null || orderNo.isBlank() || userId == null) {
+                log.error("[订单结算] 请求参数非法 orderNo={} userId={}", orderNo, userId);
+                return Response.<SettleOrderResDTO>builder()
+                               .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
+                               .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
+                               .build();
+            }
+
+            log.info("[订单结算] 收到结算请求 orderNo={} userId={}", orderNo, userId);
+
+            // 调用领域服务执行结算
+            tradeLifecycleService.settleOrder(orderNo, userId);
+
+            SettleOrderResDTO data = SettleOrderResDTO.builder()
+                                                      .orderNo(orderNo)
+                                                      .userId(userId)
+                                                      .orderStatus(OrderStatusEnumVo.COMPLETE.getCode())
+                                                      .build();
+
+            return Response.<SettleOrderResDTO>builder()
+                           .code(ResponseEnum.SUCCESS.getCode())
+                           .info(ResponseEnum.SUCCESS.getInfo())
+                           .data(data)
+                           .build();
+
+        } catch (AppException e) {
+            log.error("[订单结算] 业务异常 orderNo={} code={} info={}",
+                    requestDTO.getOrderNo(), e.getCode(), e.getInfo(), e);
+            return Response.<SettleOrderResDTO>builder()
+                           .code(e.getCode())
+                           .info(e.getInfo())
+                           .build();
+        } catch (Exception e) {
+            log.error("[订单结算] 未知异常 orderNo={}", requestDTO.getOrderNo(), e);
+            return Response.<SettleOrderResDTO>builder()
+                           .code(ResponseEnum.UN_ERROR.getCode())
+                           .info(ResponseEnum.UN_ERROR.getInfo())
+                           .build();
+        }
     }
 
+    @AccessRateLimit(limitKey = "userId", qps = 10, fallback = "cancelFallback", blockThreshold = 10)
     @PostMapping("cancel_order")
     @Override
     public Response<SettleOrderResDTO> cancelOrder(@RequestBody SettleOrderReqDTO requestDTO) {
-        paymentCallback.cancelTrade(requestDTO.getOrderNo(), requestDTO.getUserId());
-        return Response.<SettleOrderResDTO>builder()
-                       .code(ResponseEnum.SUCCESS.getCode())
-                       .info(ResponseEnum.SUCCESS.getInfo())
-                       .build();
+        try {
+            String orderNo = requestDTO.getOrderNo();
+            Long userId = requestDTO.getUserId();
+
+            /* 参数校验 */
+            if (orderNo == null || orderNo.isBlank() || userId == null) {
+                log.error("[订单取消] 请求参数非法 orderNo={} userId={}", orderNo, userId);
+                return Response.<SettleOrderResDTO>builder()
+                               .code(ResponseEnum.ILLEGAL_PARAMETER.getCode())
+                               .info(ResponseEnum.ILLEGAL_PARAMETER.getInfo())
+                               .build();
+            }
+
+            log.info("[订单取消] 收到取消请求 orderNo={} userId={}", orderNo, userId);
+
+            // 调用领域服务执行取消
+            tradeLifecycleService.cancelOrder(orderNo, userId);
+
+            SettleOrderResDTO data = SettleOrderResDTO.builder()
+                                                      .orderNo(orderNo)
+                                                      .userId(userId)
+                                                      .orderStatus(OrderStatusEnumVo.CLOSE.getCode())
+                                                      .build();
+
+            return Response.<SettleOrderResDTO>builder()
+                           .code(ResponseEnum.SUCCESS.getCode())
+                           .info(ResponseEnum.SUCCESS.getInfo())
+                           .data(data)
+                           .build();
+
+        } catch (AppException e) {
+            log.error("[订单取消] 业务异常 orderNo={} code={} info={}",
+                    requestDTO.getOrderNo(), e.getCode(), e.getInfo(), e);
+            return Response.<SettleOrderResDTO>builder()
+                           .code(e.getCode())
+                           .info(e.getInfo())
+                           .build();
+        } catch (Exception e) {
+            log.error("[订单取消] 未知异常 orderNo={}", requestDTO.getOrderNo(), e);
+            return Response.<SettleOrderResDTO>builder()
+                           .code(ResponseEnum.UN_ERROR.getCode())
+                           .info(ResponseEnum.UN_ERROR.getInfo())
+                           .build();
+        }
     }
+
+    // ==================== Rate Limiter Fallback ====================
 
     public Response<CreateOrderResDTO> testFallback(CreateOrderReqDTO requestDTO) {
         return Response.<CreateOrderResDTO>builder()
                        .info("检测到您当前的行为异常，请等候后续处理").build();
+    }
+
+    public Response<SettleOrderResDTO> settleFallback(SettleOrderReqDTO requestDTO) {
+        return Response.<SettleOrderResDTO>builder()
+                       .info("结算请求过于频繁，请稍后重试").build();
+    }
+
+    public Response<SettleOrderResDTO> cancelFallback(SettleOrderReqDTO requestDTO) {
+        return Response.<SettleOrderResDTO>builder()
+                       .info("取消请求过于频繁，请稍后重试").build();
     }
 }

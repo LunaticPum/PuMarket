@@ -25,6 +25,10 @@ public class SkuEntity {
     private Long skuId;
     /* 商品名称 */
     private String productName;
+    /* 商品主图URL */
+    private String imageUrl;
+    /* 商品描述 */
+    private String description;
     /* 商品原始单价 */
     private BigDecimal price;
     /* 商品库存 */

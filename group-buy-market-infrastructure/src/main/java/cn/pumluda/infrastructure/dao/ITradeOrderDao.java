@@ -29,4 +29,19 @@ public interface ITradeOrderDao {
 
     void cancelTradeOrder(@Param("orderNo") String orderNo, @Param("userId") Long userId);
 
+    List<TradeOrderPo> getOrdersByUserId(@Param("userId") Long userId,
+                                          @Param("offset") int offset,
+                                          @Param("limit") int limit);
+
+    int countOrdersByUserId(@Param("userId") Long userId);
+
+    // ==================== 销售统计 ====================
+
+    int countTodayOrders();
+
+    java.math.BigDecimal sumTodayRevenue();
+
+    int countYesterdayOrders();
+
+    java.math.BigDecimal sumYesterdayRevenue();
 }

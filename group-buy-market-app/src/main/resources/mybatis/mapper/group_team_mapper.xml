@@ -115,6 +115,15 @@
           AND team_status = 0
     </update>
 
+    <update id="completeGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET team_status  = 1,
+            team_end_time = now()
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
     <update id="addSettledNum">
         UPDATE group_buy_market_better.group_team
         SET settled_trade_num = settled_trade_num + 1
@@ -122,5 +131,49 @@
           AND group_team_id = #{groupTeamId}
           AND team_status = 0
     </update>
+
+    <select id="getActiveTeamsBySkuId" resultMap="dataMap">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+        WHERE sku_id = #{skuId}
+          AND team_status = 0
+        ORDER BY team_create_time DESC
+    </select>
+
+    <select id="countActiveTeamsBySkuId" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.group_team
+        WHERE sku_id = #{skuId}
+          AND team_status = 0
+    </select>
+
+    <select id="getTeamsByActivityId" resultMap="dataMap">
+        SELECT activity_id, group_team_id, leader_user_id, sku_id,
+               required_num, current_num, settled_trade_num,
+               team_status, team_create_time, team_expire_time, team_end_time,
+               create_time, update_time
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+        ORDER BY team_create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countTeamsByActivityId" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+    </select>
 
 </mapper>

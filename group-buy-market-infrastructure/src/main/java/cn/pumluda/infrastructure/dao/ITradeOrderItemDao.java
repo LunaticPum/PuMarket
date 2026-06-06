@@ -2,6 +2,9 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.TradeOrderItemPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * Project: group-buy-market-better <p>
@@ -18,4 +21,7 @@ public interface ITradeOrderItemDao {
 
     TradeOrderItemPo getOrderItem(String orderNo);
 
+    int countSoldBySkuId(Long skuId);
+
+    List<TradeOrderItemPo> getProductSalesRanking(@Param("limit") int limit);
 }

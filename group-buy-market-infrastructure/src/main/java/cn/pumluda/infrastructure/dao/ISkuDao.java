@@ -21,6 +21,10 @@ public interface ISkuDao {
 
     List<SkuPo> getAllSku();
 
+    List<SkuPo> getSkusByPage(@Param("offset") int offset, @Param("limit") int limit);
+
+    int countSkus();
+
     void reserveSkuStock(@Param("skuId") Long skuId, @Param("quantity") int quantity);
 
     void updateSkuStatus(@Param("skuId") Long skuId, @Param("status") int status);

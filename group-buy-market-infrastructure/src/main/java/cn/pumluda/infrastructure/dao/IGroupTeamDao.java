@@ -31,5 +31,17 @@ public interface IGroupTeamDao {
 
     void repairQuota(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
 
+    void completeGroupTeam(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
+
     void addSettledNum(@Param("activityId") Long activityId, @Param("groupTeamId") Long groupTeamId);
+
+    List<GroupTeamPo> getActiveTeamsBySkuId(Long skuId);
+
+    int countActiveTeamsBySkuId(Long skuId);
+
+    List<GroupTeamPo> getTeamsByActivityId(@Param("activityId") Long activityId,
+                                            @Param("offset") int offset,
+                                            @Param("limit") int limit);
+
+    int countTeamsByActivityId(@Param("activityId") Long activityId);
 }

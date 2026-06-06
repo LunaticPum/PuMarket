@@ -99,4 +99,61 @@
         WHERE order_no = #{orderNo}
           AND user_id = #{userId}
     </update>
+
+    <select id="getOrdersByUserId" resultMap="dataMap">
+        SELECT order_no,
+               user_id,
+               user_tag,
+               order_status,
+               total_amount,
+               pay_amount,
+               discount_amount,
+               entry_source,
+               pay_channel,
+               order_create_time,
+               order_expire_time,
+               order_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.trade_order
+        WHERE user_id = #{userId}
+        ORDER BY order_create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countOrdersByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.trade_order
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- ==================== 销售统计 ==================== -->
+
+    <select id="countTodayOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.trade_order
+        WHERE DATE(order_create_time) = CURDATE()
+          AND order_status = 1
+    </select>
+
+    <select id="sumTodayRevenue" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_amount), 0)
+        FROM group_buy_market_better.trade_order
+        WHERE DATE(order_create_time) = CURDATE()
+          AND order_status = 1
+    </select>
+
+    <select id="countYesterdayOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.trade_order
+        WHERE DATE(order_create_time) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+          AND order_status = 1
+    </select>
+
+    <select id="sumYesterdayRevenue" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_amount), 0)
+        FROM group_buy_market_better.trade_order
+        WHERE DATE(order_create_time) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+          AND order_status = 1
+    </select>
 </mapper>

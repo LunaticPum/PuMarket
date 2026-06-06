@@ -25,7 +25,9 @@ public enum ResponseEnum {
     GROUP_TEAM_FULL("0013", "该拼团队伍已满"),
     ORDER_HAS_GROUP("0014", "订单已有进行中的团"),
     WRITE_DB_ERROR("0015", "DB 数据写入失败"),
-    DUPLICATE_TRADE_ORDER("0016", "该笔交易订单已存在");
+    DUPLICATE_TRADE_ORDER("0016", "该笔交易订单已存在"),
+    ORDER_NOT_FOUND("0017", "订单不存在"),
+    ORDER_STATUS_INVALID("0018", "订单状态异常，无法操作");
 
     private String code;
     private String info;

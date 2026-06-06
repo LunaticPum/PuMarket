@@ -24,6 +24,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -204,6 +206,24 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
+    public List<SkuEntity> listSkus(int offset, int limit) {
+        List<SkuPo> skuPos = skuDao.getSkusByPage(offset, limit);
+        if (skuPos == null || skuPos.isEmpty()) {
+            return List.of();
+        }
+        return skuPos.stream().map(po -> {
+            SkuEntity entity = new SkuEntity();
+            BeanUtils.copyProperties(po, entity);
+            return entity;
+        }).toList();
+    }
+
+    @Override
+    public int countSkus() {
+        return skuDao.countSkus();
+    }
+
+    @Override
     public GroupTeamEntity getGroupTeamByLeaderUserId(Long leaderUserId) {
         return null;
     }
@@ -211,6 +231,201 @@ public class TradeRepository implements ITradeRepository {
     @Override
     public List<GroupTeamEntity> getGroupTeamByActivityId(Long activityId) {
         return List.of();
+    }
+
+    @Override
+    public List<GroupTeamEntity> getActiveTeamsBySkuId(Long skuId) {
+        List<GroupTeamPo> teamPos = groupTeamDao.getActiveTeamsBySkuId(skuId);
+        if (teamPos == null || teamPos.isEmpty()) {
+            return List.of();
+        }
+        return teamPos.stream().map(po -> {
+            GroupTeamEntity entity = new GroupTeamEntity();
+            BeanUtils.copyProperties(po, entity);
+            entity.setTeamStatus(GroupTeamStatusEnumVo.of(po.getTeamStatus()));
+            return entity;
+        }).toList();
+    }
+
+    @Override
+    public int countActiveTeamsBySkuId(Long skuId) {
+        return groupTeamDao.countActiveTeamsBySkuId(skuId);
+    }
+
+    @Override
+    public int getSoldCountBySkuId(Long skuId) {
+        return tradeOrderItemDao.countSoldBySkuId(skuId);
+    }
+
+    @Override
+    public List<ActivityConfigEntity> getAllActiveActivities() {
+        List<ActivityConfigPo> activityPos = activityConfigDao.getAllActivity();
+        if (activityPos == null || activityPos.isEmpty()) {
+            return List.of();
+        }
+        Date now = new Date();
+        return activityPos.stream()
+                          .filter(po -> po.getStatus() == 1
+                                        && po.getStartTime().before(now)
+                                        && po.getEndTime().after(now))
+                          .map(po -> {
+                              ActivityConfigEntity entity = new ActivityConfigEntity();
+                              BeanUtils.copyProperties(po, entity);
+                              entity.setDiscountType(DiscountTypeEnum.of(po.getDiscountType()));
+                              return entity;
+                          })
+                          .toList();
+    }
+
+    // ==================== 订单生命周期操作 ====================
+
+    @Override
+    public void settleTradeOrder(String orderNo, Long userId) {
+        tradeOrderDao.settleTradeOrder(orderNo, userId);
+    }
+
+    @Override
+    public void cancelTradeOrder(String orderNo, Long userId) {
+        tradeOrderDao.cancelTradeOrder(orderNo, userId);
+    }
+
+    @Override
+    public void consumeLockedStock(Long skuId, int quantity) {
+        skuDao.consumeLockedStockBySkuId(skuId, quantity);
+    }
+
+    @Override
+    public void restoreSkuStock(Long skuId, int quantity) {
+        skuDao.repairStockBySkuId(skuId, quantity);
+    }
+
+    @Override
+    public void addSettledNum(Long activityId, Long groupTeamId) {
+        groupTeamDao.addSettledNum(activityId, groupTeamId);
+    }
+
+    @Override
+    public void repairGroupTeamQuota(Long activityId, Long groupTeamId) {
+        groupTeamDao.repairQuota(activityId, groupTeamId);
+    }
+
+    @Override
+    public void closeGroupTeam(Long activityId, Long groupTeamId) {
+        groupTeamDao.closeGroupTeam(activityId, groupTeamId);
+    }
+
+    @Override
+    public void settleActivityOrderRecord(String orderNo, Long activityId) {
+        activityOrderRecordDao.settleActivityOrder(orderNo, activityId);
+    }
+
+    @Override
+    public void closeActivityOrderRecord(String orderNo, Long activityId) {
+        activityOrderRecordDao.closeActivityOrder(orderNo, activityId);
+    }
+
+    // ==================== 用户订单查询 ====================
+
+    @Override
+    public List<OrderAggregate> getOrdersByUserId(Long userId, int offset, int limit) {
+        List<TradeOrderPo> orderPos = tradeOrderDao.getOrdersByUserId(userId, offset, limit);
+        if (orderPos == null || orderPos.isEmpty()) {
+            return List.of();
+        }
+        return orderPos.stream().map(po -> {
+            OrderAggregate entity = new OrderAggregate();
+            BeanUtils.copyProperties(po, entity);
+
+            UserTagRecordEntity userTagRecord = new UserTagRecordEntity(
+                    po.getUserId(),
+                    po.getUserTag()
+            );
+            TradeSCVo tradeSC = new TradeSCVo(po.getEntrySource(), po.getPayChannel());
+
+            entity.setUserTagRecord(userTagRecord);
+            entity.setOrderStatus(OrderStatusEnumVo.of(po.getOrderStatus()));
+            entity.setTradeSC(tradeSC);
+
+            return entity;
+        }).toList();
+    }
+
+    @Override
+    public int countOrdersByUserId(Long userId) {
+        return tradeOrderDao.countOrdersByUserId(userId);
+    }
+
+    // ==================== 营销数据查询 ====================
+
+    @Override
+    public List<GroupTeamEntity> getTeamsByActivityId(Long activityId, int offset, int limit) {
+        List<GroupTeamPo> teams = groupTeamDao.getTeamsByActivityId(activityId, offset, limit);
+        if (teams == null || teams.isEmpty()) {
+            return List.of();
+        }
+        return teams.stream().map(po -> {
+            GroupTeamEntity entity = new GroupTeamEntity();
+            BeanUtils.copyProperties(po, entity);
+            entity.setTeamStatus(GroupTeamStatusEnumVo.of(po.getTeamStatus()));
+            return entity;
+        }).toList();
+    }
+
+    @Override
+    public int countTeamsByActivityId(Long activityId) {
+        return groupTeamDao.countTeamsByActivityId(activityId);
+    }
+
+    @Override
+    public List<ActivityOrderRecordEntity> getActivityRecordsByBusinessId(Long activityBusinessId) {
+        List<ActivityOrderRecordPo> records = activityOrderRecordDao.getRecordsByBusinessId(activityBusinessId);
+        if (records == null || records.isEmpty()) {
+            return List.of();
+        }
+        return records.stream().map(po -> {
+            ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
+            BeanUtils.copyProperties(po, entity);
+            entity.setParticipationType(ActivityParticipationTypeEnum.of(po.getParticipationType()));
+            return entity;
+        }).toList();
+    }
+
+    // ==================== 销售数据统计 ====================
+
+    @Override
+    public int countTodayOrders() {
+        return tradeOrderDao.countTodayOrders();
+    }
+
+    @Override
+    public BigDecimal sumTodayRevenue() {
+        return tradeOrderDao.sumTodayRevenue();
+    }
+
+    @Override
+    public int countYesterdayOrders() {
+        return tradeOrderDao.countYesterdayOrders();
+    }
+
+    @Override
+    public BigDecimal sumYesterdayRevenue() {
+        return tradeOrderDao.sumYesterdayRevenue();
+    }
+
+    @Override
+    public List<OrderItemEntity> getProductSalesRanking(int limit) {
+        List<TradeOrderItemPo> pos = tradeOrderItemDao.getProductSalesRanking(limit);
+        if (pos == null || pos.isEmpty()) {
+            return List.of();
+        }
+        return pos.stream().map(po -> {
+            OrderItemEntity entity = new OrderItemEntity();
+            entity.setSkuId(po.getSkuId());
+            entity.setProductName(po.getProductName());
+            entity.setQuantity(po.getQuantity());
+            entity.setActualPrice(po.getActualPrice());
+            return entity;
+        }).toList();
     }
 
     // todo 额外功能，有需要再实现
@@ -272,6 +487,16 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
+    public OrderItemEntity getOrderItemByOrderNo(String orderNo) {
+        TradeOrderItemPo po = tradeOrderItemDao.getOrderItem(orderNo);
+        if (null == po) return null;
+
+        OrderItemEntity entity = new OrderItemEntity();
+        BeanUtils.copyProperties(po, entity);
+        return entity;
+    }
+
+    @Override
     public void addGroupTeam(GroupTeamEntity groupTeam) {
         GroupTeamPo groupTeamPo = GroupTeamPo.builder()
                                              .activityId(groupTeam.getActivityId())
@@ -301,6 +526,25 @@ public class TradeRepository implements ITradeRepository {
                                                    groupTeam.getActivityId(),
                                                    "groupTeamId",
                                                    groupTeam.getGroupTeamId()
+                                           ))
+                                           .build();
+
+        createMqTask("GROUP", "cache-refresh-topic", event);
+    }
+
+    @Override
+    public void completeGroupTeam(Long activityId, Long groupTeamId) {
+        groupTeamDao.completeGroupTeam(activityId, groupTeamId);
+
+        // 发送缓存刷新通知
+        EventEnvelope event = EventEnvelope.builder()
+                                           .eventType(EventType.CACHE_REFRESH)
+                                           .bizId(UUID.randomUUID().toString())
+                                           .shardKey(activityId.toString())
+                                           .payload(Map.of(
+                                                   "cacheType", "GROUP_TEAM",
+                                                   "activityId", activityId,
+                                                   "groupTeamId", groupTeamId
                                            ))
                                            .build();
 

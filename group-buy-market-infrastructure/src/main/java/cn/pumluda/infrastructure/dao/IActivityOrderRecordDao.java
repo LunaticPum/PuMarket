@@ -28,4 +28,6 @@ public interface IActivityOrderRecordDao {
     void closeActivityOrder(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
 
     void settleActivityOrder(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
+
+    List<ActivityOrderRecordPo> getRecordsByBusinessId(@Param("activityBusinessId") Long activityBusinessId);
 }

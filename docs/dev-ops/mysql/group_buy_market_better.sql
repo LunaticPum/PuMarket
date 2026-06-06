@@ -304,6 +304,8 @@ CREATE TABLE `product_sku`
 (
     `sku_id`       BIGINT UNSIGNED NOT NULL COMMENT '商品 SKU ID',
     `product_name` VARCHAR(128)    NOT NULL COMMENT '商品名称',
+    `image_url`    VARCHAR(512)             DEFAULT NULL COMMENT '商品主图URL',
+    `description`  TEXT                     DEFAULT NULL COMMENT '商品描述',
     `price`        DECIMAL(10, 2)  NOT NULL COMMENT '商品销售价格',
     `stock`        INT             NOT NULL COMMENT '总库存数量',
     `locked_stock` INT             NOT NULL COMMENT '锁定库存数量', # 库存预扣减
@@ -321,6 +323,8 @@ LOCK TABLES `product_sku` WRITE;
 INSERT INTO `product_sku`
 (sku_id,
  product_name,
+ image_url,
+ description,
  price,
  stock,
  locked_stock,
@@ -328,7 +332,9 @@ INSERT INTO `product_sku`
  create_time,
  update_time)
 VALUES (200001,
-        'Apple iPhone 16 Pro',
+        'Apple iPhone 16 Pro 256GB 沙漠金',
+        'https://picsum.photos/seed/iphone16pro/400/400',
+        '全新 A18 Pro 芯片，钛金属设计，4800 万像素融合式摄像头，支持 Apple Intelligence。6.3 英寸超视网膜 XDR 显示屏，USB-C 接口。',
         8999.00,
         100,
         0,
@@ -337,9 +343,99 @@ VALUES (200001,
         NOW()),
 
        (200002,
-        'Xiaomi REDMI K80',
+        '小米 REDMI K80 至尊版 16GB+512GB',
+        'https://picsum.photos/seed/redmik80/400/400',
+        '天玑 9300+ 旗舰芯片，1.5K 超窄边框直屏，120W 超级快充 + 5500mAh 大电池。光影猎人 800 主摄，IP68 防尘防水。',
         2499.00,
         200,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200003,
+        '华为 Mate 70 Pro 12GB+512GB 昆仑玻璃版',
+        'https://picsum.photos/seed/mate70pro/400/400',
+        '麒麟 9100 芯片，HarmonyOS NEXT，卫星通信。6.9 英寸 OLED 等深微曲屏，XMAGE 影像，5500mAh 硅负极电池。',
+        6999.00,
+        150,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200004,
+        'Sony WH-1000XM5 头戴式无线降噪耳机 铂金银',
+        'https://picsum.photos/seed/sonyxm5/400/400',
+        '业界领先降噪，30 小时续航，支持 LDAC 高解析度音频。8 麦克风系统，自适应声音控制，佩戴感应，快充 3 分钟播放 3 小时。',
+        2299.00,
+        300,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200005,
+        '戴森 Dyson V15 Detect 无绳吸尘器',
+        'https://picsum.photos/seed/dysonv15/400/400',
+        '激光探测微尘，压电式声学传感器，LCD 屏实时显示吸入颗粒物大小和数量。240AW 强劲吸力，60 分钟续航，整机 HEPA 过滤。',
+        4990.00,
+        80,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200006,
+        '戴森 Airwrap Complete 多功能美发器 普鲁士蓝',
+        'https://picsum.photos/seed/airwrap/400/400',
+        '康达效应气流科技，全新防飞翘干发风嘴，6 款风嘴配件。智能温控，多方向气流，造型同时抚平毛躁。',
+        3699.00,
+        60,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200007,
+        'Nintendo Switch OLED 马力欧红蓝配色',
+        'https://picsum.photos/seed/switcholed/400/400',
+        '7 英寸 OLED 显示屏，64GB 机身存储，有线 LAN 接口。支持 TV/桌上/手提三种模式，畅玩马力欧/塞尔达/宝可梦等大作。',
+        2599.00,
+        120,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200008,
+        'Apple AirPods Pro 第二代 (USB-C)',
+        'https://picsum.photos/seed/airpodspro2/400/400',
+        'H2 芯片，自适应降噪，自适应通透模式，个性化空间音频。USB-C 充电盒支持精确查找，最长 6 小时续航。',
+        1799.00,
+        250,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200009,
+        'SK-II 神仙水 护肤精华露 230ml',
+        'https://picsum.photos/seed/sk2essence/400/400',
+        '超过 90% PITERA™ 经典成分，改善肌肤五大维度。清爽水状质地，快速渗透，调节肌肤水油平衡，令肌肤晶莹剔透。',
+        1590.00,
+        180,
+        0,
+        1,
+        NOW(),
+        NOW()),
+
+       (200010,
+        '飞利浦 Sonicare 钻石亮白智能电动牙刷 HX9352',
+        'https://picsum.photos/seed/philipstooth/400/400',
+        '31000 次/分钟高频震动，5 种清洁模式，Smartimer 智能计时器。玻璃充电杯 + USB 旅行充电盒，一次充电续航 3 周。',
+        899.00,
+        400,
         0,
         1,
         NOW(),
@@ -375,3 +471,36 @@ CREATE TABLE `mq_task`
     KEY `idx_topic` (`topic`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+# 营销后台用户表
+/* ------------------------------------------------------------------ */
+DROP TABLE IF EXISTS `marketing_user`;
+
+CREATE TABLE `marketing_user`
+(
+    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `username`      VARCHAR(64)     NOT NULL COMMENT '用户名',
+    `password_hash` VARCHAR(256)    NOT NULL COMMENT 'BCrypt 密码哈希',
+    `role`          VARCHAR(32)     NOT NULL DEFAULT 'ADMIN' COMMENT '角色：ADMIN / OPERATOR',
+    `create_time`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_username` (`username`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+LOCK TABLES `marketing_user` WRITE;
+/*!40000 ALTER TABLE `marketing_user`
+    DISABLE KEYS */;
+
+-- 默认管理员账号：admin / admin123
+INSERT INTO `marketing_user` (username, password_hash, role, create_time, update_time)
+VALUES ('admin',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'ADMIN',
+        NOW(),
+        NOW());
+
+/*!40000 ALTER TABLE `marketing_user`
+    ENABLE KEYS */;
+UNLOCK TABLES;
