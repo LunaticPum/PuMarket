@@ -494,12 +494,12 @@ LOCK TABLES `marketing_user` WRITE;
     DISABLE KEYS */;
 
 -- 默认管理员账号：admin / admin123
-INSERT INTO `marketing_user` (username, password_hash, role, create_time, update_time)
-VALUES ('admin',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-        'ADMIN',
-        NOW(),
-        NOW());
+# INSERT INTO `marketing_user` (username, password_hash, role, create_time, update_time)
+# VALUES ('admin',
+#         '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+#         'ADMIN',
+#         NOW(),
+#         NOW());
 
 /*!40000 ALTER TABLE `marketing_user`
     ENABLE KEYS */;

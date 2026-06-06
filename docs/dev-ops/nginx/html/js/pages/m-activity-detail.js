@@ -12,7 +12,7 @@ const MktActivityDetail = {
     } catch (e) { return `<div class="loading">加载失败: ${e.message}</div>`; }
 
     const act = [...(activity?.teams || [])];
-    const actInfo = teams?.list?.find(a => a.activityId == activityId);
+    const actInfo = teams?.list?.find(a => String(a.activityId) === String(activityId));
     if (!actInfo) return '<div class="loading">活动不存在</div>';
 
     return `
@@ -57,14 +57,18 @@ const MktActivityDetail = {
   afterRender(params) {
     const activityId = params.activityId;
 
-    document.getElementById('btnEdit').onclick = () => {
+    const btnEdit = document.getElementById('btnEdit');
+    const btnCancelEdit = document.getElementById('btnCancelEdit');
+    const btnSaveEdit = document.getElementById('btnSaveEdit');
+
+    if (btnEdit) btnEdit.onclick = () => {
       document.getElementById('editForm').style.display = 'block';
     };
-    document.getElementById('btnCancelEdit').onclick = () => {
+    if (btnCancelEdit) btnCancelEdit.onclick = () => {
       document.getElementById('editForm').style.display = 'none';
     };
 
-    document.getElementById('btnSaveEdit').onclick = () => {
+    if (btnSaveEdit) btnSaveEdit.onclick = () => {
       const name = document.getElementById('editName').value.trim();
       const discountType = +document.getElementById('editDiscount').value;
       const paramVal = document.getElementById('editParam').value.trim();
