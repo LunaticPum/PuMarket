@@ -41,3 +41,23 @@ const Utils = {
     localStorage.setItem('gb_uname', name);
   }
 };
+
+// 全局 UI 辅助函数
+function showLoading(msg) {
+  let el = document.getElementById('globalLoading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'globalLoading';
+    el.className = 'global-loading';
+    el.innerHTML = '<div class="loading-spinner"></div><div class="loading-text"></div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = 'flex';
+  const textEl = el.querySelector('.loading-text');
+  if (textEl) textEl.textContent = msg || '加载中...';
+}
+
+function hideLoading() {
+  const el = document.getElementById('globalLoading');
+  if (el) el.style.display = 'none';
+}

@@ -74,10 +74,11 @@ const PageDetail = {
       const orderNo = Utils.generateOrderNo();
       try {
         showLoading('下单中...');
-        await API.createOrder({ userId, orderNo, skuId, quantity: 1, activityId: activityId || 0, groupTeamId: groupTeamId || null, entrySource: 1 });
+        const orderResult = await API.createOrder({ userId, orderNo, skuId, quantity: 1, activityId: activityId || 0, groupTeamId: groupTeamId || null, entrySource: 1 });
         hideLoading();
 
-        Toast.confirm('确认支付', `支付金额 ¥${(0).toFixed(2)}？`, async () => {
+        const payPrice = orderResult?.payPrice || orderResult?.actualPrice || 0;
+        Toast.confirm('确认支付', `支付金额 ¥${Number(payPrice).toFixed(2)}`, async () => {
           showLoading('支付中...');
           await API.settleOrder(orderNo, userId);
           hideLoading();

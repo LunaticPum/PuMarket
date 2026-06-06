@@ -127,5 +127,3 @@ const MktActivity = {
 function getSelectedSkuIds() {
   return [...document.querySelectorAll('.cb-sku:checked')].map(cb => +cb.value);
 }
-function showLoading(m) { const e = document.getElementById('globalLoading'); if (e) { e.style.display = 'flex'; e.querySelector('div:last-child').textContent = m; } }
-function hideLoading() { const e = document.getElementById('globalLoading'); if (e) e.style.display = 'none'; }
