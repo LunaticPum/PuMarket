@@ -2,8 +2,9 @@
  * API 客户端 — 统一封装所有后端接口请求
  */
 const API = (() => {
-  // 后端地址：本地开发用 localhost，部署时改为实际地址
-  const BASE = 'http://134.175.232.110:8091/api/v1';
+  // 后端地址：通过 nginx 反向代理，同源访问无需跨域
+  // 本地开发时可改为 'http://localhost:8080/api/v1'
+  const BASE = '/api/v1';
 
   async function request(url, body) {
     const res = await fetch(`${BASE}${url}`, {

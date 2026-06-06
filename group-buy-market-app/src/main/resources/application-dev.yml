@@ -17,7 +17,7 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://134.175.232.110:13306/group_buy_market_better?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true
+    url: jdbc:mysql://mysql:3306/group_buy_market_better?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true&allowPublicKeyRetrieval=true
     #    url: jdbc:mysql://mysql:3306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   hikari:
@@ -31,7 +31,7 @@ spring:
     connection-test-query: SELECT 1
   type: com.zaxxer.hikari.HikariDataSource
   kafka:
-    bootstrap-servers: 134.175.232.110:19092
+    bootstrap-servers: kafka:9092
 
     producer:
       retries: 3
@@ -64,10 +64,8 @@ mybatis-plus:
 redis:
   sdk:
     config:
-      host: 134.175.232.110
-      #      host: redis
-      port: 16379
-      #      port: 6379
+      host: redis
+      port: 6379
       pool-size: 10
       min-idle-size: 5
       idle-timeout: 30000
