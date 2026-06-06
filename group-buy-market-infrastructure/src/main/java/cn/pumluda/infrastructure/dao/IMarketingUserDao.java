@@ -2,6 +2,7 @@ package cn.pumluda.infrastructure.dao;
 
 import cn.pumluda.infrastructure.dao.po.MarketingUserPo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * Project: group-buy-market-better <p>
@@ -15,4 +16,7 @@ public interface IMarketingUserDao {
 
     MarketingUserPo findByUsername(String username);
 
+    void insert(MarketingUserPo po);
+
+    void updatePassword(@Param("username") String username, @Param("passwordHash") String passwordHash);
 }

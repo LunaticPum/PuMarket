@@ -17,4 +17,15 @@
         WHERE username = #{username}
     </select>
 
+    <insert id="insert" parameterType="MarketingUserPo">
+        INSERT INTO group_buy_market_better.marketing_user (username, password_hash, role, create_time, update_time)
+        VALUES (#{username}, #{passwordHash}, #{role}, NOW(), NOW())
+    </insert>
+
+    <update id="updatePassword">
+        UPDATE group_buy_market_better.marketing_user
+        SET password_hash = #{passwordHash}, update_time = NOW()
+        WHERE username = #{username}
+    </update>
+
 </mapper>
