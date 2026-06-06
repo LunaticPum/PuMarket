@@ -18,7 +18,8 @@ const App = (() => {
     home: PageHome,
     detail: PageDetail,
     orders: PageOrders,
-    orderDetail: PageOrderDetail
+    orderDetail: PageOrderDetail,
+    profile: PageProfile
   };
 
   function switchTab(tabName) {
@@ -40,11 +41,10 @@ const App = (() => {
   }
 
   function goBack() {
-    if (currentPage === 'detail') {
-      navigate('home');
-    } else if (currentPage === 'orderDetail') {
-      navigate('orders');
-    }
+    if (currentPage === 'detail') { navigate('home'); }
+    else if (currentPage === 'orderDetail') { navigate('orders'); }
+    document.getElementById('btnBack').style.visibility =
+      (currentPage === 'detail' || currentPage === 'orderDetail') ? 'visible' : 'hidden';
   }
 
   async function render() {

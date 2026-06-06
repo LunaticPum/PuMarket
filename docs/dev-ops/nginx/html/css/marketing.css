@@ -1,0 +1,42 @@
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#222}
+.app-container{max-width:480px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column;box-shadow:0 0 30px rgba(0,0,0,.06)}
+.app-header{position:sticky;top:0;z-index:100;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0f0;height:50px}
+.header-title{font-size:18px;font-weight:700;color:#1a1a2e}
+.btn-back{background:none;border:none;font-size:20px;cursor:pointer;padding:0;width:32px;text-align:left;color:#333}
+.header-placeholder{width:32px}
+.page-container{flex:1;overflow-y:auto;padding-bottom:10px}
+.tab-bar{position:sticky;bottom:0;background:#fff;display:flex;border-top:1px solid #f0f0f0;padding:6px 0 env(safe-area-inset-bottom,6px);z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer;color:#999;transition:color .2s}
+.tab-item.active{color:#1a1a2e}.tab-icon{font-size:22px}.tab-label{font-size:11px;font-weight:500}
+.loading{text-align:center;padding:60px 20px;color:#999}
+/* Dashboard */
+.dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+.ds-card{background:#f8f9fa;border-radius:12px;padding:16px;text-align:center}
+.ds-val{font-size:28px;font-weight:700;color:#1a1a2e}.ds-label{font-size:12px;color:#999;margin-top:4px}
+.dash-section{padding:0 16px 16px}.dash-sect-title{font-size:15px;font-weight:600;margin-bottom:10px;color:#333}
+/* Activity Config */
+.act-section{background:#fff;border-radius:12px;margin:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.act-sect-title{font-size:16px;font-weight:600;margin-bottom:12px}
+.form-group{margin-bottom:12px}.form-label{font-size:13px;color:#666;margin-bottom:4px;display:block}
+.form-input,.form-select{width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;background:#fafafa}
+.form-row{display:flex;gap:8px}.form-row>*{flex:1}
+.checkbox-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.cb-item{display:flex;align-items:center;gap:8px;font-size:14px;padding:6px 8px;border-radius:8px;cursor:pointer}
+.cb-item.checked{background:#e6f7ff}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-danger{width:100%;padding:12px;background:#fff;color:#e4393c;border:2px solid #e4393c;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-secondary{width:100%;padding:10px;background:#f5f5f5;color:#666;border:1px solid #e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;margin-top:4px}
+/* Published Activity List */
+.pub-act-item{background:#fafafa;border-radius:10px;padding:14px;margin-bottom:10px}
+.pai-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pai-name{font-weight:600;font-size:15px}.pai-status{font-size:12px;padding:2px 8px;border-radius:10px;font-weight:500}
+.pai-status.active{background:#e6f7ff;color:#1890ff}
+.pai-meta{font-size:12px;color:#999;margin:3px 0}
+/* Profile */
+.profile-card{background:#fff;margin:16px;border-radius:14px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.profile-avatar{font-size:48px;margin-bottom:8px}
+.profile-name{font-size:18px;font-weight:600}.profile-role{font-size:13px;color:#999;margin:4px 0}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;margin:0 16px 1px;cursor:pointer;font-size:15px}
+.menu-item:first-of-type{border-radius:14px 14px 0 0}.menu-item:last-of-type{border-radius:0 0 14px 14px}
+.menu-arrow{color:#ccc}

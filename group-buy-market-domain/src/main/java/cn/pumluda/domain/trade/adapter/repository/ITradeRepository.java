@@ -3,6 +3,8 @@ package cn.pumluda.domain.trade.adapter.repository;
 import cn.pumluda.domain.trade.model.aggregate.OrderAggregate;
 import cn.pumluda.domain.trade.model.entity.*;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -131,6 +133,15 @@ public interface ITradeRepository {
 
     /* 按业务 ID（拼团队伍 ID）查询活动参与记录（队伍成员） */
     List<ActivityOrderRecordEntity> getActivityRecordsByBusinessId(Long activityBusinessId);
+
+    // ==================== 活动-商品关联 ====================
+
+    void insertActivityProduct(Long activityId, Long skuId);
+    void deleteActivityProductByActivityId(Long activityId);
+    List<Long> findSkuIdsByActivityId(Long activityId);
+    Long findActiveActivityIdBySkuId(Long skuId);
+    /** 冲突检测：返回与指定时间重叠的活动-商品关联的 activityId 列表 */
+    List<Long> findConflictingActivityIds(Long skuId, Date startTime, Date endTime);
 
     // ==================== 销售数据统计 ====================
 

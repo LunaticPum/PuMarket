@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>拼团商城 · 登录</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/login.css">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-logo">🛒</div>
+    <h1 class="login-title">拼团商城</h1>
+    <p class="login-sub">选择身份进入</p>
+
+    <!-- 普通用户 -->
+    <div class="login-card" id="userCard">
+        <div class="lc-icon">👤</div>
+        <div class="lc-text">
+            <div class="lc-title">普通用户</div>
+            <div class="lc-desc">输入用户名即可体验购物</div>
+        </div>
+    </div>
+    <div class="login-form" id="userForm" style="display:none">
+        <input class="lf-input" id="userName" placeholder="输入用户名" value="拼团达人">
+        <button class="lf-btn" id="btnUserLogin">进入商城</button>
+    </div>
+
+    <!-- 营销人员 -->
+    <div class="login-card" id="marketingCard" style="margin-top:12px">
+        <div class="lc-icon">🔧</div>
+        <div class="lc-text">
+            <div class="lc-title">营销人员</div>
+            <div class="lc-desc">需要账号密码验证</div>
+        </div>
+    </div>
+    <div class="login-form" id="marketingForm" style="display:none">
+        <input class="lf-input" id="mktUsername" placeholder="用户名" value="admin">
+        <input class="lf-input" type="password" id="mktPassword" placeholder="密码" value="admin123">
+        <button class="lf-btn" id="btnMktLogin">进入后台</button>
+    </div>
+</div>
+
+<script src="js/toast.js"></script>
+<script src="js/api.js"></script>
+<script>
+// 普通用户卡片点击
+document.getElementById('userCard').onclick = () => {
+  document.getElementById('userForm').style.display = 'block';
+  document.getElementById('marketingForm').style.display = 'none';
+};
+// 营销卡片点击
+document.getElementById('marketingCard').onclick = () => {
+  document.getElementById('marketingForm').style.display = 'block';
+  document.getElementById('userForm').style.display = 'none';
+};
+
+// 普通用户登录
+document.getElementById('btnUserLogin').onclick = () => {
+  const name = document.getElementById('userName').value.trim();
+  if (!name) { Toast.show('请输入用户名', 'error'); return; }
+  localStorage.setItem('gb_uname', name);
+  localStorage.setItem('gb_role', 'user');
+  let uid = localStorage.getItem('gb_uid');
+  if (!uid) { uid = '10' + String(Math.floor(Math.random() * 9000 + 1000)); localStorage.setItem('gb_uid', uid); }
+  Toast.show('欢迎回来，' + name + '！');
+  setTimeout(() => location.href = 'index.html', 800);
+};
+
+// 营销人员登录
+document.getElementById('btnMktLogin').onclick = async () => {
+  const username = document.getElementById('mktUsername').value.trim();
+  const password = document.getElementById('mktPassword').value;
+  if (!username || !password) { Toast.show('请输入用户名和密码', 'error'); return; }
+  try {
+    const data = await API.mktLogin(username, password);
+    if (data && data.token) {
+      localStorage.setItem('mkt_token', data.token);
+      localStorage.setItem('mkt_username', data.username);
+      localStorage.setItem('gb_role', 'marketing');
+      Toast.show('登录成功！');
+      setTimeout(() => location.href = 'marketing.html', 800);
+    }
+  } catch (e) {
+    Toast.show('登录失败: ' + e.message, 'error');
+  }
+};
+</script>
+</body>
+</html>

@@ -121,11 +121,11 @@ const PageOrderDetail = {
         showLoading('支付中...');
         await API.settleOrder(orderNo, userId);
         hideLoading();
-        alert('✅ 支付成功！');
+        Toast.show('支付成功！');
         App.navigate('orders');
       } catch (e) {
         hideLoading();
-        alert('支付失败: ' + e.message);
+        Toast.show('支付失败: ' + e.message, 'error');
       }
     });
 
@@ -137,11 +137,11 @@ const PageOrderDetail = {
         showLoading('取消中...');
         await API.cancelOrder(orderNo, userId);
         hideLoading();
-        alert('已取消订单');
+        Toast.show('已取消订单');
         App.navigate('orders');
       } catch (e) {
         hideLoading();
-        alert('取消失败: ' + e.message);
+        Toast.show('取消失败: ' + e.message, 'error');
       }
     });
   }

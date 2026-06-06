@@ -5,14 +5,12 @@ import cn.pumluda.api.dto.*;
 import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.service.marketing.ActivityDetailResult;
-import cn.pumluda.domain.trade.service.marketing.ActivityOverview;
-import cn.pumluda.domain.trade.service.marketing.MarketingQueryService;
-import cn.pumluda.domain.trade.service.marketing.ProductRankingItem;
-import cn.pumluda.domain.trade.service.marketing.SalesOverviewResult;
-import cn.pumluda.domain.trade.service.marketing.TeamMember;
-import cn.pumluda.domain.trade.service.marketing.TeamSummary;
+import cn.pumluda.domain.trade.adapter.repository.ITradeRepository;
+import cn.pumluda.domain.trade.service.activityManage.ActivityManageService;
+import cn.pumluda.domain.trade.service.marketing.*;
 import cn.pumluda.infrastructure.auth.MarketingAuthService;
 import cn.pumluda.types.enums.ActivityTypeEnum;
+import cn.pumluda.types.enums.DiscountTypeEnum;
 import cn.pumluda.types.enums.ResponseEnum;
 import cn.pumluda.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +38,12 @@ public class MarketingController implements IMarketingController {
 
     @Resource
     private MarketingQueryService marketingQueryService;
+
+    @Resource
+    private ActivityManageService activityManageService;
+
+    @Resource
+    private ITradeRepository repository;
 
     @PostMapping("login")
     @Override
@@ -286,6 +290,151 @@ public class MarketingController implements IMarketingController {
                     .code(ResponseEnum.UN_ERROR.getCode())
                     .info(ResponseEnum.UN_ERROR.getInfo())
                     .build();
+        }
+    }
+
+    // ==================== 活动管理 ====================
+
+    @PostMapping("activity/create")
+    @Override
+    public Response<?> createActivity(@RequestBody CreateActivityReqDTO req) {
+        try {
+            ActivityConfigEntity entity = new ActivityConfigEntity();
+            entity.setActivityId(System.currentTimeMillis()); // 简易 ID 生成
+            entity.setActivityName(req.getActivityName());
+            entity.setActivityType(req.getActivityType());
+            entity.setDiscountType(DiscountTypeEnum.of(req.getDiscountType()));
+            entity.setDiscountConfig(com.alibaba.fastjson.JSON.parseObject(req.getDiscountParam(), java.util.Map.class));
+            entity.setTotalDiscountQuota(req.getTotalQuota());
+            entity.setUsedDiscountQuota(0);
+            entity.setLimitTag(0);
+            entity.setStatus(1);
+            entity.setStartTime(req.getStartTime());
+            entity.setEndTime(req.getEndTime());
+
+            activityManageService.createActivity(entity, req.getSkuIds());
+
+            return Response.<java.util.Map<String, Object>>builder()
+                    .code(ResponseEnum.SUCCESS.getCode())
+                    .info("活动创建成功")
+                    .data(java.util.Map.of("activityId", entity.getActivityId()))
+                    .build();
+
+        } catch (AppException e) {
+            return Response.<String>builder().code(e.getCode()).info(e.getInfo()).build();
+        } catch (Exception e) {
+            log.error("[创建活动] 异常", e);
+            return Response.<String>builder().code(ResponseEnum.UN_ERROR.getCode())
+                    .info("创建失败: " + e.getMessage()).build();
+        }
+    }
+
+    @PostMapping("activity/revoke")
+    @Override
+    public Response<?> revokeActivity(@RequestBody RevokeActivityReqDTO req) {
+        try {
+            int completed = activityManageService.revokeActivity(req.getActivityId());
+            return Response.<java.util.Map<String, Object>>builder()
+                    .code(ResponseEnum.SUCCESS.getCode())
+                    .info("活动已撤销")
+                    .data(java.util.Map.of("completedTeams", completed))
+                    .build();
+        } catch (Exception e) {
+            log.error("[撤销活动] 异常", e);
+            return Response.<String>builder().code(ResponseEnum.UN_ERROR.getCode())
+                    .info(e.getMessage()).build();
+        }
+    }
+
+    @PostMapping("activity/published")
+    @Override
+    public Response<PublishedActivityResDTO> getPublishedActivities() {
+        try {
+            var activities = activityManageService.getPublishedActivities();
+            var list = new java.util.ArrayList<PublishedActivityResDTO.PubActivity>();
+            for (var a : activities) {
+                List<Long> skuIds = repository.findSkuIdsByActivityId(a.getActivityId());
+                int teamCount = repository.countTeamsByActivityId(a.getActivityId());
+                list.add(PublishedActivityResDTO.PubActivity.builder()
+                        .activityId(a.getActivityId()).activityName(a.getActivityName())
+                        .activityType(a.getActivityType())
+                        .discountType(a.getDiscountType() != null ? a.getDiscountType().getCode() : 0)
+                        .startTime(a.getStartTime()).endTime(a.getEndTime())
+                        .status(a.getStatus()).teamCount(teamCount).skuIds(skuIds)
+                        .build());
+            }
+            return Response.<PublishedActivityResDTO>builder()
+                    .code(ResponseEnum.SUCCESS.getCode()).info(ResponseEnum.SUCCESS.getInfo())
+                    .data(PublishedActivityResDTO.builder().list(list).build()).build();
+        } catch (Exception e) {
+            log.error("[已发布活动] 异常", e);
+            return Response.<PublishedActivityResDTO>builder()
+                    .code(ResponseEnum.UN_ERROR.getCode()).info(ResponseEnum.UN_ERROR.getInfo()).build();
+        }
+    }
+
+    @PostMapping("dashboard/overview")
+    @Override
+    public Response<DashboardOverviewResDTO> getDashboardOverview() {
+        try {
+            SalesOverviewResult sales = marketingQueryService.getSalesOverview();
+            var activities = activityManageService.getPublishedActivities();
+            var ranking = marketingQueryService.getProductRanking(5);
+
+            var dto = DashboardOverviewResDTO.builder()
+                    .todayOrders(sales.getTodayOrderCount())
+                    .todayRevenue(sales.getTodayTotalAmount())
+                    .activeActivityCount(activities.size())
+                    .pendingShipTeams(0) // 需要遍历计算
+                    .blacklist(java.util.List.of())
+                    .topProducts(new java.util.ArrayList<>())
+                    .activeActivities(new java.util.ArrayList<>())
+                    .build();
+
+            // 排行
+            for (var item : ranking) {
+                dto.getTopProducts().add(ProductRankingResDTO.RankItem.builder()
+                        .rank(item.getRank()).skuId(item.getSkuId())
+                        .productName(item.getProductName())
+                        .soldCount(item.getSoldCount()).totalAmount(item.getTotalAmount()).build());
+            }
+
+            // 活动
+            for (var a : activities) {
+                dto.getActiveActivities().add(PublishedActivityResDTO.PubActivity.builder()
+                        .activityId(a.getActivityId()).activityName(a.getActivityName())
+                        .activityType(a.getActivityType())
+                        .discountType(a.getDiscountType() != null ? a.getDiscountType().getCode() : 0)
+                        .startTime(a.getStartTime()).endTime(a.getEndTime()).status(a.getStatus()).build());
+            }
+
+            return Response.<DashboardOverviewResDTO>builder()
+                    .code(ResponseEnum.SUCCESS.getCode()).info(ResponseEnum.SUCCESS.getInfo())
+                    .data(dto).build();
+        } catch (Exception e) {
+            log.error("[营销首页] 异常", e);
+            return Response.<DashboardOverviewResDTO>builder()
+                    .code(ResponseEnum.UN_ERROR.getCode()).info(ResponseEnum.UN_ERROR.getInfo()).build();
+        }
+    }
+
+    @PostMapping("dashboard/sales")
+    @Override
+    public Response<SalesDetailResDTO> getSalesDetail(@RequestBody SalesDetailReqDTO req) {
+        try {
+            SalesOverviewResult sales = marketingQueryService.getSalesOverview();
+            return Response.<SalesDetailResDTO>builder()
+                    .code(ResponseEnum.SUCCESS.getCode()).info(ResponseEnum.SUCCESS.getInfo())
+                    .data(SalesDetailResDTO.builder()
+                            .period(req.getPeriod())
+                            .totalOrders(sales.getTodayOrderCount())
+                            .totalRevenue(sales.getTodayTotalAmount())
+                            .cancelCount(0)
+                            .items(java.util.List.of())
+                            .build()).build();
+        } catch (Exception e) {
+            return Response.<SalesDetailResDTO>builder()
+                    .code(ResponseEnum.UN_ERROR.getCode()).info(ResponseEnum.UN_ERROR.getInfo()).build();
         }
     }
 

@@ -10,6 +10,7 @@ import cn.pumluda.infrastructure.cache.ICacheManager;
 import cn.pumluda.infrastructure.cache.ICacheService;
 import cn.pumluda.infrastructure.dao.*;
 import cn.pumluda.infrastructure.dao.po.*;
+import cn.pumluda.infrastructure.dao.IActivityProductDao;
 import cn.pumluda.types.common.RedisConstants;
 import cn.pumluda.types.enums.ActivityParticipationTypeEnum;
 import cn.pumluda.types.enums.DiscountTypeEnum;
@@ -47,6 +48,7 @@ public class TradeRepository implements ITradeRepository {
 
     private final IActivityConfigDao activityConfigDao;
     private final IActivityOrderRecordDao activityOrderRecordDao;
+    private final IActivityProductDao activityProductDao;
     private final IGroupTeamDao groupTeamDao;
     private final ISkuDao skuDao;
     private final ITradeOrderDao tradeOrderDao;
@@ -388,6 +390,37 @@ public class TradeRepository implements ITradeRepository {
             entity.setParticipationType(ActivityParticipationTypeEnum.of(po.getParticipationType()));
             return entity;
         }).toList();
+    }
+
+    // ==================== 活动-商品关联 ====================
+
+    @Override
+    public void insertActivityProduct(Long activityId, Long skuId) {
+        activityProductDao.insert(ActivityProductPo.builder()
+                .activityId(activityId).skuId(skuId).build());
+    }
+
+    @Override
+    public void deleteActivityProductByActivityId(Long activityId) {
+        activityProductDao.deleteByActivityId(activityId);
+    }
+
+    @Override
+    public List<Long> findSkuIdsByActivityId(Long activityId) {
+        List<ActivityProductPo> list = activityProductDao.findByActivityId(activityId);
+        return list.stream().map(ActivityProductPo::getSkuId).toList();
+    }
+
+    @Override
+    public Long findActiveActivityIdBySkuId(Long skuId) {
+        ActivityProductPo po = activityProductDao.findActiveBySkuId(skuId);
+        return po != null ? po.getActivityId() : null;
+    }
+
+    @Override
+    public List<Long> findConflictingActivityIds(Long skuId, Date startTime, Date endTime) {
+        List<ActivityProductPo> list = activityProductDao.findConflicting(skuId, startTime, endTime);
+        return list.stream().map(ActivityProductPo::getActivityId).toList();
     }
 
     // ==================== 销售数据统计 ====================

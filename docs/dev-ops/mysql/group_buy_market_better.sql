@@ -504,3 +504,19 @@ VALUES ('admin',
 /*!40000 ALTER TABLE `marketing_user`
     ENABLE KEYS */;
 UNLOCK TABLES;
+
+# 活动-商品关联表（一个商品同时只能有一个生效活动）
+/* ------------------------------------------------------------------ */
+DROP TABLE IF EXISTS `activity_product`;
+
+CREATE TABLE `activity_product`
+(
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `activity_id` BIGINT          NOT NULL COMMENT '活动 ID',
+    `sku_id`      BIGINT          NOT NULL COMMENT '商品 SKU ID',
+    `create_time` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_activity_sku` (`activity_id`, `sku_id`),
+    KEY `idx_sku` (`sku_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;

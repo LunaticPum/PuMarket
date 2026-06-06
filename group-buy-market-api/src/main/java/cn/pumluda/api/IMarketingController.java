@@ -42,4 +42,29 @@ public interface IMarketingController {
      */
     Response<ProductRankingResDTO> getProductRanking(ProductRankingReqDTO requestDTO);
 
+    /**
+     * 创建活动
+     */
+    Response<?> createActivity(CreateActivityReqDTO requestDTO);
+
+    /**
+     * 撤销活动
+     */
+    Response<?> revokeActivity(RevokeActivityReqDTO requestDTO);
+
+    /**
+     * 已发布活动列表
+     */
+    Response<PublishedActivityResDTO> getPublishedActivities();
+
+    /**
+     * 营销首页数据
+     */
+    Response<DashboardOverviewResDTO> getDashboardOverview();
+
+    /**
+     * 商品销售明细
+     */
+    Response<SalesDetailResDTO> getSalesDetail(SalesDetailReqDTO requestDTO);
+
 }

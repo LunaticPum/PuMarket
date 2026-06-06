@@ -9,6 +9,7 @@ import cn.pumluda.api.response.Response;
 import cn.pumluda.domain.trade.model.entity.ActivityConfigEntity;
 import cn.pumluda.domain.trade.model.entity.GroupTeamEntity;
 import cn.pumluda.domain.trade.model.entity.SkuEntity;
+import cn.pumluda.domain.trade.service.activityManage.ActivityManageService;
 import cn.pumluda.domain.trade.service.productQuery.ProductQueryService;
 import cn.pumluda.types.enums.ActivityTypeEnum;
 import cn.pumluda.types.enums.ResponseEnum;
@@ -39,6 +40,9 @@ public class ProductController implements IProductController {
     @Resource
     private ProductQueryService productQueryService;
 
+    @Resource
+    private ActivityManageService activityManageService;
+
     @PostMapping("list")
     @Override
     public Response<ProductListResDTO> getProductList(@RequestBody ProductListReqDTO requestDTO) {
@@ -50,33 +54,25 @@ public class ProductController implements IProductController {
             List<SkuEntity> skus = productQueryService.getProductList(page, size);
             int total = productQueryService.countProducts();
 
-            // 2. 获取所有活跃活动（用于计算最低拼团价和活动标签）
-            List<ActivityConfigEntity> activeActivities = productQueryService.getAvailableActivities();
-
-            // 3. 组装商品卡片列表
+            // 2. 组装商品卡片列表（每个商品只查其绑定的单个活动）
             List<ProductListResDTO.ProductCard> cards = new ArrayList<>();
             for (SkuEntity sku : skus) {
-                // 活动标签
+                // 获取该商品当前绑定的活动
+                ActivityConfigEntity boundActivity = activityManageService.getActiveActivityForSku(sku.getSkuId());
+
                 List<ProductListResDTO.ActivityTag> tags = new ArrayList<>();
                 BigDecimal minGroupPrice = null;
 
-                for (ActivityConfigEntity activity : activeActivities) {
-                    // 只展示非默认活动
-                    if (activity.getActivityType() != null && activity.getActivityType() != 0) {
-                        tags.add(ProductListResDTO.ActivityTag.builder()
-                                .activityId(activity.getActivityId())
-                                .activityName(activity.getActivityName())
-                                .activityType(activity.getActivityType())
-                                .build());
+                if (boundActivity != null && boundActivity.getActivityType() != null
+                        && boundActivity.getActivityType() != 0) {
+                    tags.add(ProductListResDTO.ActivityTag.builder()
+                            .activityId(boundActivity.getActivityId())
+                            .activityName(boundActivity.getActivityName())
+                            .activityType(boundActivity.getActivityType())
+                            .build());
 
-                        // 计算该活动下的拼团价
-                        BigDecimal groupPrice = calcGroupPrice(sku.getPrice(), activity);
-                        if (groupPrice != null) {
-                            if (minGroupPrice == null || groupPrice.compareTo(minGroupPrice) < 0) {
-                                minGroupPrice = groupPrice;
-                            }
-                        }
-                    }
+                    BigDecimal groupPrice = calcGroupPrice(sku.getPrice(), boundActivity);
+                    minGroupPrice = groupPrice;
                 }
 
                 // 查该商品的进行中队伍数
@@ -135,10 +131,11 @@ public class ProductController implements IProductController {
                         .build();
             }
 
-            // 2. 查所有活跃活动
-            List<ActivityConfigEntity> activeActivities = productQueryService.getAvailableActivities();
+            // 2. 查该商品绑定的活动
+            ActivityConfigEntity boundActivity = activityManageService.getActiveActivityForSku(skuId);
             List<ProductDetailResDTO.ActivityDetail> activityDetails = new ArrayList<>();
-            for (ActivityConfigEntity activity : activeActivities) {
+            if (boundActivity != null) {
+                ActivityConfigEntity activity = boundActivity;
                 String discountDesc = buildDiscountDesc(activity);
                 BigDecimal groupPrice = calcGroupPrice(sku.getPrice(), activity);
 
@@ -158,7 +155,7 @@ public class ProductController implements IProductController {
                         .build());
             }
 
-            // 3. 查进行中的拼团队伍
+            // 3. 查进行中的拼团队伍（只查该商品绑定的活动下的队伍）
             List<GroupTeamEntity> activeTeams = productQueryService.getActiveTeams(skuId);
             List<ProductDetailResDTO.TeamCard> teamCards = new ArrayList<>();
             for (GroupTeamEntity team : activeTeams) {
