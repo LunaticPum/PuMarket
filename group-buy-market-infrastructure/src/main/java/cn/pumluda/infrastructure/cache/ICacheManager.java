@@ -58,7 +58,7 @@ public interface ICacheManager {
      * <p>
      * 当订单参与状态发生变化时调用。
      */
-    void refreshActivityOrderRecordCache(Long userId, Long activityId);
+    void refreshActivityOrderRecordCache(String orderNo, Long activityId);
 
     void refreshActivityCache(Long activityId);
 

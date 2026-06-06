@@ -48,7 +48,7 @@ public class CacheRefreshHandler implements EventHandler {
             case "ACTIVITY_ORDER_RECORD":
                 log.info("收到缓存刷新消息: {}", JSON.toJSONString(event));
                 cacheManager.refreshActivityOrderRecordCache(
-                        ((Number) payload.get("userId")).longValue(),
+                        ((String) payload.get("orderNo")),
                         ((Number) payload.get("activityId")).longValue()
                 );
                 break;

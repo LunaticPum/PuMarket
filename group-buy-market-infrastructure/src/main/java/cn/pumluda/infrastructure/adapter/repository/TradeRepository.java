@@ -217,15 +217,15 @@ public class TradeRepository implements ITradeRepository {
 
 
     @Override
-    public ActivityOrderRecordEntity getActivityOrderRecord(Long userId, Long activityId) {
+    public ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId) {
 
-        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId, activityId);
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, orderNo, activityId);
         ActivityOrderRecordEntity cached = cacheService.get(key, ActivityOrderRecordEntity.class);
         if (cached != null) {
             return cached;  // 缓存命中
         }
 
-        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
+        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(orderNo, activityId);
 
         if (activityOrderRecord != null) {
             /* 如果 DB 命中，先写入缓存在返回数据给上游 */
@@ -260,7 +260,7 @@ public class TradeRepository implements ITradeRepository {
 
         UserTagRecordEntity userTagRecord = new UserTagRecordEntity(
                 tradeOrderPo.getUserId(),
-                                                                    tradeOrderPo.getUserTag()
+                tradeOrderPo.getUserTag()
         );
         TradeSCVo tradeSC = new TradeSCVo(tradeOrderPo.getEntrySource(), tradeOrderPo.getPayChannel());
 
@@ -357,8 +357,8 @@ public class TradeRepository implements ITradeRepository {
                                            .payload(Map.of(
                                                    "cacheType",
                                                    "ACTIVITY_ORDER_RECORD",
-                                                   "userId",
-                                                   activityOrderRecordPo.getUserId(),
+                                                   "orderNo",
+                                                   activityOrderRecordPo.getOrderNo(),
                                                    "activityId",
                                                    activityOrderRecordPo.getActivityId()
                                            ))

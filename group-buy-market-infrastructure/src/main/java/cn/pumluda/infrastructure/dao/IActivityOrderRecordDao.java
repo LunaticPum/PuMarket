@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper
 public interface IActivityOrderRecordDao {
 
-    ActivityOrderRecordPo getActivityOrderRecord(@Param("userId") Long userId, @Param("activityId") Long activityId);
+    ActivityOrderRecordPo getActivityOrderRecord(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
 
     List<ActivityOrderRecordPo> getAllActivityOrderRecord();
 
@@ -25,7 +25,7 @@ public interface IActivityOrderRecordDao {
 
     List<ActivityOrderRecordPo> queryTimeoutRecord();
 
-    void closeActivityOrder(@Param("userId") Long userId, @Param("activityId") Long activityId);
+    void closeActivityOrder(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
 
-    void settleActivityOrder(@Param("userId") Long userId, @Param("activityId") Long activityId);
+    void settleActivityOrder(@Param("orderNo") String orderNo, @Param("activityId") Long activityId);
 }

@@ -38,10 +38,10 @@ public class ActivityOrderRecordTimeoutHandler implements EventHandler {
     public void handle(EventEnvelope event) {
         Map<String, Object> payload = event.getPayload();
 
-        Long userId = (Long) payload.get("userId");
+        String orderNo = (String) payload.get("orderNo");
         Long activityId = (Long) payload.get("activityId");
 
-        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
+        ActivityOrderRecordPo activityOrderRecord = activityOrderRecordDao.getActivityOrderRecord(orderNo, activityId);
         if (activityOrderRecord.getParticipationType() == 1) {
             groupTeamDao.closeGroupTeam(
                     activityOrderRecord.getActivityId(),
@@ -54,6 +54,6 @@ public class ActivityOrderRecordTimeoutHandler implements EventHandler {
             );
         }
 
-        activityOrderRecordDao.closeActivityOrder(userId, activityId);
+        activityOrderRecordDao.closeActivityOrder(orderNo, activityId);
     }
 }

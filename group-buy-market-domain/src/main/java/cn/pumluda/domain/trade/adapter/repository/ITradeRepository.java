@@ -37,7 +37,7 @@ public interface ITradeRepository {
     List<GroupTeamEntity> getGroupTeamByActivityId(Long activityId);
 
     /* 按用户 ID 查找参与活动的订单记录 */
-    ActivityOrderRecordEntity getActivityOrderRecord(Long userId, Long activityId);
+    ActivityOrderRecordEntity getActivityOrderRecord(String orderNo, Long activityId);
 
     /* 按交易单号查找交易订单 */
     OrderAggregate getOrderByOrderNo(String orderNo);

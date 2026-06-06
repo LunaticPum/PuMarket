@@ -49,10 +49,13 @@ public class PaymentCallback {
 
         skuDao.consumeLockedStockBySkuId(skuId, quantity);
         groupTeamDao.addSettledNum(activityId, groupTeamId);
-        activityOrderRecordDao.settleActivityOrder(userId, activityId);
+        activityOrderRecordDao.settleActivityOrder(orderNo, activityId);
 
         GroupTeamPo groupTeam = groupTeamDao.getGroupTeam(activityId, groupTeamId);
-        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
+        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(
+                orderNo,
+                activityId
+        );
 
         EventEnvelope event1 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -79,8 +82,8 @@ public class PaymentCallback {
                                             .payload(Map.of(
                                                     "cacheType",
                                                     "ACTIVITY_ORDER_RECORD",
-                                                    "userId",
-                                                    activityOrderRecordPo.getUserId(),
+                                                    "orderNo",
+                                                    activityOrderRecordPo.getOrderNo(),
                                                     "activityId",
                                                     activityOrderRecordPo.getActivityId()
                                             ))
@@ -115,8 +118,11 @@ public class PaymentCallback {
             groupTeamDao.closeGroupTeam(activityId, groupTeamId);
 
         }
-        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
-        activityOrderRecordDao.closeActivityOrder(userId, activityId);
+        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(
+                orderNo,
+                activityId
+        );
+        activityOrderRecordDao.closeActivityOrder(orderNo, activityId);
 
         EventEnvelope event1 = EventEnvelope.builder()
                                             .eventType(EventType.CACHE_REFRESH)
@@ -143,8 +149,8 @@ public class PaymentCallback {
                                             .payload(Map.of(
                                                     "cacheType",
                                                     "ACTIVITY_ORDER_RECORD",
-                                                    "userId",
-                                                    activityOrderRecordPo.getUserId(),
+                                                    "orderNo",
+                                                    activityOrderRecordPo.getOrderNo(),
                                                     "activityId",
                                                     activityOrderRecordPo.getActivityId()
                                             ))

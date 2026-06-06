@@ -30,8 +30,8 @@
                join_time,
                expire_time
         FROM group_buy_market_better.activity_order_record
-        WHERE user_id = #{userId}
-        AND activity_id = #{activityId}
+        WHERE order_no = #{orderNo}
+          AND activity_id = #{activityId}
     </select>
 
     <select id="getAllActivityOrderRecord" resultMap="dataMap">
@@ -90,7 +90,7 @@
         SET record_status = 3,
             quota_occupied = 0
         WHERE activity_id = #{activityId}
-          AND user_id = #{userId}
+          AND order_no = #{orderNo}
     </update>
 
     <update id="settleActivityOrder">
@@ -98,7 +98,7 @@
         SET record_status = 1,
             quota_occupied = 1
         WHERE activity_id = #{activityId}
-          AND user_id = #{userId}
+          AND order_no = #{orderNo}
     </update>
 
 </mapper>

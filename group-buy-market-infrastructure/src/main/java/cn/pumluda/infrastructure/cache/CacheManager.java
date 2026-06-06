@@ -192,7 +192,7 @@ public class CacheManager implements ICacheManager {
                 for (ActivityOrderRecordPo activityOrderRecord : allActivityOrderRecord) {
                     String key = RedisKeyBuilder.buildKey(
                             RedisConstants.CACHE_ACTIVITY_ORDER_RECORD,
-                            activityOrderRecord.getUserId(),
+                            activityOrderRecord.getOrderNo(),
                             activityOrderRecord.getActivityId()
                     );
                     ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
@@ -231,11 +231,14 @@ public class CacheManager implements ICacheManager {
     }
 
     @Override
-    public void refreshActivityOrderRecordCache(Long userId, Long activityId) {
-        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(userId, activityId);
+    public void refreshActivityOrderRecordCache(String orderNo, Long activityId) {
+        ActivityOrderRecordPo activityOrderRecordPo = activityOrderRecordDao.getActivityOrderRecord(
+                orderNo,
+                activityId
+        );
         if (null == activityOrderRecordPo) return;
 
-        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, userId, activityId);
+        String key = RedisKeyBuilder.buildKey(RedisConstants.CACHE_ACTIVITY_ORDER_RECORD, orderNo, activityId);
 
         ActivityOrderRecordEntity entity = new ActivityOrderRecordEntity();
         BeanUtils.copyProperties(activityOrderRecordPo, entity);
