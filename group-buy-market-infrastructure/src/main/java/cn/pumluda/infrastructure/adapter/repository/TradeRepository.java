@@ -413,6 +413,21 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
+    public void updateActivityConfig(ActivityConfigEntity entity) {
+        activityConfigDao.updateActivityConfig(ActivityConfigPo.builder()
+                .activityId(entity.getActivityId())
+                .activityName(entity.getActivityName())
+                .activityType(entity.getActivityType())
+                .discountType(entity.getDiscountType() != null ? entity.getDiscountType().getCode() : 0)
+                .discountConfig(entity.getDiscountConfig())
+                .totalDiscountQuota(entity.getTotalDiscountQuota())
+                .limitTag(entity.getLimitTag())
+                .startTime(entity.getStartTime())
+                .endTime(entity.getEndTime())
+                .build());
+    }
+
+    @Override
     public void insertActivityProduct(Long activityId, Long skuId) {
         activityProductDao.insert(ActivityProductPo.builder()
                 .activityId(activityId).skuId(skuId).build());

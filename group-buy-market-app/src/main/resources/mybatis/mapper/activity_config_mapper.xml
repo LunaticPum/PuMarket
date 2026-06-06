@@ -57,4 +57,17 @@
                 #{totalDiscountQuota}, #{limitTag}, #{status}, #{startTime}, #{endTime}, NOW(), NOW())
     </insert>
 
+    <update id="updateActivityConfig" parameterType="ActivityConfigPo">
+        UPDATE group_buy_market_better.activity_config
+        SET activity_name       = #{activityName},
+            discount_type       = #{discountType},
+            discount_config     = #{discountConfig,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            total_discount_quota = #{totalDiscountQuota},
+            limit_tag           = #{limitTag},
+            start_time          = #{startTime},
+            end_time            = #{endTime},
+            update_time         = NOW()
+        WHERE activity_id = #{activityId}
+    </update>
+
 </mapper>

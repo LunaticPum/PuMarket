@@ -67,4 +67,9 @@ public interface IMarketingController {
      */
     Response<SalesDetailResDTO> getSalesDetail(SalesDetailReqDTO requestDTO);
 
+    /**
+     * 更新活动（编辑后强制成团）
+     */
+    Response<?> updateActivity(UpdateActivityReqDTO requestDTO);
+
 }

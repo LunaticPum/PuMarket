@@ -288,16 +288,31 @@ public class MarketingController implements IMarketingController {
                     .data(ProductRankingResDTO.builder().list(rankItems).build())
                     .build();
 
-        } catch (Exception e) {
-            log.error("[营销后台-商品排行] 异常", e);
-            return Response.<ProductRankingResDTO>builder()
-                    .code(ResponseEnum.UN_ERROR.getCode())
-                    .info(ResponseEnum.UN_ERROR.getInfo())
+    // ==================== 活动管理 ====================
+
+    @PostMapping("activity/update")
+    @Override
+    public Response<?> updateActivity(@RequestBody UpdateActivityReqDTO req) {
+        try {
+            ActivityConfigEntity entity = new ActivityConfigEntity();
+            entity.setActivityId(req.getActivityId());
+            entity.setActivityName(req.getActivityName());
+            entity.setDiscountType(DiscountTypeEnum.of(req.getDiscountType()));
+            entity.setDiscountConfig(com.alibaba.fastjson.JSON.parseObject(req.getDiscountParam(), java.util.Map.class));
+            entity.setTotalDiscountQuota(req.getTotalQuota());
+            entity.setStartTime(req.getStartTime());
+            entity.setEndTime(req.getEndTime());
+
+            int completed = activityManageService.updateActivity(entity);
+            return Response.<java.util.Map<String, Object>>builder()
+                    .code(ResponseEnum.SUCCESS.getCode())
+                    .info("活动已更新，" + completed + "个队伍已强制成团")
+                    .data(java.util.Map.of("completedTeams", completed))
                     .build();
+        } catch (Exception e) {
+            return Response.<String>builder().code(ResponseEnum.UN_ERROR.getCode()).info(e.getMessage()).build();
         }
     }
-
-    // ==================== 活动管理 ====================
 
     @PostMapping("activity/create")
     @Override

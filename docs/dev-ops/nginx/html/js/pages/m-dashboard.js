@@ -17,7 +17,10 @@ const MktDashboard = {
 
     let actHtml = '';
     (data.activeActivities || []).forEach(a => {
-      actHtml += `<div style="padding:8px 0;font-size:13px">🏷 ${a.activityName} · ${a.teamCount || 0}团</div>`;
+      actHtml += `<div class="pub-act-item" style="cursor:pointer" data-actid="${a.activityId}">
+        <div class="pai-header"><span class="pai-name">📋 ${a.activityName}</span><span class="pai-status active">进行中</span></div>
+        <div class="pai-meta">${a.teamCount || 0}个团 · ${(a.skuIds||[]).length}个商品</div>
+      </div>`;
     });
 
     return `
@@ -31,5 +34,14 @@ const MktDashboard = {
       <div class="dash-section"><div class="dash-sect-title">📈 商品销量排行</div>${rankHtml || '<div style="color:#999;font-size:13px">暂无数据</div>'}</div>
       <div class="dash-section"><div class="dash-sect-title">🏷 进行中活动</div>${actHtml || '<div style="color:#999;font-size:13px">暂无活动</div>'}</div>
     `;
+  },
+
+  afterRender() {
+    document.querySelectorAll('.pub-act-item').forEach(el => {
+      el.onclick = () => {
+        const aid = el.dataset.actid;
+        if (aid) MktApp.navigate('activityDetail', { activityId: Number(aid) });
+      };
+    });
   }
 };

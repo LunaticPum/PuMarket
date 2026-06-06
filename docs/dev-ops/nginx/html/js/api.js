@@ -57,6 +57,7 @@ const API = (() => {
     createActivity(params) { return mktRequest('/marketing/activity/create', params); },
     revokeActivity(activityId) { return mktRequest('/marketing/activity/revoke', { activityId }); },
     getPublishedActivities() { return mktRequest('/marketing/activity/published'); },
+    updateActivity(params) { return mktRequest('/marketing/activity/update', params); },
     getDashboardOverview() { return mktRequest('/marketing/dashboard/overview'); },
     getSalesDetail(period) { return mktRequest('/marketing/dashboard/sales', { period }); }
   };

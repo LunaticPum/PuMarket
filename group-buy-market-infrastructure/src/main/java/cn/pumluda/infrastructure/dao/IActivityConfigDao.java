@@ -22,4 +22,5 @@ public interface IActivityConfigDao {
 
     void insertActivityConfig(ActivityConfigPo po);
 
+    void updateActivityConfig(ActivityConfigPo po);
 }

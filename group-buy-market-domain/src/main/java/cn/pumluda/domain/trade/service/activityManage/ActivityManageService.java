@@ -29,10 +29,7 @@ public class ActivityManageService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void createActivity(ActivityConfigEntity activity, List<Long> skuIds) {
-        // 0. 先写入 activity_config 主表
-        repository.insertActivityConfig(activity);
-
-        // 1. 冲突检测
+        // 1. 冲突检测（必须在 insert 之前，否则匹配到自己）
         List<String> conflictDetails = new ArrayList<>();
         for (Long skuId : skuIds) {
             List<Long> conflictIds = repository.findConflictingActivityIds(
@@ -51,12 +48,35 @@ public class ActivityManageService {
             throw new AppException(ResponseEnum.ILLEGAL_PARAMETER.getCode(), msg);
         }
 
-        // 2. 写入活动-商品关联
+        // 2. 写入 activity_config 主表
+        repository.insertActivityConfig(activity);
+
+        // 3. 写入活动-商品关联
         for (Long skuId : skuIds) {
             repository.insertActivityProduct(activity.getActivityId(), skuId);
         }
 
         log.info("[活动管理] 活动创建成功 activityId={} skuIds={}", activity.getActivityId(), skuIds);
+    }
+
+    /**
+     * 更新活动配置 —— 更新后强制所有进行中队伍成团
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int updateActivity(ActivityConfigEntity activity) {
+        repository.updateActivityConfig(activity);
+
+        // 强制所有 PROGRESS 队伍成团
+        List<GroupTeamEntity> teams = repository.getTeamsByActivityId(activity.getActivityId(), 0, Integer.MAX_VALUE);
+        int completed = 0;
+        for (GroupTeamEntity team : teams) {
+            if (GroupTeamStatusEnumVo.PROGRESS.equals(team.getTeamStatus())) {
+                repository.completeGroupTeam(team.getActivityId(), team.getGroupTeamId());
+                completed++;
+            }
+        }
+        log.info("[活动管理] 活动已更新 activityId={} 强制成团:{}", activity.getActivityId(), completed);
+        return completed;
     }
 
     /**

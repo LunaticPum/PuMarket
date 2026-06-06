@@ -137,6 +137,7 @@ public interface ITradeRepository {
     // ==================== 活动-商品关联 ====================
 
     void insertActivityConfig(ActivityConfigEntity activity);
+    void updateActivityConfig(ActivityConfigEntity activity);
     void insertActivityProduct(Long activityId, Long skuId);
     void deleteActivityProductByActivityId(Long activityId);
     List<Long> findSkuIdsByActivityId(Long activityId);
