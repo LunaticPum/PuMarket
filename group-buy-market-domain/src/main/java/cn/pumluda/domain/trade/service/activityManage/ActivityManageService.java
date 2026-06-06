@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,10 +37,10 @@ public class ActivityManageService {
                     skuId, activity.getStartTime(), activity.getEndTime());
             if (!conflictIds.isEmpty()) {
                 ActivityConfigEntity conflicting = repository.getActivityByActivityId(conflictIds.get(0));
-                conflictDetails.add(String.format("商品 #%d「%s」与活动「%s」冲突（有效期至 %tF %tR）",
-                        skuId, "已存在活动",
-                        conflicting != null ? conflicting.getActivityName() : "未知",
-                        conflicting != null ? conflicting.getEndTime() : ""));
+                Date endTime = conflicting != null ? conflicting.getEndTime() : null;
+                conflictDetails.add(String.format("商品 #%d 在 %tF %<tR 前已有活动「%s」",
+                        skuId, endTime,
+                        conflicting != null ? conflicting.getActivityName() : "未知"));
             }
         }
 
