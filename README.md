@@ -42,15 +42,12 @@ graph LR
 
 ## 🎬 在线演示
 
-> **演示地址：[http://134.175.232.110/](http://134.175.232.110/)**
+> **演示地址：[演示地址](http://134.175.232.110/)**
 
-| 端 | 地址 | 说明 |
-|---|---|---|
-| 🏪 用户端 | [http://134.175.232.110/](http://134.175.232.110/) | 商品浏览、拼团下单 |
-| 📊 营销后台 | [http://134.175.232.110/marketing.html](http://134.175.232.110/marketing.html) | 活动管理、数据统计 |
-| 🛠️ Kafka UI | [http://134.175.232.110:8082/](http://134.175.232.110:8082/) | Kafka 集群监控 |
-| 🗄️ Redis Admin | [http://134.175.232.110:8081/](http://134.175.232.110:8081/) | Redis 可视化管理 |
-| 🗄️ phpMyAdmin | [http://134.175.232.110:8899/](http://134.175.232.110:8899/) | 数据库管理 |
+| 端 | 地址                                                                             | 说明 |
+|---|--------------------------------------------------------------------------------|---|
+| 🏪 用户端 | [地址](http://134.175.232.110/)                                                  | 商品浏览、拼团下单 |
+| 📊 营销后台 | [地址](http://134.175.232.110/marketing.html) | 活动管理、数据统计 
 
 ---
 
@@ -271,11 +268,6 @@ mvn spring-boot:run -Pdev
 docker-compose -f docker-compose-app.yml up -d
 ```
 
-### 6. 访问系统
-
-- 用户端：http://localhost/
-- 营销后台：http://localhost/marketing.html
-
 ---
 
 ## 📂 项目目录
@@ -306,7 +298,7 @@ group-buy-market-better/
 
 ## 🤝 贡献
 
-项目作者：**xiaofuge**（[fuzhengwei](https://github.com/fuzhengwei)）
+项目作者：**PenguinJP**（[LunaticPum](https://github.com/LunaticPum)）
 
 欢迎提交 Issue 和 Pull Request！
 

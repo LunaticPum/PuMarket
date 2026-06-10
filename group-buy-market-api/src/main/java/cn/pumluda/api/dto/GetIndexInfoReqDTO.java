@@ -12,7 +12,7 @@ import lombok.Data;
  * Description: 创建订单请求 DTO
  */
 @Data
-public class CreateOrderReqDTO {
+public class GetIndexInfoReqDTO {
 
     /* 用户 ID */
     private Long userId;
