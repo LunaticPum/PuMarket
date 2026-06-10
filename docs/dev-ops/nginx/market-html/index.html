@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>拼团商城 · 好友拼单更划算</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/chat-widget.css">
+</head>
+<body>
+
+<!-- ========== 应用容器 ========== -->
+<div class="app-container">
+
+    <!-- 顶部导航栏 -->
+    <header class="app-header">
+        <button class="btn-back" id="btnBack" style="visibility:hidden;">←</button>
+        <span class="header-title">拼团商城</span>
+        <span class="header-placeholder"></span>
+    </header>
+
+    <!-- 页面内容区 -->
+    <main class="page-container" id="pageContainer">
+        <div class="loading">加载中...</div>
+    </main>
+
+    <!-- 底部 Tab 导航 -->
+    <nav class="tab-bar">
+        <div class="tab-item active" data-page="home">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">首页</span>
+        </div>
+        <div class="tab-item" data-page="orders">
+            <span class="tab-icon">📦</span>
+            <span class="tab-label">订单</span>
+        </div>
+        <div class="tab-item" data-page="profile">
+            <span class="tab-icon">👤</span>
+            <span class="tab-label">我的</span>
+        </div>
+    </nav>
+
+</div>
+
+<!-- ========== 全局 Loading ========== -->
+<div class="global-loading" id="globalLoading" style="display:none;">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">加载中...</div>
+</div>
+
+<!-- ========== 登录弹窗 ========== -->
+<div class="modal-mask" id="loginModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <span>登录拼团商城</span>
+            <span class="modal-close" onclick="document.getElementById('loginModal').classList.remove('active')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="input-group-modal">
+                <input type="text" id="loginUsername" placeholder="输入用户名">
+            </div>
+            <button class="login-modal-btn" id="doLoginBtn">登 录</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 支付弹窗 ========== -->
+<div class="modal-mask" id="payModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <span>确认支付</span>
+            <span class="modal-close" onclick="document.getElementById('payModal').classList.remove('active')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="pay-qrcode">
+                <div class="qrcode-sim">💳 模拟支付</div>
+                <div class="pay-amount-modal" id="modalPayAmount">¥0.00</div>
+                <div style="font-size:12px; color:#999;">确认后将调用结算接口</div>
+            </div>
+            <div class="pay-actions-modal">
+                <button class="btn-outline" id="modalCancelPay">取消</button>
+                <button class="btn-primary-red" id="modalConfirmPay">确认支付</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== JS (按依赖顺序加载) ========== -->
+<script src="js/utils.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/api.js"></script>
+<script src="js/pages/home.js"></script>
+<script src="js/pages/detail.js"></script>
+<script src="js/pages/orders.js"></script>
+<script src="js/pages/orderDetail.js"></script>
+<script src="js/pages/profile.js"></script>
+<script src="js/app.js"></script>
+<script src="js/chat-widget.js"></script>
+
+</body>
+</html>

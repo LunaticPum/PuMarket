@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.IActivityProductDao">
+
+    <resultMap id="dataMap" type="ActivityProductPo">
+        <id column="id" property="id"/>
+        <result column="activity_id" property="activityId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="ActivityProductPo">
+        INSERT INTO group_buy_market_better.activity_product (activity_id, sku_id)
+        VALUES (#{activityId}, #{skuId})
+    </insert>
+
+    <delete id="deleteByActivityId">
+        DELETE FROM group_buy_market_better.activity_product
+        WHERE activity_id = #{activityId}
+    </delete>
+
+    <select id="findByActivityId" resultMap="dataMap">
+        SELECT id, activity_id, sku_id, create_time
+        FROM group_buy_market_better.activity_product
+        WHERE activity_id = #{activityId}
+    </select>
+
+    <select id="findBySkuId" resultMap="dataMap">
+        SELECT id, activity_id, sku_id, create_time
+        FROM group_buy_market_better.activity_product
+        WHERE sku_id = #{skuId}
+    </select>
+
+    <select id="findActiveBySkuId" resultMap="dataMap">
+        SELECT ap.id, ap.activity_id, ap.sku_id, ap.create_time
+        FROM group_buy_market_better.activity_product ap
+                 JOIN group_buy_market_better.activity_config ac
+                      ON ap.activity_id = ac.activity_id
+        WHERE ap.sku_id = #{skuId}
+          AND ac.status = 1
+          AND ac.start_time &lt;= NOW()
+          AND ac.end_time &gt;= NOW()
+        LIMIT 1
+    </select>
+
+    <select id="findConflicting" resultMap="dataMap">
+        SELECT ap.id, ap.activity_id, ap.sku_id, ap.create_time
+        FROM group_buy_market_better.activity_product ap
+                 JOIN group_buy_market_better.activity_config ac
+                      ON ap.activity_id = ac.activity_id
+        WHERE ap.sku_id = #{skuId}
+          AND ac.status = 1
+          AND ac.start_time &lt; #{endTime}
+          AND ac.end_time &gt; #{startTime}
+    </select>
+
+</mapper>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI Agent 登录 - 智能体平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        }
+
+        .login-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(2px);
+        }
+
+        /* 左侧品牌区 */
+        .brand-area {
+            flex: 1.2;
+            background: rgba(15, 30, 45, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-illustration {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .ai-illustration svg {
+            width: 280px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+        }
+
+        .brand-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-top: 32px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 12px;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .floating-bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: float 12s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-40px) rotate(10deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* 右侧表单区 */
+        .form-area {
+            flex: 0.9;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 48px;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .login-card h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e2f3e;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            color: #6c7f8f;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dce5ec;
+            border-radius: 28px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #2c6e9e;
+            box-shadow: 0 0 0 3px rgba(44, 110, 158, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #0f2f40;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+
+        .login-btn:hover {
+            background: #1e4a6e;
+            transform: scale(0.98);
+        }
+
+        .demo-hint {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 24px;
+            color: #8aa0b0;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="brand-area">
+        <div class="floating-bubbles">
+            <div class="bubble" style="width: 80px; height: 80px; top: 15%; left: 10%; animation-duration: 14s;"></div>
+            <div class="bubble"
+                 style="width: 50px; height: 50px; bottom: 20%; right: 15%; animation-duration: 10s;"></div>
+            <div class="bubble"
+                 style="width: 120px; height: 120px; top: 60%; left: 20%; animation-duration: 18s;"></div>
+        </div>
+        <div class="ai-illustration">
+            <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 20 L120 50 L100 80 L80 50 Z" fill="#FFD966" stroke="#fff" stroke-width="2"/>
+                <circle cx="100" cy="100" r="40" fill="#fff" fill-opacity="0.2" stroke="#fff" stroke-width="2"/>
+                <path d="M70 130 L130 130 L110 160 L90 160 Z" fill="#fff" fill-opacity="0.5"/>
+                <circle cx="85" cy="90" r="4" fill="#fff"/>
+                <circle cx="115" cy="90" r="4" fill="#fff"/>
+                <path d="M92 105 L108 105" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="brand-title">AI Agent 中枢</div>
+        <div class="brand-subtitle">下一代智能协作平台 · 多模态对话引擎</div>
+    </div>
+    <div class="form-area">
+        <div class="login-card">
+            <h2>欢迎回来</h2>
+            <p>登录以访问您的智能体</p>
+            <div class="input-group">
+                <label>账号</label>
+                <input type="text" id="username" placeholder="请输入用户名" value="admin">
+            </div>
+            <div class="input-group">
+                <label>密码</label>
+                <input type="password" id="password" placeholder="请输入密码" value="admin">
+            </div>
+            <button class="login-btn" id="doLoginBtn">登录 · 开启对话</button>
+            <div class="demo-hint">演示账号: admin / admin</div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        const loginBtn = document.getElementById('doLoginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        function setUserCookie(userId) {
+            document.cookie = `userId=${userId}; path=/; max-age=86400`;
+        }
+
+        function handleLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            // 简单演示验证
+            if (username === 'admin' && password === 'admin') {
+                setUserCookie(username);
+                window.location.href = 'index.html';
+            } else {
+                alert('账号或密码错误，请使用 admin/admin');
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+        // 回车键登录
+        const inputs = [usernameInput, passwordInput];
+        inputs.forEach(input => input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        }));
+    })();
+</script>
+</body>
+</html>

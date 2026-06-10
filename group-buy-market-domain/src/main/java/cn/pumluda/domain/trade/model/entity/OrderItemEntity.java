@@ -29,15 +29,19 @@ public class OrderItemEntity {
     /* 商品名称 */
     private String productName;
     /* 商品原始单价 */
-    private BigDecimal price;
+    private BigDecimal originPrice;
     /* 商品购买数量 */
     private int quantity;
     /* 实际支付价格（有优惠就总价扣减优惠金额） */
     private BigDecimal actualPrice;
+    /* 总优惠金额 */
+    private BigDecimal discountPrice;
 
     /* 活动 ID */
     private Long activityId;
-    /* 拼团队伍 ID */
-    private Long groupTeamId;
+    /* 活动类型 */
+    private Integer activityType;
+    /* 活动业务 ID */
+    private Long activityBusinessId;
 
 }

@@ -1,0 +1,38 @@
+package cn.pumluda.domain.trade.service.creatOrder.ruleTreeImpl.core.context;
+
+import cn.pumluda.domain.trade.model.entity.GroupTeamEntity;
+import cn.pumluda.domain.trade.model.entity.UserTagRecordEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+/**
+ * Project: group-buy-market-better <p>
+ * File: DynamicContext <p>
+ * Created by: 16374 <p>
+ * Date: 2026/5/28 <p>
+ * Time: 17:50 <p>
+ * Description: 动态上下文
+ */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class DynamicContext {
+
+    /* 用户 ID + 标签 */
+    private UserTagRecordEntity userTagRecord;
+
+    /* 活动业务 ID：和优惠锁有关 */
+    private Long activityBusinessId;
+
+    /* 优惠金额：优惠表达式(商品单价) * 下单数量 */
+    private BigDecimal discountPrice;
+    /* 原始总价：商品单价 * 下单数量 */
+    private BigDecimal totalAmount;
+    /* 实际金额 */
+    private BigDecimal actualPrice;
+}

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.IMqTaskDao">
+
+    <resultMap id="dataMap" type="MqTaskPo">
+        <id column="id" property="id"/>
+        <result column="biz_id" property="bizId"/>
+        <result column="biz_type" property="bizType"/>
+        <result column="event_type" property="eventType"/>
+        <result column="payload" property="payload"/>
+        <result column="status" property="status"/>
+        <result column="retry_times" property="retryTimes"/>
+        <result column="max_retry_times" property="maxRetryTimes"/>
+        <result column="next_retry_time" property="nextRetryTime"/>
+        <result column="shard_key" property="shardKey"/>
+        <result column="topic" property="topic"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO group_buy_market_better.mq_task
+        (biz_id, biz_type, event_type, topic, shard_key, payload,
+         status, retry_times, max_retry_times, next_retry_time)
+        VALUES (#{bizId}, #{bizType}, #{eventType}, #{topic}, #{shardKey}, #{payload},
+                #{status}, #{retryTimes}, #{maxRetryTimes}, #{nextRetryTime})
+    </insert>
+
+    <select id="queryPendingTasks" resultType="MqTaskPo">
+        SELECT *
+        FROM group_buy_market_better.mq_task
+        WHERE status = 0
+        ORDER BY create_time
+        LIMIT #{limit}
+    </select>
+
+    <update id="markSuccess">
+        UPDATE group_buy_market_better.mq_task
+        SET status = 2
+        WHERE id = #{id}
+    </update>
+
+    <update id="markFail">
+        UPDATE group_buy_market_better.mq_task
+        SET status = 3
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateRetry">
+        UPDATE group_buy_market_better.mq_task
+        SET retry_times     = #{retryTimes},
+            next_retry_time = #{nextRetryTime},
+            status          = 0
+        WHERE id = #{id}
+    </update>
+
+    <select id="exists" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM group_buy_market_better.mq_task
+        WHERE biz_id = #{bizId}
+    </select>
+
+    <select id="countAllTasks" resultType="int">
+        SELECT COUNT(1)
+        FROM group_buy_market_better.mq_task
+    </select>
+
+    <delete id="cleanSuccessTasks">
+        DELETE
+        FROM group_buy_market_better.mq_task
+        WHERE status = 2
+        ORDER BY update_time
+        LIMIT #{limit}
+    </delete>
+
+</mapper>

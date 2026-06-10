@@ -3,6 +3,8 @@ package cn.pumluda.infrastructure.dao;
 import cn.pumluda.infrastructure.dao.po.ActivityConfigPo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * Project: group-buy-market-better <p>
  * File: IActivityConfigDao <p>
@@ -16,4 +18,9 @@ public interface IActivityConfigDao {
 
     ActivityConfigPo getActivityByActivityId(Long activityId);
 
+    List<ActivityConfigPo> getAllActivity();
+
+    void insertActivityConfig(ActivityConfigPo po);
+
+    void updateActivityConfig(ActivityConfigPo po);
 }

@@ -27,7 +27,7 @@ public class CompletableFutureUtils {
      * 并行执行多个无返回值的任务
      * 任意任务失败则立马取消其他任务并抛出异常
      *
-     * @param tasks 五返回值的异步执行任务
+     * @param tasks 无返回值的异步执行任务
      */
     public void runParallel(Runnable... tasks) {
         if (tasks == null || tasks.length == 0) return;

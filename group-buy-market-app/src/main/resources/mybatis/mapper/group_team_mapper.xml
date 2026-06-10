@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.IGroupTeamDao">
+
+    <resultMap id="dataMap" type="GroupTeamPo">
+        <id column="id" property="id"/>
+        <result column="activity_id" property="activityId"/>
+        <result column="group_team_id" property="groupTeamId"/>
+        <result column="leader_user_id" property="leaderUserId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="required_num" property="requiredNum"/>
+        <result column="current_num" property="currentNum"/>
+        <result column="settled_trade_num" property="settledTradeNum"/>
+        <result column="team_status" property="teamStatus"/>
+        <result column="team_create_time" property="teamCreateTime"/>
+        <result column="team_expire_time" property="teamExpireTime"/>
+        <result column="team_end_time" property="teamEndTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="addGroupTeam" parameterType="GroupTeamPo">
+        INSERT INTO group_buy_market_better.group_team(activity_id, group_team_id, leader_user_id, sku_id, required_num,
+                                                       current_num, settled_trade_num, team_status, team_create_time,
+                                                       team_expire_time, create_time, update_time)
+        values (#{activityId},
+                #{groupTeamId},
+                #{leaderUserId},
+                #{skuId},
+                #{requiredNum},
+                #{currentNum},
+                #{settledTradeNum},
+                #{teamStatus},
+                #{teamCreateTime},
+                #{teamExpireTime},
+                now(),
+                now())
+    </insert>
+
+    <update id="joinGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET current_num = current_num + 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+    </update>
+
+    <select id="getGroupTeam" resultType="GroupTeamPo">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+    </select>
+
+    <select id="getAllGroupTeam" resultMap="dataMap">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+    </select>
+
+    <select id="queryTimeoutGroups" resultMap="dataMap">
+        <![CDATA[
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time
+        FROM group_buy_market_better.group_team
+        WHERE team_expire_time <= now()
+        AND team_status = 0
+        ]]>
+    </select>
+
+    <update id="closeGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET team_status = 2
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
+    <update id="repairQuota">
+        UPDATE group_buy_market_better.group_team
+        SET current_num = current_num - 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
+    <update id="completeGroupTeam">
+        UPDATE group_buy_market_better.group_team
+        SET team_status  = 1,
+            team_end_time = now()
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
+    <update id="addSettledNum">
+        UPDATE group_buy_market_better.group_team
+        SET settled_trade_num = settled_trade_num + 1
+        WHERE activity_id = #{activityId}
+          AND group_team_id = #{groupTeamId}
+          AND team_status = 0
+    </update>
+
+    <select id="getActiveTeamsBySkuId" resultMap="dataMap">
+        SELECT activity_id,
+               group_team_id,
+               leader_user_id,
+               sku_id,
+               required_num,
+               current_num,
+               settled_trade_num,
+               team_status,
+               team_create_time,
+               team_expire_time,
+               team_end_time,
+               create_time,
+               update_time
+        FROM group_buy_market_better.group_team
+        WHERE sku_id = #{skuId}
+          AND team_status = 0
+        ORDER BY team_create_time DESC
+    </select>
+
+    <select id="countActiveTeamsBySkuId" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.group_team
+        WHERE sku_id = #{skuId}
+          AND team_status = 0
+    </select>
+
+    <select id="getTeamsByActivityId" resultMap="dataMap">
+        SELECT activity_id, group_team_id, leader_user_id, sku_id,
+               required_num, current_num, settled_trade_num,
+               team_status, team_create_time, team_expire_time, team_end_time,
+               create_time, update_time
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+        ORDER BY team_create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countTeamsByActivityId" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.group_team
+        WHERE activity_id = #{activityId}
+    </select>
+
+</mapper>

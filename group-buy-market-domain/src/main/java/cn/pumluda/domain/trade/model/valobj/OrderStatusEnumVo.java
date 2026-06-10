@@ -21,14 +21,11 @@ public enum OrderStatusEnumVo {
     private int code;
     private String info;
 
-    public static OrderStatusEnumVo getStatus(Integer code) {
-        switch (code) {
-            case 1:
-                return COMPLETE;
-            case 2:
-                return CLOSE;
-            default:
-                return CREATE;
-        }
+    public static OrderStatusEnumVo of(Integer code) {
+        return switch (code) {
+            case 1 -> COMPLETE;
+            case 2 -> CLOSE;
+            default -> CREATE;
+        };
     }
 }

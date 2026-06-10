@@ -5,6 +5,8 @@
     <resultMap id="dataMap" type="SkuPo">
         <id column="sku_id" property="skuId"/>
         <result column="product_name" property="productName"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="description" property="description"/>
         <result column="price" property="price"/>
         <result column="stock" property="stock"/>
         <result column="locked_stock" property="lockedStock"/>
@@ -16,12 +18,91 @@
     <select id="getSkuById" parameterType="java.lang.Long" resultMap="dataMap">
         SELECT sku_id,
                product_name,
+               image_url,
+               description,
                price,
                stock,
                locked_stock,
                status
         FROM group_buy_market_better.product_sku
         WHERE sku_id = #{skuId}
+    </select>
+
+    <select id="getAllSku" resultMap="dataMap">
+        SELECT sku_id,
+               product_name,
+               image_url,
+               description,
+               price,
+               stock,
+               locked_stock,
+               status
+        FROM group_buy_market_better.product_sku
+    </select>
+
+    <update id="reserveSkuStock">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock        = stock - #{quantity},
+            locked_stock = locked_stock + #{quantity}
+        WHERE sku_id = #{skuId}
+          AND stock >= #{quantity}
+          AND status = 1
+        ]]>
+    </update>
+
+    <update id="updateSkuStatus">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET status = #{status}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <update id="consumeLockedStockBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET locked_stock = locked_stock - #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <update id="restockSkuBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock = stock + #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <update id="repairStockBySkuId">
+        <![CDATA[
+        UPDATE group_buy_market_better.product_sku
+        SET stock = stock + #{quantity},
+            locked_stock = locked_stock - #{quantity}
+        WHERE sku_id = #{skuId}
+        ]]>
+    </update>
+
+    <select id="getSkusByPage" resultMap="dataMap">
+        SELECT sku_id,
+               product_name,
+               image_url,
+               description,
+               price,
+               stock,
+               locked_stock,
+               status
+        FROM group_buy_market_better.product_sku
+        WHERE status = 1
+        ORDER BY sku_id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countSkus" resultType="int">
+        SELECT COUNT(*)
+        FROM group_buy_market_better.product_sku
+        WHERE status = 1
     </select>
 
 </mapper>

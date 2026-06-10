@@ -7,13 +7,14 @@
         <result column="activity_id" property="activityId"/>
         <result column="activity_name" property="activityName"/>
         <result column="activity_type" property="activityType"/>
-        <result column="discount_expr" property="discountExpr"/>
+        <result column="discount_type" property="discountType"/>
+        <result column="discount_config" property="discountConfig"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="total_discount_quota" property="totalDiscountQuota"/>
-        <result column="used_discount_quota" property="usedDiscountQuota"/>
-        <result column="limit_tags" property="limitTags"/>
+        <result column="limit_tag" property="limitTag"/>
         <result column="status" property="status"/>
-        <result column="start_Time" property="startTime"/>
-        <result column="end_Time" property="endTime"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
@@ -22,15 +23,51 @@
         SELECT activity_id,
                activity_name,
                activity_type,
-               discount_expr,
+               discount_type,
+               discount_config,
                total_discount_quota,
-               used_discount_quota,
-               limit_tags,
+               limit_tag,
                status,
                start_time,
                end_time
         FROM group_buy_market_better.activity_config
         WHERE activity_id = #{activityId}
     </select>
+
+    <select id="getAllActivity" resultMap="dataMap">
+        SELECT activity_id,
+               activity_name,
+               activity_type,
+               discount_type,
+               discount_config,
+               total_discount_quota,
+               limit_tag,
+               status,
+               start_time,
+               end_time
+        FROM group_buy_market_better.activity_config
+    </select>
+
+    <insert id="insertActivityConfig" parameterType="ActivityConfigPo">
+        INSERT INTO group_buy_market_better.activity_config
+            (activity_id, activity_name, activity_type, discount_type, discount_config,
+             total_discount_quota, limit_tag, status, start_time, end_time, create_time, update_time)
+        VALUES (#{activityId}, #{activityName}, #{activityType}, #{discountType},
+                #{discountConfig,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+                #{totalDiscountQuota}, #{limitTag}, #{status}, #{startTime}, #{endTime}, NOW(), NOW())
+    </insert>
+
+    <update id="updateActivityConfig" parameterType="ActivityConfigPo">
+        UPDATE group_buy_market_better.activity_config
+        SET activity_name       = #{activityName},
+            discount_type       = #{discountType},
+            discount_config     = #{discountConfig,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            total_discount_quota = #{totalDiscountQuota},
+            limit_tag           = #{limitTag},
+            start_time          = #{startTime},
+            end_time            = #{endTime},
+            update_time         = NOW()
+        WHERE activity_id = #{activityId}
+    </update>
 
 </mapper>

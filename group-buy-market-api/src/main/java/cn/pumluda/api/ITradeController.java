@@ -2,6 +2,8 @@ package cn.pumluda.api;
 
 import cn.pumluda.api.dto.CreateOrderReqDTO;
 import cn.pumluda.api.dto.CreateOrderResDTO;
+import cn.pumluda.api.dto.SettleOrderReqDTO;
+import cn.pumluda.api.dto.SettleOrderResDTO;
 import cn.pumluda.api.response.Response;
 
 /**
@@ -15,5 +17,9 @@ import cn.pumluda.api.response.Response;
 public interface ITradeController {
 
     Response<CreateOrderResDTO> createOrder(CreateOrderReqDTO requestDTO);
+
+    Response<SettleOrderResDTO> settleOrder(SettleOrderReqDTO requestDTO);
+
+    Response<SettleOrderResDTO> cancelOrder(SettleOrderReqDTO requestDTO);
 
 }

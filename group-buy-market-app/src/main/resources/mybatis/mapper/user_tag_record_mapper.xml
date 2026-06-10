@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pumluda.infrastructure.dao.IUserTagRecordDao">
+
+    <resultMap id="dataMap" type="UserTagRecordPo">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_tag" property="userTag"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="getUserTagRecordById" parameterType="java.lang.Long" resultMap="dataMap">
+        SELECT user_id,
+               user_tag,
+               create_time,
+               update_time
+        FROM group_buy_market_better.user_tag_record
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="getUserTagRecordsByTag" resultMap="dataMap">
+        SELECT user_id,
+               user_tag,
+               create_time,
+               update_time
+        FROM group_buy_market_better.user_tag_record
+        WHERE user_tag = #{userTag}
+    </select>
+
+    <select id="getAllUserTagRecord" resultMap="dataMap">
+        SELECT user_id,
+               user_tag,
+               create_time,
+               update_time
+        FROM group_buy_market_better.user_tag_record
+    </select>
+
+</mapper>

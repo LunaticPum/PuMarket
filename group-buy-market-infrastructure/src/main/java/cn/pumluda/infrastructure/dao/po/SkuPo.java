@@ -27,12 +27,16 @@ public class SkuPo {
     private Long skuId;
     /* 商品名称 */
     private String productName;
+    /* 商品主图URL */
+    private String imageUrl;
+    /* 商品描述 */
+    private String description;
     /* 商品原始单价 */
     private BigDecimal price;
     /* 商品库存 */
-    private int stock;
+    private Integer stock;
     /* 预扣减库存：为已创建但未结算的订单留有的商品库存 */
-    private int lockedStock;
+    private Integer lockedStock;
     /* 商品状态：0-下架，1-上架 */
     private Integer status;
 

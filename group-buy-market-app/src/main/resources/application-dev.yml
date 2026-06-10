@@ -1,5 +1,5 @@
 server:
-  port: 8091
+  port: 8080
 
 # 线程池配置
 thread:
@@ -17,7 +17,7 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://134.175.232.110:13306/group_buy_market_better?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true
+    url: jdbc:mysql://mysql:3306/group_buy_market_better?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true&allowPublicKeyRetrieval=true
     #    url: jdbc:mysql://mysql:3306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   hikari:
@@ -30,19 +30,42 @@ spring:
     connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
     connection-test-query: SELECT 1
   type: com.zaxxer.hikari.HikariDataSource
+  kafka:
+    bootstrap-servers: kafka:9092
+
+    producer:
+      retries: 3
+      acks: all
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    consumer:
+      group-id: group-buy-market
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: cn.pumluda.types.event
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: java.lang.String
+
+    listener:
+      ack-mode: manual_immediate
 
 # MyBatis 配置【如需使用记得打开】
-mybatis:
+mybatis-plus:
   mapper-locations: classpath:/mybatis/mapper/*.xml
   config-location: classpath:/mybatis/config/mybatis-config.xml
+  type-handlers-package: com.baomidou.mybatisplus.extension.handlers
 
 redis:
   sdk:
     config:
-      host: 134.175.232.110
-      #      host: redis
-      port: 16379
-      #      port: 6379
+      host: redis
+      port: 6379
       pool-size: 10
       min-idle-size: 5
       idle-timeout: 30000

@@ -20,7 +20,7 @@ public class ThreadPoolConfig {
     public ThreadPoolExecutor threadPoolExecutor(ThreadPoolConfigProperties properties) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         // 实例化策略
         RejectedExecutionHandler handler;
-        switch (properties.getPolicy()){
+        switch (properties.getPolicy()) {
             case "AbortPolicy":
                 handler = new ThreadPoolExecutor.AbortPolicy();
                 break;
@@ -38,13 +38,15 @@ public class ThreadPoolConfig {
                 break;
         }
         // 创建线程池
-        return new ThreadPoolExecutor(properties.getCorePoolSize(),
+        return new ThreadPoolExecutor(
+                properties.getCorePoolSize(),
                 properties.getMaxPoolSize(),
                 properties.getKeepAliveTime(),
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(properties.getBlockQueueSize()),
                 Executors.defaultThreadFactory(),
-                handler);
+                handler
+        );
     }
 
 }

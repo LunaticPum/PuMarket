@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>营销后台 · 拼团管理</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/marketing.css">
+    <link rel="stylesheet" href="./css/chat-widget.css">
+</head>
+<body>
+<div class="app-container">
+    <header class="app-header">
+        <button class="btn-back" id="btnBack" style="visibility:hidden">←</button>
+        <span class="header-title">📊 营销后台</span>
+        <span class="header-placeholder"></span>
+    </header>
+    <main class="page-container" id="pageContainer"><div class="loading">加载中...</div></main>
+    <nav class="tab-bar">
+        <div class="tab-item active" data-page="dashboard"><span class="tab-icon">📈</span><span class="tab-label">首页</span></div>
+        <div class="tab-item" data-page="activity"><span class="tab-icon">🏷</span><span class="tab-label">活动配置</span></div>
+        <div class="tab-item" data-page="profile"><span class="tab-icon">👤</span><span class="tab-label">我的</span></div>
+    </nav>
+</div>
+<div class="global-loading" id="globalLoading" style="display:none"><div class="loading-spinner"></div><div>加载中...</div></div>
+
+<script src="js/utils.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/api.js"></script>
+<script src="js/pages/m-dashboard.js"></script>
+<script src="js/pages/m-activity.js"></script>
+<script src="js/pages/m-activity-detail.js"></script>
+<script src="js/pages/m-profile.js"></script>
+<script src="js/marketing-app.js"></script>
+<script src="js/chat-widget.js"></script>
+</body>
+</html>

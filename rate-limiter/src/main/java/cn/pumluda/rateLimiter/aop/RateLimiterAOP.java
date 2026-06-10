@@ -2,7 +2,7 @@ package cn.pumluda.rateLimiter.aop;
 
 import cn.pumluda.rateLimiter.annotations.AccessRateLimit;
 import cn.pumluda.types.annotations.DCCValue;
-import cn.pumluda.types.common.RedisKeyConstants;
+import cn.pumluda.types.common.RedisConstants;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
@@ -42,7 +42,9 @@ public class RateLimiterAOP {
     private static final String BLACKLIST_KEY_PREFIX = "rate:limit:blackList";
     /* 本地限流器缓存（1分钟） */
     private final Cache<String, RateLimiter> record = CacheBuilder.newBuilder().expireAfterWrite(
-            1, TimeUnit.MINUTES).build();
+            1,
+            TimeUnit.MINUTES
+    ).build();
     /* Redis 缓存不同业务的限流黑名单 */
     @Resource
     private RedissonClient redissonClient;
@@ -131,10 +133,9 @@ public class RateLimiterAOP {
      */
     private long incrementInterceptCount(String limitArg) {
 
-        String key = String.format(
-                "%s:%s:%s:%s", BLACKLIST_KEY_PREFIX,
-                RedisKeyConstants.CREATE_ORDER, limitArg, "count"
-        );
+        String key =
+                BLACKLIST_KEY_PREFIX + ":" + RedisConstants.CREATE_ORDER + ":" + limitArg + ":" +
+                "count";
 
         RAtomicLong atomicLong = redissonClient.getAtomicLong(key);
 
@@ -153,8 +154,8 @@ public class RateLimiterAOP {
      */
     private void addBlacklist(String limitArg) {
 
-        String key = String.format(
-                "%s:%s:%s", BLACKLIST_KEY_PREFIX, RedisKeyConstants.CREATE_ORDER, limitArg);
+        String key = BLACKLIST_KEY_PREFIX + ":" + RedisConstants.CREATE_ORDER + ":" + limitArg;
+
 
         RBucket<String> bucket = redissonClient.getBucket(key);
 
@@ -169,12 +170,7 @@ public class RateLimiterAOP {
      */
     private long getBlacklistRemainSeconds(String limitArg) {
 
-        String key = String.format(
-                "%s:%s:%s",
-                BLACKLIST_KEY_PREFIX,
-                RedisKeyConstants.CREATE_ORDER,
-                limitArg
-        );
+        String key = BLACKLIST_KEY_PREFIX + ":" + RedisConstants.CREATE_ORDER + ":" + limitArg;
 
         RBucket<String> bucket = redissonClient.getBucket(key);
 
