@@ -7,6 +7,8 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debia
 RUN apt-get update && apt-get install -y \
     build-essential \
     postgresql-server-dev-17 \
+    pkg-config \
+    libscws-dev \
     git \
     && git clone https://github.com/amutu/zhparser.git /tmp/zhparser \
     && cd /tmp/zhparser \
