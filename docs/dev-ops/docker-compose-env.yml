@@ -90,6 +90,23 @@ services:
       timeout: 5s
       retries: 3
 
+  # pgAdmin https://www.pgadmin.org/
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 1637435385@qq.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: "False"
+    networks:
+      - my-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # RedisAdmin https://github.com/joeferner/redis-commander
   redis-admin:
     image: spryker/redis-commander:0.8.0
