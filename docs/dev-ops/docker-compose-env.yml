@@ -69,7 +69,7 @@ services:
       retries: 3
 
   postgres:
-    image: pgvector/pgvector:pg17
+    build: ./postgres
     container_name: postgres
     restart: always
     environment:
