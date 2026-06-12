@@ -159,8 +159,6 @@ services:
       # 自动创建Topic
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
 
-      # KRaft集群ID
-      - KAFKA_KRAFT_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - ./kafka/data:/bitnami/kafka/data
     networks:
